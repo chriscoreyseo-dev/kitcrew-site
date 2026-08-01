@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>KitCrew Blog</title>
+  <link>https://kitcrew.ai/blog/</link>
+  <description>Straight answers for network marketers and affiliates: follow-up, content, leads, engagement, and duplication — no hype, no income claims. By KitCrew, the AI crew from KitFire.</description>
+  <language>en-us</language>
+  <lastBuildDate>Fri, 01 Aug 2026 12:00:00 GMT</lastBuildDate>
+  <atom:link href="https://kitcrew.ai/blog/feed.xml" rel="self" type="application/rss+xml"/>
+  <item>
+    <title>Why Most Network Marketing Follow-Up Stops Too Early (And How to Fix It)</title>
+    <link>https://kitcrew.ai/blog/network-marketing-follow-up-system/</link>
+    <guid isPermaLink="true">https://kitcrew.ai/blog/network-marketing-follow-up-system/</guid>
+    <pubDate>Fri, 01 Aug 2026 12:00:00 GMT</pubDate>
+    <description>The number-one leak in network marketing isn't the pitch — it's the follow-up that stops after one or two tries. What a real follow-up system looks like, why it's the hardest thing to duplicate, and what a system does instead of a memory.</description>
+  </item>
+</channel>
+</rss>
