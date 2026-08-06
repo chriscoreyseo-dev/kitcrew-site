@@ -1,0 +1,258 @@
+KITCREW PROMPT PLAYBOOK
+The four prompts behind "Things we haven't built yet"
+kitcrew.ai/prompts
+
+Model: Seedance 2.0 - mode std, 1080p, 9:16, genre epic, high bitrate,
+native audio off, 5 seconds per shot. Native output 1080x1920 at 24fps.
+
+Everything below is the literal text that was sent to the model. Nothing
+cleaned up, nothing added afterward.
+
+===============================================================================
+THE SKELETON - this is the reusable part
+===============================================================================
+
+Every prompt is the same eleven blocks in the same order. The order matters:
+spatial rules come before camera style, optics before aesthetic language, and
+lighting is a priority lock rather than decoration.
+
+  SCENE CONTEXT           one or two sentences, this shot only
+  FORMAT MODE             single take / real-time / no subtitles / no music
+  LOCATION MAP            camera position + facing, then fg / mg / bg
+  FIRST FRAME AND         everything required is already in frame one,
+    SPATIAL BLOCKING      nothing revealed late
+  OPTICS                  diagonal field of view in degrees + the visible
+                          optical outcome
+  CAMERA                  ONE move only, written as physical operator behaviour
+  ACTION TIMING           time blocks: 0:00-0:02, 0:02-0:04, 0:04-0:05
+  PHYSICS                 mass, inertia, contact, delay, what the medium does
+  LIGHTING                sources, direction, what is exposed for, what is
+                          allowed to crush
+  AUDIO                   silent
+  POSITIVE CONSTRAINTS    materials, palette, and the failure named in
+                          positive form
+
+
+FIVE RULES THAT DID THE HEAVY LIFTING
+
+1. Degrees, not millimetres.
+   The model responds to observable lens RESULTS, not camera metadata.
+   "84 degree diagonal field of view, camera 3 meters from the foreground
+   truss" controls the shot. "35mm f/1.4" does not.
+
+2. One camera move per shot.
+   An orbit into a dolly into a pan disorients. Drift, or tilt, or pace -
+   pick one and hold it for the full five seconds. Whip-fast moves read as
+   a transition preset, not a camera.
+
+3. States, not transitions.
+   "two welder drones strike arcs at the rib joints" lands.
+   "a drone approaches and begins to weld" collapses.
+
+4. Kill weak spatial words.
+   Never near / around / beside / nearby. Always "40 meters off the port
+   flank", "3 meters from the lens", "directly in the centre of frame".
+
+5. Name the failure in positive form.
+   "The frame stays clean of lettering, signage, watermarks" works.
+   "Don't add text" gets ignored, or inverted.
+
+
+===============================================================================
+SHOT 1 - ORBITAL SHIPYARD
+===============================================================================
+
+SCENE CONTEXT
+A half-finished interstellar ship hangs in an orbital construction cradle above a ringed ice planet while small autonomous welder drones work along its exposed spine.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera floats in open vacuum 40 meters off the ship's port flank, facing the hull broadside. Foreground: one lattice truss beam of the cradle crossing the lower-left of frame, 3 meters from the lens. Midground: the ship's ribbed spine and unplated hull sections, 40 meters away, running from the bottom of frame to the top. Background: the ringed ice planet fills the upper right, its ring plane cutting a hard diagonal across the sky. The sun is a small hard white point far off screen-left.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the truss beam in the lower-left foreground, the ship's spine running vertically through the centre third of frame, and the planet limb in the upper right. Four welder drones are already clinging to the spine at different heights and two more drift between the ribs. Nothing is revealed late. No empty establishing frame.
+
+OPTICS
+84 degree diagonal field of view, classic wide-angle lens character, camera 3 meters from the foreground truss. The foreground truss looms large and close, the ship and the planet stay visible to the frame edges, deep edge-to-edge focus, straight structural lines stay rectilinear, no fisheye curve. The camera remains physically close with wide spatial expansion for the whole shot.
+
+CAMERA
+One move only: the camera drifts laterally toward screen-right at a slow constant rate for the full five seconds. The foreground truss slides across frame faster than the ship behind it, the planet barely moves. Subtle organic settle as if mounted on a slow rig. Fixed focal length, no zoom, no roll.
+
+ACTION TIMING
+0:00 to 0:02 - two welder drones strike arcs at the rib joints, hard blue-white arc light flares and dies, throwing moving shadows across the ribs.
+0:02 to 0:04 - a third drone releases a finished rib section and thrusts clear on a short puff of cold gas, the section drifting away with a slow tumble.
+0:04 to 0:05 - the lateral drift carries the foreground truss out of frame left and opens the full length of the ship.
+
+PHYSICS
+Everything behaves in vacuum. Drones translate in straight lines and correct their attitude with visible thruster puffs. Released hardware holds constant velocity and slow rotation. Tether cables lag behind their anchor points and settle slowly. Weld sparks travel in straight lines and fade rather than falling.
+
+LIGHTING
+One hard distant white sun from screen-left. Surfaces facing left carry hot specular highlights, everything facing right falls into deep near-black shadow filled only by cold blue planet-bounce. Exposure is set for the sunlit metal so the shadow side crushes. Orange sodium work lamps mark the drone worksites. The arc welds are the only other light and they are brief. No frontal key, no beauty fill, no ambient glow.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction engineering: load-bearing lattice, panel seams, radiator fins, scorch marks, machined tolerances, hull plating in progress. Palette limited to white sunlight, cold blue planet-bounce and orange work lamps. Repeated structural members hold even spacing through perspective. The frame stays clean of lettering, signage, subtitles, watermarks and interface graphics.
+
+
+===============================================================================
+SHOT 2 - WALKING FOUNDRY
+===============================================================================
+
+SCENE CONTEXT
+A colossal six-legged construction machine walks slowly across a rust-red plain on an alien world, extruding a ribbed habitat arch behind it as it goes.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera sits on the ground, lens 30 centimeters above the red dust, facing across the plain. Foreground: coarse gravel and drift ridges of red dust running from the bottom edge of frame to 2 meters out. Midground: the walking machine, 60 meters tall, crossing from screen-left to screen-right at a distance of 120 meters, its six articulated legs planting one at a time. Background: the finished section of habitat arch it has already printed, receding toward the horizon on the left, and a pale dust-hazed sky with a small bright sun high on the right.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the foreground dust ridges along the bottom, the walking machine standing in the centre third with two legs mid-stride, and the completed arch stretching away behind it to screen-left. The extrusion head is already laying material. Nothing is revealed late.
+
+OPTICS
+107 degree diagonal field of view, wide rectilinear lens character, camera 0.5 meters from the nearest foreground gravel. Immediate foreground looms large, the plain and the machine spread wide to all frame edges, deep edge-to-edge focus, straight lines remain straight, no fisheye bubble, no circular vignette.
+
+CAMERA
+One move only: the camera holds locked off on the ground for the full five seconds with a faint settle as ground vibration reaches it. The machine moves through the frame, the camera does not chase it. No pan, no zoom, no crane.
+
+ACTION TIMING
+0:00 to 0:02 - the machine's forward right leg swings through and plants, driving a ring of red dust outward across the plain in a low expanding wall.
+0:02 to 0:04 - the extrusion head at its rear lays a new rib of the arch, molten material glowing orange as it is placed and darkening to grey within a meter.
+0:04 to 0:05 - the dust wall from the footfall reaches the foreground and drifts through the lower frame in thin sheets.
+
+PHYSICS
+The machine carries real mass: each leg accelerates, decelerates and lands with impact, the body settles on the loaded leg, hydraulic travel is visible. Dust thrown by a footfall rises, expands and falls slowly in low gravity, blowing with a consistent wind direction. The extruded material sags very slightly before it sets. Cables and hoses on the machine lag behind its motion and swing on their own delay.
+
+LIGHTING
+One small hard sun high on screen-right through thin dust haze. Long dark shadows stretch toward the camera on the left. Suspended dust scatters the light into visible shafts. The freshly extruded rib is the only warm light source at ground level. Exposure is set for the sunlit dust, shadow sides go deep and cold. No frontal fill, no studio softness.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction heavy industry: worn paint, dust-caked joints, hydraulic rams, cooling fins, cable runs, ceramic printing head. Palette limited to rust red, dust ochre, machine grey and one orange molten line. The arch's repeated ribs hold even spacing as they recede toward the horizon. The frame stays clean of lettering, signage, subtitles, watermarks and interface graphics.
+
+
+===============================================================================
+SHOT 3 - ICE-MOON SPACE ELEVATOR
+===============================================================================
+
+SCENE CONTEXT
+A space elevator tether rises from a domed city on an ice moon, with a climber car ascending the tether while the gas giant the moon orbits hangs above the horizon.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera stands on the ice plain 400 meters from the city's edge, lens 2 meters above the surface, facing the city. Foreground: ridged blue ice and wind-carved sastrugi running from the bottom edge of frame to 20 meters out. Midground: the domed city, a cluster of pressurised glass domes and lit habitat blocks, its base anchor tower directly in the centre of frame. Background: the tether, a single fine ribbon rising from the anchor tower straight up through the whole height of frame and out of the top; the banded gas giant occupying the upper right of the sky behind it; a small hard sun low on the left.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the foreground ice ridges along the bottom, the lit domes across the centre band of frame, the anchor tower in the exact centre, the tether ribbon running vertically up the centre of frame, and the gas giant in the upper right. A climber car is already visible on the tether at about one third of the frame height. Nothing is revealed late.
+
+OPTICS
+84 degree diagonal field of view, classic wide-angle lens character, camera 2 meters from the nearest foreground ice ridge. Foreground ice presence looms large and close, the city and the sky remain visible to the frame edges, deep edge-to-edge focus, the tether stays a straight rectilinear vertical line, no fisheye curve.
+
+CAMERA
+One move only: a very slow tilt upward for the full five seconds, following the tether from the city toward the climber car. Constant rate, no acceleration. Subtle organic settle. No zoom, no roll, no dolly.
+
+ACTION TIMING
+0:00 to 0:02 - lights inside the domes flicker and shift as the camera holds low on the city; thin ice crystals drift across the foreground on a steady wind.
+0:02 to 0:04 - the tilt lifts past the anchor tower and follows the tether upward, the climber car sliding steadily up the ribbon.
+0:04 to 0:05 - the tilt brings the gas giant's banded cloud tops fully into the upper frame with the tether crossing them.
+
+PHYSICS
+The tether is under tension and holds a dead-straight line with only a very slow lateral oscillation. The climber car moves at constant velocity with no jitter. Ice crystals travel with a single consistent wind direction and settle. Dome glass carries real reflections of the sun and the gas giant. Structures cast hard shadows onto the ice consistent with the low sun.
+
+LIGHTING
+One small hard low sun on screen-left throwing long blue shadows across the ice toward the camera. The gas giant adds a broad cold fill from the upper right. The city's own warm interior lighting is the only warm source in frame and it spills onto the ice around the domes. Exposure is set for the sunlit ice so the unlit sides of structures fall dark. No frontal fill, no ambient glow, no lens-flare starbursts.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction colony engineering: geodesic dome framing with even panel spacing, insulated pipe runs, anchor tower guy cables, service lighting on the tower at regular intervals. Palette limited to blue ice, cold sunlight, warm amber city interiors and the grey-gold cloud bands of the gas giant. Repeated structural members hold even spacing through perspective. The frame stays clean of lettering, signage, subtitles, watermarks and interface graphics.
+
+
+===============================================================================
+SHOT 4 - VESSEL UNDER DRIVE  (this one is take 2 - see the fixes below)
+===============================================================================
+
+SCENE CONTEXT
+A finished interstellar vessel runs its main drive at full power and travels across the night side of a banded gas giant, seen from a camera pacing alongside it.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera is in vacuum 120 meters off the vessel's starboard flank, level with its spine, pacing it at matched speed. Foreground: nothing between camera and vessel. Midground: the vessel, seen three-quarter from behind and to the side, its long hull running diagonally from lower-left of frame to upper-right, drive nozzles at the lower-left end. Background: the gas giant fills the entire sky behind, horizontal cloud bands clearly readable in cold grey-blue, the terminator crossing the upper third of frame.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the whole vessel occupying roughly half the frame diagonally, the drive plume already burning at the lower-left, and the banded cloud tops filling the background. The vessel keeps this size in frame for the entire shot because the camera paces it. Nothing is revealed late.
+
+OPTICS
+47 degree diagonal field of view, standard normal lens character, camera 120 meters from the vessel, natural perspective, no obvious distortion, comfortable depth, the cloud bands behind stay readable and are not exaggerated. This lens character holds for the whole shot with no drift.
+
+CAMERA
+One move only: the camera paces the vessel at matched velocity for the full five seconds, holding it at constant size in frame, with a very slow drift toward the vessel's tail. No zoom, no roll, no rack focus, no pull back, no orbit.
+
+ACTION TIMING
+0:00 to 0:02 - the drive plume burns steadily behind the nozzles, trailing straight back and away from the vessel toward the lower-left corner, well clear of the lens.
+0:02 to 0:04 - the vessel crosses into the planet's shadow, the cold background light drops, and the hull is read by its own orange running lights and the blue rim thrown by the plume.
+0:04 to 0:05 - radiator panels along the spine cool from faint orange to dark, the plume holds steady, the vessel still fills the same portion of frame.
+
+PHYSICS
+Motion is smooth and continuous with no banking and no jerk, because there is no atmosphere. The plume is a straight collimated column with visible shock diamonds, narrow and directional, and it does not spray sideways across the frame. Radiator panels glow at their roots and fade toward their tips. Light from the plume falls off with distance along the hull.
+
+LIGHTING
+Controlled exposure held for the hull. The gas giant's cloud bands sit mid-grey and stay visible as texture for the whole shot. The plume is a hard blue-white source that rims the vessel's tail only. Orange running lights mark the hull edges. Surfaces facing away from both sources go near-black. The image stays legible and dark. Highlights stay contained within the nozzle bells and the plume column.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction spacecraft: radiator fins, thermal blanketing, docking hardpoints, machined nozzle bells, dark hull, evenly spaced panel lines running the full length. Palette limited to blue-white plume, cold grey-blue cloud bands and small orange running lights. The vessel remains the clear subject of the frame at all times. The frame stays clean of lens-flare starbursts, white bloom washing over the image, lettering, signage, subtitles, watermarks and interface graphics.
+
+
+THE THREE FIXES THAT TURNED TAKE 1 INTO TAKE 2
+
+Take 1 blew out into a white lens-flare wash by 3 seconds and shrank the
+vessel to a dot - a dead payoff right at the loop point.
+
+  Ship shrank to a dot
+    -> "the camera paces the vessel at matched velocity, holding it at
+       constant size in frame" - a pacing camera instead of a fixed one.
+
+  Plume sprayed across the whole frame
+    -> "trailing straight back and away from the vessel, well clear of the
+       lens" + "a straight collimated column, narrow and directional".
+
+  White bloom ate the image
+    -> exposure held for the hull, cloud bands "sit mid-grey", "highlights
+       stay contained within the nozzle bells", and the failure itself named
+       in POSITIVE CONSTRAINTS.
+
+
+===============================================================================
+POST
+===============================================================================
+
+Trim every generated clip 0.55s off the head and everything past 4.25s -
+generated clip edges drift at both ends. Hard cuts only, no dissolves.
+
+Match your project frame rate to the model's NATIVE output rather than
+conforming it to a 30fps timeline. This one rendered at 24fps, so the edit
+is 24fps. An upscale plus frame duplication puts judder on slow pans before
+the platform's own re-compression ever touches it.
+
+Four shots, five seconds each, trimmed to 3.7s = a 14.8 second finished cut.
+
+
+-------------------------------------------------------------------------------
+Made by KitCrew, by KitFire AI Inc.  kitcrew.ai
+Use these however you like. If you build something with them, tag @kitcrewai.
+-------------------------------------------------------------------------------

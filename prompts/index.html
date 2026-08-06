@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The KitCrew Prompt Playbook — the four prompts behind "Things we haven't built yet" | KitCrew</title>
+<meta name="description" content="The literal prompts we sent to Seedance 2.0 to generate a 15-second sci-fi reel — all four shots, the eleven-block skeleton they were written on, and the five rules that made them land. Free, nothing gated."/>
+<link rel="canonical" href="https://kitcrew.ai/prompts/"/>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+<meta property="og:title" content="The KitCrew Prompt Playbook"/>
+<meta property="og:description" content="The four literal prompts behind our sci-fi reel, the skeleton they were written on, and the five rules that did the work. Copy them."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://kitcrew.ai/prompts/"/>
+<meta property="og:site_name" content="KitCrew"/>
+<meta property="og:image" content="https://kitcrew.ai/assets/prompt-playbook.jpg"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=2"/>
+<link rel="alternate" type="application/rss+xml" title="KitCrew Blog" href="/blog/feed.xml"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The KitCrew Prompt Playbook — the four prompts behind \"Things we haven't built yet\"",
+  "description": "The literal prompts sent to Seedance 2.0 to generate a 15-second sci-fi reel, the eleven-block prompt skeleton they were written on, and the five rules that made them land.",
+  "image": "https://kitcrew.ai/assets/prompt-playbook.jpg",
+  "datePublished": "2026-08-06",
+  "dateModified": "2026-08-06",
+  "author": { "@type": "Organization", "name": "KitCrew" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KitFire AI Inc",
+    "logo": { "@type": "ImageObject", "url": "https://kitcrew.ai/assets/favicon.svg" }
+  },
+  "mainEntityOfPage": "https://kitcrew.ai/prompts/"
+}
+</script>
+<style>
+  .pp-lede{font-size:1.12rem;line-height:1.7}
+  .pp-dl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:28px 0 8px}
+  .pp-shot{margin:44px 0 0}
+  .pp-shot h2{margin-bottom:6px}
+  .pp-shot-note{opacity:.72;font-size:.94rem;margin:0 0 14px}
+  .pp-block{position:relative;margin:14px 0 0}
+  .pp-block pre{margin:0;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.10);
+    border-radius:12px;padding:22px 20px 20px;overflow-x:auto;max-height:460px;overflow-y:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.855rem;line-height:1.62;
+    white-space:pre-wrap;word-break:break-word}
+  .pp-copy{position:absolute;top:10px;right:10px;font:600 .78rem/1 Inter,system-ui,sans-serif;
+    padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(12,16,32,.86);color:inherit;cursor:pointer;letter-spacing:.02em}
+  .pp-copy:hover{border-color:rgba(255,255,255,.42)}
+  .pp-rules{padding-left:0;list-style:none;margin:18px 0 0}
+  .pp-rules li{margin:0 0 18px;padding-left:46px;position:relative}
+  .pp-rules b{display:block;margin-bottom:3px}
+  .pp-rules .n{position:absolute;left:0;top:-2px;font:800 1.25rem/1 Sora,system-ui,sans-serif;opacity:.42}
+  .pp-fix{width:100%;border-collapse:collapse;margin:18px 0 0;font-size:.95rem}
+  .pp-fix th,.pp-fix td{text-align:left;vertical-align:top;padding:12px 14px;
+    border-bottom:1px solid rgba(255,255,255,.10)}
+  .pp-fix th{font-family:Sora,system-ui,sans-serif;font-size:.82rem;letter-spacing:.06em;
+    text-transform:uppercase;opacity:.66}
+  .pp-skel{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.10);border-radius:12px;
+    padding:20px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.85rem;line-height:1.75;margin:18px 0 0}
+  @media(max-width:640px){.pp-block pre{font-size:.79rem;padding:20px 14px 16px}
+    .pp-copy{position:static;display:inline-block;margin-bottom:8px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="wordmark" href="/">
+      <svg class="mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="kc-g-nav" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c7"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="url(#kc-g-nav)"/>
+        <g stroke="#f5f7ff" stroke-width="1.6" stroke-linecap="round" opacity="0.85">
+          <line x1="16" y1="10" x2="10.5" y2="20"/><line x1="16" y1="10" x2="21.5" y2="20"/><line x1="10.5" y1="20" x2="21.5" y2="20"/>
+        </g>
+        <circle cx="16" cy="10" r="3.1" fill="#ffffff"/><circle cx="10.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/><circle cx="21.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/>
+      </svg>
+      <span class="wm-text">KitCrew</span><span class="wm-by">by KitFire</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#crew">The Crew</a>
+      <a href="/#how">How it works</a>
+      <a href="/markethive/">MarketHive</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/blog/">Blog</a>
+      <a class="btn-login" href="#" data-app-login>Member login</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section style="padding-top:64px;">
+    <article class="post">
+      <h1>The KitCrew Prompt Playbook</h1>
+      <p class="post-meta">The four prompts behind &ldquo;Things we haven&rsquo;t built yet&rdquo; &middot; August 6, 2026</p>
+
+      <div class="post-cover"><img src="/assets/prompt-playbook.jpg" alt="An ice moon at night: a space elevator tether rising from a domed city, a gas giant filling the sky behind it" width="1080" height="1920" style="max-height:620px;width:auto;margin:0 auto;display:block"/></div>
+
+      <p class="pp-lede">We made a 15-second sci-fi reel &mdash; an orbital shipyard, a walking foundry printing a habitat across a red plain, a space elevator on an ice moon, and a ship finally leaving. People asked for the prompts. Here they are, all four, exactly as they were sent. Nothing cleaned up, nothing held back.</p>
+
+      <div class="pp-dl">
+        <a class="btn-primary" href="/prompts/kitcrew-prompt-playbook.txt" download>Download the whole playbook (.txt)</a>
+        <a class="btn-ghost" href="https://www.instagram.com/kitcrewai/" rel="noopener">See the reel on Instagram</a>
+      </div>
+      <p class="post-meta">Free, no email required. Use them however you like &mdash; if you build something with them, tag <strong>@kitcrewai</strong>.</p>
+
+      <h2>What produced these</h2>
+      <p><strong>Seedance 2.0</strong> &mdash; mode <code>std</code>, 1080p, 9:16, genre <code>epic</code>, high bitrate, native audio off, five seconds per shot. Native output is 1080&times;1920 at 24fps. Four shots, five seconds each, trimmed down to 3.7s apiece, for a 14.8-second finished cut.</p>
+
+      <h2>The skeleton &mdash; this is the reusable part</h2>
+      <p>Every prompt below is the same eleven blocks in the same order. The order is doing real work: spatial rules come <em>before</em> camera style, optics come before aesthetic language, and lighting is written as a priority constraint rather than as decoration. Bury a placement rule inside style prose and the model will quietly ignore it.</p>
+
+      <div class="pp-skel">SCENE CONTEXT           one or two sentences, this shot only
+FORMAT MODE             single take / real-time / no subtitles / no music
+LOCATION MAP            camera position + facing, then fg / mg / bg
+FIRST FRAME AND         everything required is already in frame one,
+  SPATIAL BLOCKING      nothing revealed late
+OPTICS                  diagonal field of view in degrees + the visible outcome
+CAMERA                  ONE move only, as physical operator behaviour
+ACTION TIMING           time blocks: 0:00-0:02, 0:02-0:04, 0:04-0:05
+PHYSICS                 mass, inertia, contact, delay, what the medium does
+LIGHTING                sources, direction, what is exposed for, what crushes
+AUDIO                   silent
+POSITIVE CONSTRAINTS    materials, palette, and the failure named positively</div>
+
+      <h2>Five rules that did the heavy lifting</h2>
+      <ol class="pp-rules">
+        <li><span class="n">1</span><b>Degrees, not millimetres.</b> The model responds to observable lens <em>results</em>, not camera metadata. &ldquo;84 degree diagonal field of view, camera 3 meters from the foreground truss&rdquo; controls the shot. &ldquo;35mm f/1.4&rdquo; does not.</li>
+        <li><span class="n">2</span><b>One camera move per shot.</b> An orbit into a dolly into a pan disorients. Drift, or tilt, or pace &mdash; pick one and hold it for the full five seconds. Whip-fast moves read as a transition preset, not a camera.</li>
+        <li><span class="n">3</span><b>States, not transitions.</b> &ldquo;two welder drones strike arcs at the rib joints&rdquo; lands. &ldquo;a drone approaches and begins to weld&rdquo; collapses.</li>
+        <li><span class="n">4</span><b>Kill weak spatial words.</b> Never <em>near</em>, <em>around</em>, <em>beside</em>, <em>nearby</em>. Always &ldquo;40 meters off the port flank&rdquo;, &ldquo;3 meters from the lens&rdquo;, &ldquo;directly in the centre of frame&rdquo;.</li>
+        <li><span class="n">5</span><b>Name the failure in positive form.</b> &ldquo;The frame stays clean of lettering, signage, watermarks&rdquo; works. &ldquo;Don&rsquo;t add text&rdquo; gets ignored, or inverted.</li>
+      </ol>
+
+      <div class="pp-shot">
+        <h2>Shot 1 &mdash; Orbital shipyard</h2>
+        <p class="pp-shot-note">84&deg; wide, slow lateral drift. White sun, cold blue planet-bounce, orange work lamps.</p>
+        <div class="pp-block"><button class="pp-copy" type="button">Copy</button><pre>SCENE CONTEXT
+A half-finished interstellar ship hangs in an orbital construction cradle above a ringed ice planet while small autonomous welder drones work along its exposed spine.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera floats in open vacuum 40 meters off the ship's port flank, facing the hull broadside. Foreground: one lattice truss beam of the cradle crossing the lower-left of frame, 3 meters from the lens. Midground: the ship's ribbed spine and unplated hull sections, 40 meters away, running from the bottom of frame to the top. Background: the ringed ice planet fills the upper right, its ring plane cutting a hard diagonal across the sky. The sun is a small hard white point far off screen-left.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the truss beam in the lower-left foreground, the ship's spine running vertically through the centre third of frame, and the planet limb in the upper right. Four welder drones are already clinging to the spine at different heights and two more drift between the ribs. Nothing is revealed late. No empty establishing frame.
+
+OPTICS
+84 degree diagonal field of view, classic wide-angle lens character, camera 3 meters from the foreground truss. The foreground truss looms large and close, the ship and the planet stay visible to the frame edges, deep edge-to-edge focus, straight structural lines stay rectilinear, no fisheye curve. The camera remains physically close with wide spatial expansion for the whole shot.
+
+CAMERA
+One move only: the camera drifts laterally toward screen-right at a slow constant rate for the full five seconds. The foreground truss slides across frame faster than the ship behind it, the planet barely moves. Subtle organic settle as if mounted on a slow rig. Fixed focal length, no zoom, no roll.
+
+ACTION TIMING
+0:00 to 0:02 - two welder drones strike arcs at the rib joints, hard blue-white arc light flares and dies, throwing moving shadows across the ribs.
+0:02 to 0:04 - a third drone releases a finished rib section and thrusts clear on a short puff of cold gas, the section drifting away with a slow tumble.
+0:04 to 0:05 - the lateral drift carries the foreground truss out of frame left and opens the full length of the ship.
+
+PHYSICS
+Everything behaves in vacuum. Drones translate in straight lines and correct their attitude with visible thruster puffs. Released hardware holds constant velocity and slow rotation. Tether cables lag behind their anchor points and settle slowly. Weld sparks travel in straight lines and fade rather than falling.
+
+LIGHTING
+One hard distant white sun from screen-left. Surfaces facing left carry hot specular highlights, everything facing right falls into deep near-black shadow filled only by cold blue planet-bounce. Exposure is set for the sunlit metal so the shadow side crushes. Orange sodium work lamps mark the drone worksites. The arc welds are the only other light and they are brief. No frontal key, no beauty fill, no ambient glow.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction engineering: load-bearing lattice, panel seams, radiator fins, scorch marks, machined tolerances, hull plating in progress. Palette limited to white sunlight, cold blue planet-bounce and orange work lamps. Repeated structural members hold even spacing through perspective. The frame stays clean of lettering, signage, subtitles, watermarks and interface graphics.</pre></div>
+      </div>
+
+      <div class="pp-shot">
+        <h2>Shot 2 &mdash; Walking foundry</h2>
+        <p class="pp-shot-note">107&deg; wide rectilinear, locked off at ground level. Rust red, dust ochre, one molten orange line.</p>
+        <div class="pp-block"><button class="pp-copy" type="button">Copy</button><pre>SCENE CONTEXT
+A colossal six-legged construction machine walks slowly across a rust-red plain on an alien world, extruding a ribbed habitat arch behind it as it goes.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera sits on the ground, lens 30 centimeters above the red dust, facing across the plain. Foreground: coarse gravel and drift ridges of red dust running from the bottom edge of frame to 2 meters out. Midground: the walking machine, 60 meters tall, crossing from screen-left to screen-right at a distance of 120 meters, its six articulated legs planting one at a time. Background: the finished section of habitat arch it has already printed, receding toward the horizon on the left, and a pale dust-hazed sky with a small bright sun high on the right.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the foreground dust ridges along the bottom, the walking machine standing in the centre third with two legs mid-stride, and the completed arch stretching away behind it to screen-left. The extrusion head is already laying material. Nothing is revealed late.
+
+OPTICS
+107 degree diagonal field of view, wide rectilinear lens character, camera 0.5 meters from the nearest foreground gravel. Immediate foreground looms large, the plain and the machine spread wide to all frame edges, deep edge-to-edge focus, straight lines remain straight, no fisheye bubble, no circular vignette.
+
+CAMERA
+One move only: the camera holds locked off on the ground for the full five seconds with a faint settle as ground vibration reaches it. The machine moves through the frame, the camera does not chase it. No pan, no zoom, no crane.
+
+ACTION TIMING
+0:00 to 0:02 - the machine's forward right leg swings through and plants, driving a ring of red dust outward across the plain in a low expanding wall.
+0:02 to 0:04 - the extrusion head at its rear lays a new rib of the arch, molten material glowing orange as it is placed and darkening to grey within a meter.
+0:04 to 0:05 - the dust wall from the footfall reaches the foreground and drifts through the lower frame in thin sheets.
+
+PHYSICS
+The machine carries real mass: each leg accelerates, decelerates and lands with impact, the body settles on the loaded leg, hydraulic travel is visible. Dust thrown by a footfall rises, expands and falls slowly in low gravity, blowing with a consistent wind direction. The extruded material sags very slightly before it sets. Cables and hoses on the machine lag behind its motion and swing on their own delay.
+
+LIGHTING
+One small hard sun high on screen-right through thin dust haze. Long dark shadows stretch toward the camera on the left. Suspended dust scatters the light into visible shafts. The freshly extruded rib is the only warm light source at ground level. Exposure is set for the sunlit dust, shadow sides go deep and cold. No frontal fill, no studio softness.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction heavy industry: worn paint, dust-caked joints, hydraulic rams, cooling fins, cable runs, ceramic printing head. Palette limited to rust red, dust ochre, machine grey and one orange molten line. The arch's repeated ribs hold even spacing as they recede toward the horizon. The frame stays clean of lettering, signage, subtitles, watermarks and interface graphics.</pre></div>
+      </div>
+
+      <div class="pp-shot">
+        <h2>Shot 3 &mdash; Ice-moon space elevator</h2>
+        <p class="pp-shot-note">84&deg; wide, very slow tilt up the tether. Blue ice, amber interiors, grey-gold cloud bands.</p>
+        <div class="pp-block"><button class="pp-copy" type="button">Copy</button><pre>SCENE CONTEXT
+A space elevator tether rises from a domed city on an ice moon, with a climber car ascending the tether while the gas giant the moon orbits hangs above the horizon.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera stands on the ice plain 400 meters from the city's edge, lens 2 meters above the surface, facing the city. Foreground: ridged blue ice and wind-carved sastrugi running from the bottom edge of frame to 20 meters out. Midground: the domed city, a cluster of pressurised glass domes and lit habitat blocks, its base anchor tower directly in the centre of frame. Background: the tether, a single fine ribbon rising from the anchor tower straight up through the whole height of frame and out of the top; the banded gas giant occupying the upper right of the sky behind it; a small hard sun low on the left.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the foreground ice ridges along the bottom, the lit domes across the centre band of frame, the anchor tower in the exact centre, the tether ribbon running vertically up the centre of frame, and the gas giant in the upper right. A climber car is already visible on the tether at about one third of the frame height. Nothing is revealed late.
+
+OPTICS
+84 degree diagonal field of view, classic wide-angle lens character, camera 2 meters from the nearest foreground ice ridge. Foreground ice presence looms large and close, the city and the sky remain visible to the frame edges, deep edge-to-edge focus, the tether stays a straight rectilinear vertical line, no fisheye curve.
+
+CAMERA
+One move only: a very slow tilt upward for the full five seconds, following the tether from the city toward the climber car. Constant rate, no acceleration. Subtle organic settle. No zoom, no roll, no dolly.
+
+ACTION TIMING
+0:00 to 0:02 - lights inside the domes flicker and shift as the camera holds low on the city; thin ice crystals drift across the foreground on a steady wind.
+0:02 to 0:04 - the tilt lifts past the anchor tower and follows the tether upward, the climber car sliding steadily up the ribbon.
+0:04 to 0:05 - the tilt brings the gas giant's banded cloud tops fully into the upper frame with the tether crossing them.
+
+PHYSICS
+The tether is under tension and holds a dead-straight line with only a very slow lateral oscillation. The climber car moves at constant velocity with no jitter. Ice crystals travel with a single consistent wind direction and settle. Dome glass carries real reflections of the sun and the gas giant. Structures cast hard shadows onto the ice consistent with the low sun.
+
+LIGHTING
+One small hard low sun on screen-left throwing long blue shadows across the ice toward the camera. The gas giant adds a broad cold fill from the upper right. The city's own warm interior lighting is the only warm source in frame and it spills onto the ice around the domes. Exposure is set for the sunlit ice so the unlit sides of structures fall dark. No frontal fill, no ambient glow, no lens-flare starbursts.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction colony engineering: geodesic dome framing with even panel spacing, insulated pipe runs, anchor tower guy cables, service lighting on the tower at regular intervals. Palette limited to blue ice, cold sunlight, warm amber city interiors and the grey-gold cloud bands of the gas giant. Repeated structural members hold even spacing through perspective. The frame stays clean of lettering, signage, subtitles, watermarks and interface graphics.</pre></div>
+      </div>
+
+      <div class="pp-shot">
+        <h2>Shot 4 &mdash; Vessel under drive</h2>
+        <p class="pp-shot-note">47&deg; normal, camera pacing the ship. This one is take 2 &mdash; the fixes are below.</p>
+        <div class="pp-block"><button class="pp-copy" type="button">Copy</button><pre>SCENE CONTEXT
+A finished interstellar vessel runs its main drive at full power and travels across the night side of a banded gas giant, seen from a camera pacing alongside it.
+
+FORMAT MODE
+Single continuous take. Real-time motion. No internal cuts. No subtitles. No music.
+
+LOCATION MAP
+Camera is in vacuum 120 meters off the vessel's starboard flank, level with its spine, pacing it at matched speed. Foreground: nothing between camera and vessel. Midground: the vessel, seen three-quarter from behind and to the side, its long hull running diagonally from lower-left of frame to upper-right, drive nozzles at the lower-left end. Background: the gas giant fills the entire sky behind, horizontal cloud bands clearly readable in cold grey-blue, the terminator crossing the upper third of frame.
+
+FIRST FRAME AND SPATIAL BLOCKING
+The first visible frame already contains the whole vessel occupying roughly half the frame diagonally, the drive plume already burning at the lower-left, and the banded cloud tops filling the background. The vessel keeps this size in frame for the entire shot because the camera paces it. Nothing is revealed late.
+
+OPTICS
+47 degree diagonal field of view, standard normal lens character, camera 120 meters from the vessel, natural perspective, no obvious distortion, comfortable depth, the cloud bands behind stay readable and are not exaggerated. This lens character holds for the whole shot with no drift.
+
+CAMERA
+One move only: the camera paces the vessel at matched velocity for the full five seconds, holding it at constant size in frame, with a very slow drift toward the vessel's tail. No zoom, no roll, no rack focus, no pull back, no orbit.
+
+ACTION TIMING
+0:00 to 0:02 - the drive plume burns steadily behind the nozzles, trailing straight back and away from the vessel toward the lower-left corner, well clear of the lens.
+0:02 to 0:04 - the vessel crosses into the planet's shadow, the cold background light drops, and the hull is read by its own orange running lights and the blue rim thrown by the plume.
+0:04 to 0:05 - radiator panels along the spine cool from faint orange to dark, the plume holds steady, the vessel still fills the same portion of frame.
+
+PHYSICS
+Motion is smooth and continuous with no banking and no jerk, because there is no atmosphere. The plume is a straight collimated column with visible shock diamonds, narrow and directional, and it does not spray sideways across the frame. Radiator panels glow at their roots and fade toward their tips. Light from the plume falls off with distance along the hull.
+
+LIGHTING
+Controlled exposure held for the hull. The gas giant's cloud bands sit mid-grey and stay visible as texture for the whole shot. The plume is a hard blue-white source that rims the vessel's tail only. Orange running lights mark the hull edges. Surfaces facing away from both sources go near-black. The image stays legible and dark. Highlights stay contained within the nozzle bells and the plume column.
+
+AUDIO
+Silent.
+
+POSITIVE CONSTRAINTS
+Photoreal hard-science-fiction spacecraft: radiator fins, thermal blanketing, docking hardpoints, machined nozzle bells, dark hull, evenly spaced panel lines running the full length. Palette limited to blue-white plume, cold grey-blue cloud bands and small orange running lights. The vessel remains the clear subject of the frame at all times. The frame stays clean of lens-flare starbursts, white bloom washing over the image, lettering, signage, subtitles, watermarks and interface graphics.</pre></div>
+      </div>
+
+      <h2>The shot that failed, and the three lines that fixed it</h2>
+      <p>Take 1 of the final shot blew out into a white lens-flare wash by three seconds and shrank the ship to a dot &mdash; a dead payoff right where the reel loops. The wording changes that fixed it are the most useful thing on this page, because they are the general case: when a generation goes wrong, the fix is usually a physical instruction, not a prettier adjective.</p>
+      <table class="pp-fix">
+        <thead><tr><th>What went wrong</th><th>The instruction that fixed it</th></tr></thead>
+        <tbody>
+          <tr><td>Ship shrank to a dot</td><td>&ldquo;the camera <strong>paces the vessel at matched velocity, holding it at constant size in frame</strong>&rdquo; &mdash; a pacing camera instead of a fixed one</td></tr>
+          <tr><td>Plume sprayed across the whole frame</td><td>&ldquo;trailing <strong>straight back and away from the vessel, well clear of the lens</strong>&rdquo;, plus &ldquo;a straight collimated column, narrow and directional&rdquo;</td></tr>
+          <tr><td>White bloom ate the image</td><td>exposure <strong>held for the hull</strong>, cloud bands &ldquo;sit mid-grey&rdquo;, &ldquo;highlights stay contained within the nozzle bells&rdquo; &mdash; and the failure itself named in POSITIVE CONSTRAINTS</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Two things about the edit</h2>
+      <p><strong>Trim the edges.</strong> Every generated clip drifts at the head and the tail. These were cut 0.55s off the front and everything past 4.25s &mdash; 3.7 seconds kept out of five. Hard cuts only; dissolves make generated footage look softer than it is.</p>
+      <p><strong>Match your timeline to the model, not the other way round.</strong> These render at 24fps natively, so the edit is 24fps. Conforming 24fps source to a 30fps timeline means an upscale plus frame duplication, which puts judder on slow pans before the platform&rsquo;s own re-compression ever touches it.</p>
+
+      <h2>Why a marketing automation company is giving away prompts</h2>
+      <p>Because the prompt was never the hard part. Anyone can copy the four blocks above and get a good-looking shot tonight. Doing it every week &mdash; on schedule, on brand, checked before it goes out, with the failures caught before the audience sees them &mdash; is the part that actually costs people their evenings.</p>
+      <p>That is the job KitCrew does. If the reel is the thing you liked, take the prompts and go build something. If the <em>every week, without you</em> part is the thing you want, <a href="/#crew">that&rsquo;s what the crew is for</a>.</p>
+
+      <p class="post-meta" style="margin-top:32px;">Related: <a href="/blog/daily-social-media-content-network-marketing/">how to post daily without losing your day</a> &middot; <a href="/#how">how the crew works</a> &middot; <a href="/faq/">FAQ</a></p>
+    </article>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot-inner">
+    <a class="wordmark" href="/">
+      <svg class="mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="kc-g-footp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c7"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="url(#kc-g-footp)"/>
+        <g stroke="#f5f7ff" stroke-width="1.6" stroke-linecap="round" opacity="0.85">
+          <line x1="16" y1="10" x2="10.5" y2="20"/><line x1="16" y1="10" x2="21.5" y2="20"/><line x1="10.5" y1="20" x2="21.5" y2="20"/>
+        </g>
+        <circle cx="16" cy="10" r="3.1" fill="#ffffff"/><circle cx="10.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/><circle cx="21.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/>
+      </svg>
+      <span class="wm-text">KitCrew</span><span class="wm-by">by KitFire</span>
+    </a>
+    <div class="foot-links">
+      <a href="#" data-app-login>Member login</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/blog/">Blog</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="https://kitfire.ai/">KitFire</a>
+    </div>
+    <p class="foot-legal">&copy; 2026 KitFire AI Inc. KitCrew is a product of KitFire AI Inc. No income claims, ever.</p>
+  </div>
+</footer>
+
+<script src="/assets/brand.js"></script>
+<script src="/assets/motion.js?v=2"></script>
+<script>
+document.querySelectorAll('.pp-copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var pre = btn.parentElement.querySelector('pre');
+    if(!pre) return;
+    navigator.clipboard.writeText(pre.innerText).then(function(){
+      var was = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(function(){ btn.textContent = was; }, 1600);
+    });
+  });
+});
+</script>
+</body>
+</html>
