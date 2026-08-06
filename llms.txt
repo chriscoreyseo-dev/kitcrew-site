@@ -12,6 +12,7 @@
 - [FAQ](https://kitcrew.ai/faq/): direct answers — income claims, working with your company, MarketHive membership, the referral dashboard.
 - [MarketHive members](https://kitcrew.ai/markethive/): the Entrepreneur One / Super Groups free build-out for MarketHive members.
 - [Blog](https://kitcrew.ai/blog/): plain-English posts on follow-up, content, leads, and engagement for network marketers and affiliates.
+- [Video Prompts](https://kitcrew.ai/prompts/): free AI video prompt playbook — four complete video prompts, the eleven-block prompt structure for cinematic AI video, and the rules that stop generated footage looking fake.
 
 ## Pricing
 - **Duplicator Pro** — $299/month or $2,990/year (two months free), 1 seat, all six agents included. One plan, no tiers.
