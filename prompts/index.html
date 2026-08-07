@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Video Prompts for Video Perfection | AI Video Prompt Playbook</title>
-<meta name="description" content="Every AI video prompt behind every KitCrew post, free to copy. The eleven-block structure for cinematic AI video, the image-first Grok method, and the five rules that stop generated footage looking fake."/>
+<meta name="description" content="Every AI video prompt behind every KitCrew post, free to copy, plus a working Python script that synthesises a hard-rock guitar riff from scratch. The structure, the method, and the five rules that stop generated footage looking fake."/>
 <link rel="canonical" href="https://kitcrew.ai/prompts/"/>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
 <meta property="og:title" content="Video Prompts for Video Perfection — the AI Video Prompt Playbook"/>
@@ -610,6 +610,26 @@ last. Audio: hushed museum room tone, faint reverberant ambience, no music, no
 dialogue, no narration - the hall stays silent for the full length of the take.</pre></div>
       </div>
       <!-- PROMPT-LIBRARY:END -->
+
+      <h2 id="riff">The soundtrack: a hard-rock guitar riff, generated in code</h2>
+      <p>There is no music generator on the rail we use. So the riff under our megastructure reel is not licensed, not sampled and not prompted &mdash; it is <strong>synthesised from scratch by a Python script with no dependencies</strong>, and you can have it. Run it, change the notes, change the tempo, use the output.</p>
+
+      <div class="pp-dl">
+        <a class="btn-primary" href="/prompts/kitcrew-guitar-riff.py" download>Download the riff generator (.py)</a>
+      </div>
+      <p class="post-meta">Standard library only. <code>python kitcrew-guitar-riff.py riff.wav 14.7 132</code></p>
+
+      <h3>It took three attempts, and the first two failures are the useful part</h3>
+      <p>Version one was constant palm-muted eighth notes with drums. It was rhythmically correct and it sounded like a backing track, because <strong>a riff is mostly silence.</strong> Stabs that ring out into a hole, accents landing on the offbeat, a question bar answered by a second bar. Playing continuously is the single fastest way to sound like a loop instead of a hook.</p>
+      <p>Version two fixed the arrangement and still sounded synthetic, because it was built from sawtooth oscillators through a distortion curve. That is a synth patch, not a guitar, and no amount of EQ rescues it. <strong>Arrangement and timbre are separate problems and solving one does not touch the other.</strong></p>
+
+      <h3>The two things that make a sound read as electric guitar</h3>
+      <ol class="pp-rules">
+        <li><span class="n">1</span><b>A plucked string, not an oscillator.</b> Karplus&ndash;Strong: excite a delay line with a short noise burst, then feed it back through a damping filter. The delay length sets the pitch and the damping decides how fast the harmonics die. On a real string the high harmonics fade first and the fundamental rings on &mdash; a modelled string does that automatically, an oscillator never does, and that mismatch is what your ear hears as <em>fake</em>.</li>
+        <li><span class="n">2</span><b>A speaker cabinet.</b> A guitar cab is not full range. It rolls off steeply above about 5&nbsp;kHz, peaks around 2.5&nbsp;kHz, and has nothing below roughly 90&nbsp;Hz. Distortion generates harmonics all the way up the spectrum, and without a cabinet those stay in the signal and read as fizz. Cabinet simulation is most of what separates &ldquo;amplifier&rdquo; from &ldquo;broken speaker&rdquo;.</li>
+      </ol>
+      <p>After that, the details: double-track the rhythm guitar with a slight detune and about 11&nbsp;ms of offset for width, clip asymmetrically so you get even harmonics as well as odd, and mix the guitar as the lead voice with the rhythm section well behind it. Rock is iconic for the riff, not the kit.</p>
+      <p class="post-meta">The riff itself is original, written in the idiom rather than copied from it. Putting a real recognisable riff on a brand account is a licensing problem, not a creative one.</p>
 
       <h2>Why AI video looks fake &mdash; and the three lines that fixed it</h2>
       <p>Take 1 of the final shot blew out into a white lens-flare wash by three seconds and shrank the ship to a dot &mdash; a dead payoff right where the reel loops. The wording changes that fixed it are the most useful thing on this page, because they are the general case: when a generation goes wrong, the fix is usually a physical instruction, not a prettier adjective.</p>
