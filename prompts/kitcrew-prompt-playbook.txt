@@ -1,5 +1,5 @@
 KITCREW PROMPT PLAYBOOK
-The four prompts behind "Things we haven't built yet"
+Every prompt behind every post on the account
 kitcrew.ai/prompts
 
 Model: Seedance 2.0 - mode std, 1080p, 9:16, genre epic, high bitrate,
@@ -256,3 +256,371 @@ Four shots, five seconds each, trimmed to 3.7s = a 14.8 second finished cut.
 Made by KitCrew, by KitFire AI Inc.  kitcrew.ai
 Use these however you like. If you build something with them, tag @kitcrewai.
 -------------------------------------------------------------------------------
+
+===============================================================================
+THE PROMPT LIBRARY - every post on the account
+===============================================================================
+
+The four prompts above are the long-form Seedance prompts behind the first reel.
+Everything below is the working library: the prompt pairs behind every post on the
+account, in the order they went out.
+
+These run on Grok Imagine and they are shorter by design. The method is image-first:
+generate four stills from one prompt, pick the frame that already looks like the shot,
+then animate that single still. The still carries the design, so the animate prompt only
+has to carry the motion, the sound, and the promise that nothing changes.
+
+That last part is not optional. Image-to-video only knows the one frame it was handed.
+Anything the camera reveals afterwards gets invented, which is why every animate prompt
+below re-describes the hardware a second time and closes with a continuity clause.
+
+One slow continuous move per shot. Never an orbit.
+
+
+-------------------------------------------------------------------------------
+THE BLUE GAUNTLET
+-------------------------------------------------------------------------------
+A drive-through car wash, called as round seven of a world championship.
+
+NOTE: Grok Imagine, image-first per S279 doctrine. Stills first (Image mode,
+Quality, x4, 9:16), live seat picks one, then animate that single chosen still.
+Blue is the controlled variable this round.
+
+  [ STILL PROMPT (IMAGE MODE, 9:16, QUALITY, X4) ]
+
+Inside a modern automatic drive-through car wash tunnel, one ordinary sedan is midway
+through the wash cycle. Thick blue-tinted foam coats the hood, roof and windshield.
+Rows of spinning fabric wash mitts and rotating brushes flank the car on both sides.
+Overhead, a continuous strip of cobalt-blue LED tunnel lighting runs the length of the
+bay, throwing hard blue reflections across the wet, glossy floor and the car's
+foam-covered paint. Fine mist and blue-lit water spray hang in the air. The wash
+tunnel's steel rail and guide track run under the car's wheels. Shot low and wide,
+straight down the tunnel, car centered, foam and blue light dominating the frame.
+Photoreal, cinematic, high dynamic range, sharp focus on the car, shallow falloff into
+the blue haze behind it. Vertical 9:16 frame. Blue is the dominant color of the image,
+not an accent.
+
+  [ ANIMATE PROMPT ]
+
+Continue this exact car wash tunnel: the same sedan under the same cobalt-blue LED
+strip lighting, the same rotating fabric wash mitts and brushes at either side, the
+same blue-tinted foam sheeting off the hood and roof, the same wet reflective floor
+throwing blue light back up into frame, the same steel guide rail under the wheels.
+One slow continuous camera move only: a slow forward push down the tunnel alongside
+the car, foam sliding off the glass as it passes under the next brush station. No
+cuts, no scene changes, no orbit, no camera spin. Audio: driving garage rock, live
+drums, distorted electric guitar, roughly 150 bpm, no vocals, running continuously for
+the full length of the take. Identical materials, proportions and colours from the
+first frame to the last.
+
+-------------------------------------------------------------------------------
+HOUR TWENTY-THREE
+-------------------------------------------------------------------------------
+An ice resurfacer, called as the twenty-third hour of a twenty-four-hour
+endurance race.
+
+NOTE: Chris's seat is Grok Imagine (SuperGrok, free). Stills first, pick one,
+then animate that still. 720p is the plan ceiling; the finished take gets
+lanczos-upscaled 1.5x into the 1080x1920 canvas at edit time - that is
+expected, not a defect.
+
+  [ STILL PROMPT - IMAGE MODE, QUALITY, X4, 9:16 ]
+
+A large ice resurfacer machine gliding slowly across a vast, completely empty ice hockey
+rink at night, seen from low ice level. The machine is recognisable instantly: white and
+blue body, wide front blade, rotating brush housing, a fresh wet resurfaced track gleaming
+behind it on the ice. The arena is lit entirely in cold blue light - blue LED floodlights
+overhead, a blue cast on the ice surface, faint blue rink boundary lines glowing up through
+the fresh water sheen, blue haze hanging in the empty stands behind the boards. No players,
+no crowd, no other vehicles. Wide cinematic angle, shallow depth of field, photorealistic,
+broadcast sports-photography lighting, vertical 9:16 frame, blue as the dominant colour of
+the entire image, not an accent.
+
+  [ ANIMATE PROMPT - ONE CONTINUOUS TAKE, NO CUTS, NO ORBIT ]
+
+Animate this exact ice resurfacer on the ice rink: same white and blue machine, same wide
+front blade, same rotating brush housing, same fresh wet track gleaming behind it, same
+cold blue arena lighting washing the whole rink blue, same empty stands in blue haze. One
+slow continuous camera move only - a slow forward push low along the ice, tracking the
+machine as it works. No cuts, no scene changes, and no orbit around the machine - the
+camera stays on one line the whole take. Audio: driving rock music, live drums, distorted
+electric guitar, tempo around 145 bpm, no vocals, energy held steady and consistent through
+the entire take, no drops, no breakdowns. Identical materials, proportions and colours on
+the machine and the ice from the first frame to the last - nothing about the resurfacer or
+the rink changes shape, colour or scale as the camera moves.
+
+-------------------------------------------------------------------------------
+THE FINAL ASCENT
+-------------------------------------------------------------------------------
+A shopping-mall escalator, narrated as a high-altitude summit push.
+
+NOTE: Grok Imagine, Chris's seat, image-first. Stills first (Image mode,
+Quality, x4, 9:16), the live seat picks one, then animate that chosen still.
+See BUILD_KIT_SPEC.md Section 3 for the protocol this follows.
+
+  [ STILL PROMPT (IMAGE MODE, QUALITY, X4, 9:16) ]
+
+A long modern shopping mall escalator rising through a bright glass atrium, shot straight on
+from a low angle so the escalator climbs from the bottom of the frame toward a distant upper
+level. The handrail and the leading edge of every step glow with cool blue LED lighting, the
+strongest color source in the frame. Overhead, tall glass panels let in a flat blue-white
+daylight that washes the polished floor and chrome railings in the same cool blue tone. A
+handful of ordinary shoppers ride the escalator and stand on the level above, carrying bags,
+in plain everyday clothing, no special gear. The escalator itself is unmistakable and fills
+the center of the frame within the first glance: metal steps, moving handrail, safety combs,
+floor-level skirting panel. Wide-angle architectural photography, sharp focus, high dynamic
+range, cinematic but naturalistic, no text, no logos, no people looking at camera. Blue is
+the dominant color of the entire image, not an accent.
+
+  [ ANIMATE PROMPT (IMAGE-TO-VIDEO, ONE CONTINUOUS TAKE, <=15S) ]
+
+Animate this exact still. The escalator, its metal steps, the glowing blue LED handrail and
+step-edge lighting, the blue-white glass atrium light, and the ordinary shoppers riding it
+must stay identical to the starting frame. One slow continuous camera move only: a slow
+forward push toward the top of the escalator, tracking low and steady, as if the camera
+itself is riding the ascent. No cuts, no orbit, no scene change, no new camera angle. The
+shoppers keep riding at a natural, unhurried pace. The blue LED glow on the handrail and
+steps stays constant and dominant throughout the shot. Audio: driving rock music, live drums,
+distorted electric guitar, roughly 140 bpm, building in intensity across the full take, no
+vocals, no lyrics. Identical materials, proportions and colours from the first frame to the
+last.
+
+-------------------------------------------------------------------------------
+RECOVERY AT DEPTH
+-------------------------------------------------------------------------------
+A robotic pool cleaner, narrated as a deep-ocean salvage dive.
+
+NOTE: Two prompts, ready to paste into Grok Imagine. Stills first (Image mode),
+pick one, then animate that single chosen still. Do not skip the still step.
+
+  [ STILL PROMPT - IMAGE MODE, 9:16, QUALITY, X4 ]
+
+A small robotic pool cleaner resting on the tiled floor of a lit backyard swimming pool at
+night, seen from a low diver's-eye angle close to the tile. Its float cable trails up out
+of frame toward the surface. A pool ladder and the tile line are visible within the first
+second so the setting reads instantly as a residential swimming pool. The frame is
+dominated by chlorine blue water and blue underwater pool lights, with blue caustic light
+rippling across the tile and across the machine's white-and-blue segmented shell. Water
+clarity is high, a little particulate drifting slowly through the light beam. Sharp focus
+on the machine, cinematic, photoreal. No text, no overlays, no logos. 9:16 vertical.
+
+  [ ANIMATE PROMPT - ONE CONTINUOUS TAKE ]
+
+Animate this still with one slow continuous camera move only: a slow forward drift toward
+the robotic cleaner. No cuts, no orbit, no scene change. Re-describe the hardware as it
+holds its position on the tiled pool floor: a compact robotic cleaner unit with a
+white-and-blue segmented shell, twin drive tracks, a mesh intake at the front, and a float
+cable trailing straight up out of frame toward the surface. The water stays chlorine blue
+for the whole shot, lit by blue underwater pool lights, with blue caustic light rippling
+across the tile and across the machine's shell - blue is the dominant color of the entire
+frame, not an accent. Score the shot with driving rock music: live drums, distorted
+electric guitar, no vocals, tempo holding steady around 135 bpm for the full length of the
+take. Identical materials, proportions and colours from the first frame to the last.
+
+-------------------------------------------------------------------------------
+ALL STATIONS ARE GO
+-------------------------------------------------------------------------------
+A 24-hour laundromat at 3am, narrated as a mission-control launch sequence.
+
+NOTE: Chris's seat is Grok Imagine (SuperGrok, free tier). Stills first, Image
+mode, Quality, x4, 9:16. Pick one still, then animate it in a single continuous
+take. Paste these prompts as-is.
+
+  [ STILL PROMPT (IMAGE MODE, 9:16, QUALITY, X4) ]
+
+A photorealistic empty 24-hour laundromat at three in the morning. An unbroken wall of a dozen
+chrome-front commercial front-loading washing machines runs the length of the room, every drum
+mid-cycle, spinning fast and blurred behind round glass doors, water visibly sloshing with a
+blue tint inside each one. Overhead blue-white fluorescent tube lighting is the dominant light
+source in the frame, casting a cold blue-white wash across the walls, the machines and the
+floor. Each washer's control panel glows with a small blue LED display. In the foreground, a
+stainless steel folding table and a row of empty orange plastic chairs sit under the lights,
+and a bank of coin slots is visible on the machine fronts. Speckled linoleum floor reflecting
+the blue light. Wide static angle, deep depth of field, no people, cinematic realism, slight
+lens vignette. Vertical 9:16 frame.
+
+  [ ANIMATE PROMPT (SINGLE CONTINUOUS TAKE, IMAGE-TO-VIDEO, FROM THE CHOSEN STILL) ]
+
+Animate this exact laundromat: the same wall of chrome-front commercial washing machines, the
+same drums still spinning fast behind round glass doors with blue-tinted water sloshing inside,
+the same cold blue-white fluorescent overhead lighting, the same glowing blue LED control panel
+displays, the same stainless folding table and empty orange plastic chairs, the same coin slots
+and speckled linoleum floor. One slow continuous camera move only: a slow forward push down the
+row of machines. No orbit, no cuts, no scene changes. Add a driving rock soundtrack under the
+shot: live drums, distorted electric guitar, roughly 150 beats per minute, steady through the
+whole take, instrumental with no vocals. Identical materials, proportions and colours from the
+first frame to the last frame.
+
+-------------------------------------------------------------------------------
+THE NORTHERN EXCAVATOR
+-------------------------------------------------------------------------------
+A bucket-wheel excavator at golden hour, narrated as a migrating animal.
+
+NOTE: Note: EXCAVATOR_01 ("The Northern Excavator," live at
+instagram.com/reel/DbtySv2pO5x) was built before this repo started saving Grok
+prompts alongside the finished kit. The prompts below were authored after the
+fact, from the finished cover frame and caption, to bring this post up to the
+current build-kit standard. They are NOT the exact prompts that generated the
+live reel, and they should be read as a faithful reconstruction, not a
+recovered original.
+
+  [ STILL PROMPT (IMAGE MODE, 9:16, QUALITY, X4) ]
+
+A colossal bucket-wheel excavator crossing open steppe grassland at golden hour, shot like a
+nature documentary subject. Weathered rust-orange and dark steel construction, a huge toothed
+digging wheel mounted at the end of a long lattice-truss boom, operator cabins and catwalks
+stacked beneath the boom's crossbraces, the whole machine riding on two wide crawler tracks
+that carve fresh ruts into dry tan earth. The low sun sits near the horizon on the left,
+flooding the scene in warm ochre and amber light. A plume of dust and haze trails up and back
+from the tracks, lit gold from behind. Foreground is dry steppe grass, bent and backlit. Shot
+low and wide, machine centered and filling the frame, sky graduating from warm amber near the
+horizon to dusty rose-grey above. Photoreal, cinematic, high dynamic range, sharp focus on the
+machine, shallow falloff into the haze behind it. Vertical 9:16 frame. Warm ochre and amber
+light dominate the image; no blue anywhere in the frame.
+
+  [ ANIMATE PROMPT ]
+
+Continue this exact scene: the same colossal bucket-wheel excavator, the same rust-orange and
+dark steel hull, the same toothed digging wheel and lattice-truss boom, the same crawler
+tracks carving ruts in the dry tan earth, the same low amber sun on the horizon throwing warm
+light across the machine and the dust plume trailing behind it, the same dry steppe grass in
+the foreground. One slow continuous camera move only: a slow lateral tracking drift alongside
+the machine as it advances across the plain, matching its pace. No cuts, no scene changes, no
+orbit, no camera spin. Audio: sweeping orchestral nature-documentary score, strings and low
+brass, slow unhurried build, no vocals, running continuously for the full length of the take.
+Identical materials, proportions and colours from the first frame to the last.
+
+-------------------------------------------------------------------------------
+THE ENGINEERING EXISTS
+-------------------------------------------------------------------------------
+A magnetic launch rail climbing a ridge. The continuity lesson lives here.
+
+NOTE: Grok Imagine, image-first per S279 doctrine. Stills first (Image mode,
+Quality, x4, 9:16), live seat picks one, then animate that single chosen still.
+
+  [ STILL PROMPT (IMAGE MODE, 9:16, QUALITY, X4) ]
+
+Elevated aerial view looking straight down the spine of a bare rock mountain ridge at
+sunrise, the sun low on the horizon directly ahead, light rays fanning out through thin
+high cloud. A raised mass-driver rail runs the length of the ridge on a chain of black
+steel gantry towers, each one guyed to the bare rock with steel support cables. Built into
+the rail bed, a continuous run of evenly spaced glowing pale blue coil rings recedes in
+perspective toward the sun. Two-thirds of the way up the rail, sitting square in its
+gantry cradle, is a white, hard-edged, faceted payload sled with a blunt nose and no
+windows. The low sun throws long hard-edged shadows from the truss towers across the bare
+grey rock. No vegetation, no buildings, no people. Distant hazy mountain ridgelines fade
+out on the left horizon. Photoreal, cinematic, high dynamic range, sharp focus on the sled
+and the near rail, soft atmospheric falloff into haze toward the sun. Vertical 9:16 frame.
+
+  [ ANIMATE PROMPT ]
+
+Continue this exact mountain ridge rail scene, same sunrise light, same low sun on the
+horizon, same steel gantry towers and guy cables anchored to the bare rock.
+
+--- ON-RECORD FRAGMENT (verbatim from README.md, gap marked) ---
+the same white hard-edged faceted payload sled with a blunt nose and no windows, riding
+the same heavy steel rail with evenly spaced glowing pale blue coil rings [[gap in the
+record - bridging text authored below]] identical materials proportions and colours from
+the first frame to the last.
+--- END ON-RECORD FRAGMENT ---
+
+The sled climbs slowly up the rail toward the sun, gaining speed, fine dust kicking up off
+the rock in its wake as it passes under each gantry tower in turn. One slow continuous
+camera move only: a slow push forward and upward along the rail, following the sled up the
+ridge toward the light. No cuts, no scene changes, no orbit, no camera spin. Audio:
+sparse cinematic synth score, slow building low drone with a rising pulse under it, no
+vocals, running continuously for the full length of the take.
+
+-------------------------------------------------------------------------------
+ARTIFACTS OF THE LATE DIGITAL AGE
+-------------------------------------------------------------------------------
+A carousel: ordinary objects lit as museum pieces.
+
+NOTE: Live post: instagram.com/p/Dbt4keIiXl3
+
+  [ SLIDE 1 OF 4 - THE HALL (ESTABLISHING WIDE SHOT) ]
+
+Hero: `heroes/slide01_hall.jpg`
+
+**Image prompt (Grok Imagine, Image mode, Quality, x4, portrait):**
+
+A long dark museum gallery corridor shot straight down the center aisle, symmetrical
+one-point perspective, camera at eye level. A row of white marble plinths recedes
+into the distance along the centerline, each one lit from directly above by its own
+single hard spotlight beam cutting through visible dust motes in the dark air. Small
+indistinct bronze or gold objects sit on top of each plinth, too far away to read
+clearly except the nearest one. Brass stanchions strung with dark velvet rope run the
+full length of the aisle on both sides, keeping the walkway clear down the middle. A
+small brass placard stands beside each plinth on a thin post. Walls and ceiling fade
+to near-total black beyond the light pools. Floor is dark polished stone, faintly
+reflecting the light cones. Wide, still, reverent, high-end museum exhibition
+photography. Photoreal, cinematic, sharp focus on the nearest plinth, everything
+past the third light pool dissolving into darkness. Portrait frame, 2:3.
+
+---
+
+  [ SLIDE 2 OF 4 - THE TROLLEY (EXHIBIT ONE) ]
+
+Hero: `heroes/slide02_trolley.jpg` (also reused, unedited, as the background for
+Slide 4's CTA - see the animate prompt below)
+
+**Image prompt (Grok Imagine, Image mode, Quality, x4, portrait):**
+
+A single white marble museum plinth centered in a dark gallery, shot close and
+slightly low. On top of the plinth sits an ordinary wire shopping cart / grocery
+trolley, but its entire surface reads as ancient bronze - a worn, tarnished
+brass-gold patina coating the wire basket, frame and four caster wheels, as if the
+cart had been excavated rather than manufactured. It is still unmistakably a
+shopping cart in shape and proportion. One hard spotlight cone falls straight down
+onto the cart from outside the top of frame, dust motes glowing as they drift through
+the beam. A small brass placard on a slim stand sits to the left of the plinth, text
+illegible at this distance. In the foreground, maroon velvet rope strung between two
+brass stanchion posts crosses the bottom of the frame, holding the viewer back from
+the plinth. Gallery walls behind fade from charcoal gray into black. Deadpan museum
+object photography, shallow depth of field, sharp on the cart, soft falloff into the
+dark. Photoreal, reverent, single dramatic light source. Portrait frame, 2:3.
+
+---
+
+  [ SLIDE 3 OF 4 - THE CONE (EXHIBIT TWO) ]
+
+Hero: `heroes/slide03_cone.jpg`
+
+**Image prompt (Grok Imagine, Image mode, Quality, x4, portrait):**
+
+A standard orange traffic cone displayed upright on a white marble museum plinth,
+lit and staged exactly like a recovered relic. The cone's surface is heavily
+weathered - deep cracks running down its length, a chipped and broken tip, dark
+patina and fracture lines through the orange plastic, as though centuries old rather
+than roadside equipment. One hard spotlight beam falls straight down from above,
+dust motes visible in the light column. A small brass placard sits flat on the
+plinth surface just beside the cone's base, text illegible. In the foreground, dark
+maroon velvet rope strung between brass stanchion posts spans the frame, standing
+between the viewer and the plinth. Behind the cone, the gallery opens into dark stone
+pillars and columns receding into blackness, suggesting classical museum
+architecture rather than a plain wall. Reverent single-subject object photography,
+dramatic single light source, sharp focus on the cone, everything else falling into
+shadow. Photoreal, cinematic. Portrait frame, 2:3.
+
+---
+
+  [ SLIDE 4 OF 4 - THE CTA (ANIMATED) ]
+
+Background: the same still used for Slide 2 (`heroes/slide02_trolley.jpg`) with new
+overlay copy ("A NEW ARTIFACT / EVERY WEEK"). This is the one slide in the carousel
+that Grok animates into a short continuous take rather than staying a static image -
+`slides/slide_04_animated.mp4` is the rendered result, with `slides/slide_04.jpg` as
+its static fallback/cover frame.
+
+**Animate prompt (continue the Slide 2 still, one continuous take):**
+
+Continue this exact museum exhibit shot: the same bronze-patina shopping cart on the
+same white marble plinth, the same single spotlight cone raking straight down
+through dust-moted air, the same brass placard on its stand to the left, the same
+maroon velvet rope strung between brass stanchion posts in the foreground, the same
+charcoal gallery walls fading to black behind. One slow continuous camera move only:
+a slow, subtle push forward toward the cart, dust motes drifting gently through the
+light beam as the frame tightens. No cuts, no orbit, no scene change, no camera spin.
+Identical materials, proportions, patina and lighting from the first frame to the
+last. Audio: hushed museum room tone, faint reverberant ambience, no music, no
+dialogue, no narration - the hall stays silent for the full length of the take.
