@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Your KitCrew interview — KitCrew</title>
+<meta name="description" content="A few questions so the Kit Crew builds your MarketHive account in your voice, not from a template."/>
+<meta name="robots" content="noindex,follow"/>
+<link rel="canonical" href="https://kitcrew.ai/onboarding/"/>
+<style>
+  :root{--ink:#0b1120;--paper:#f5f7ff;--white:#fff;--indigo:#6366f1;--teal:#22d3c7;
+    --green:#16a34a;--muted:#5b6780;--line:#dfe4f2;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 72px;}
+  header.hero{background:linear-gradient(160deg,#0b1120,#16213f 60%,#0b1120);color:#fff;
+    padding:40px 0 36px;margin-bottom:30px;}
+  .hero .wrap{padding-bottom:0;}
+  .tag{display:inline-block;font-family:'IBM Plex Mono',Consolas,monospace;font-size:11px;
+    letter-spacing:2.5px;text-transform:uppercase;color:#0b1120;font-weight:700;
+    background:linear-gradient(135deg,var(--teal),var(--indigo));border-radius:999px;padding:6px 14px;}
+  h1{font-size:31px;line-height:1.15;letter-spacing:-.5px;margin:16px 0 10px;font-weight:800;}
+  .hero p{color:#c3cde0;margin:0;max-width:56ch;}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:14px;
+    padding:26px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(11,17,32,.05);}
+  label{display:block;font-weight:600;font-size:14px;margin:0 0 8px;}
+  input[type=text],textarea{width:100%;padding:13px 14px;font-size:16px;font-family:inherit;
+    border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);}
+  textarea{min-height:120px;resize:vertical;}
+  input:focus,textarea:focus{outline:2px solid var(--indigo);outline-offset:1px;border-color:var(--indigo);}
+  button{padding:14px 24px;font-size:16px;font-weight:700;color:#fff;
+    background:linear-gradient(135deg,var(--indigo),#4f46e5);border:0;border-radius:10px;
+    cursor:pointer;font-family:inherit;}
+  button:hover{filter:brightness(1.08);}
+  button:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+  button.ghost{background:none;color:var(--muted);font-weight:600;font-size:14px;padding:14px 10px;}
+  .row{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;}
+  .msg{margin-top:14px;padding:13px 15px;border-radius:9px;font-size:15px;display:none;}
+  .msg.err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
+  .msg.info{display:block;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
+  .prog{font-family:'IBM Plex Mono',Consolas,monospace;font-size:12px;color:var(--muted);
+    letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;}
+  .bar{height:6px;background:#e6ebf7;border-radius:99px;overflow:hidden;margin-bottom:22px;}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--indigo));width:0;transition:width .35s ease;}
+  .q{font-size:20px;font-weight:700;line-height:1.35;margin:0 0 16px;letter-spacing:-.2px;}
+  .followup{background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;padding:14px 16px;
+    margin-bottom:16px;font-size:14.5px;color:#0f766e;}
+  .followup b{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+  .done h2{color:var(--green);margin-top:0;}
+  .fine{font-size:13px;color:var(--muted);margin-top:18px;}
+  footer{border-top:1px solid var(--line);margin-top:34px;padding-top:18px;font-size:13px;color:var(--muted);}
+  @media(max-width:600px){h1{font-size:25px;}.card{padding:20px 16px;}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">KitCrew &middot; Step 2</span>
+    <h1>Tell us about your business.</h1>
+    <p>Twelve short questions. This is what makes your buildout yours instead of a template with your name dropped in.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card" id="gate">
+    <label for="u">Your MarketHive username</label>
+    <input type="text" id="u" placeholder="e.g. richardgarcia" autocomplete="username"/>
+    <div class="row">
+      <button id="go">Start my interview</button>
+    </div>
+    <div class="msg" id="gmsg" role="status" aria-live="polite"></div>
+    <p class="fine">You need a signed authorization first. If you haven't done that, <a href="https://kitcrew.ai/authorize/">sign it here</a> and come straight back.</p>
+  </div>
+
+  <div class="card" id="qcard" style="display:none">
+    <div class="prog" id="prog"></div>
+    <div class="bar"><i id="barfill"></i></div>
+    <div class="followup" id="fu" style="display:none"><b>One more thing</b><span id="futext"></span></div>
+    <p class="q" id="qtext"></p>
+    <textarea id="ans" placeholder="Type your answer..."></textarea>
+    <div class="row">
+      <button id="next">Send</button>
+      <button class="ghost" id="skip">Skip this one</button>
+    </div>
+    <div class="msg" id="qmsg" role="status" aria-live="polite"></div>
+    <p class="fine">Answer in your own words. Plain is better than polished — we are matching how you actually talk.</p>
+  </div>
+
+  <footer>KitCrew is a service of <strong>KitFire AI Inc</strong> &middot; <a href="https://kitcrew.ai/terms/">Terms</a></footer>
+</div>
+
+<script>
+(function(){
+  var EP="https://obwjlqrzshdglrccsbtl.supabase.co/functions/v1/kitcrew-onboard";
+  var session=null,curKey=null,total=12;
+  var gate=document.getElementById('gate'),qcard=document.getElementById('qcard');
+  var gmsg=document.getElementById('gmsg'),qmsg=document.getElementById('qmsg');
+  var qtext=document.getElementById('qtext'),ans=document.getElementById('ans');
+  var fu=document.getElementById('fu'),futext=document.getElementById('futext');
+  var prog=document.getElementById('prog'),bar=document.getElementById('barfill');
+  var go=document.getElementById('go'),next=document.getElementById('next'),skip=document.getElementById('skip');
+
+  function say(el,kind,t){el.className='msg '+kind;el.textContent=t;}
+  function clear(el){el.className='msg';el.textContent='';}
+
+  function post(payload){
+    return fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)}).then(function(r){return r.json();});
+  }
+
+  function showQuestion(q){
+    fu.style.display='none';
+    curKey=q.key; qtext.textContent=q.text; ans.value='';
+    total=q.total||12;
+    prog.textContent='Question '+(q.index+1)+' of '+total;
+    bar.style.width=Math.round((q.index/total)*100)+'%';
+    clear(qmsg); ans.focus();
+  }
+
+  function showFollowup(f){
+    futext.textContent=f.text; fu.style.display='block';
+    qtext.textContent='Let’s tighten that one up.';
+    ans.value=''; clear(qmsg); ans.focus();
+  }
+
+  function finish(msg){
+    qcard.className='card done';
+    qcard.innerHTML='<h2>That’s everything.</h2><p>'+(msg||'Your crew has what it needs.')+
+      '</p><p style="color:#5b6780;font-size:14px">Watch your thread in the Kit Crew group. We post when we start building and again when it’s live.</p>';
+  }
+
+  go.addEventListener('click',function(){
+    var u=document.getElementById('u').value.trim();
+    if(!u){return say(gmsg,'err','Please enter your MarketHive username.');}
+    go.disabled=true;go.textContent='Checking...';
+    post({action:'start',mh_username:u}).then(function(d){
+      go.disabled=false;go.textContent='Start my interview';
+      if(d&&d.ok){
+        if(d.done){gate.style.display='none';qcard.style.display='block';return finish(d.message);}
+        session=d.session_id; gate.style.display='none'; qcard.style.display='block';
+        if(d.resumed){say(qmsg,'info','Picking up where you left off.');}
+        showQuestion(d.question);
+      } else { say(gmsg,'err',(d&&d.error)||'Something went wrong. Please try again.'); }
+    }).catch(function(){go.disabled=false;go.textContent='Start my interview';
+      say(gmsg,'err','Network problem. Please try again.');});
+  });
+
+  function send(skipIt){
+    var v=ans.value.trim();
+    if(!skipIt&&!v){return say(qmsg,'err','Type an answer, or use Skip this one.');}
+    next.disabled=true;skip.disabled=true;next.textContent='Sending...';
+    post({action:'answer',session_id:session,question_key:curKey,answer:v,skip:!!skipIt})
+     .then(function(d){
+       next.disabled=false;skip.disabled=false;next.textContent='Send';
+       if(!d||!d.ok){return say(qmsg,'err',(d&&d.error)||'Something went wrong.');}
+       if(d.done){return finish(d.message);}
+       if(d.followup){return showFollowup(d.followup);}
+       if(d.question){return showQuestion(d.question);}
+     }).catch(function(){next.disabled=false;skip.disabled=false;next.textContent='Send';
+       say(qmsg,'err','Network problem. Please try again.');});
+  }
+  next.addEventListener('click',function(){send(false);});
+  skip.addEventListener('click',function(){send(true);});
+  ans.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){send(false);}});
+})();
+</script>
+</body>
+</html>
