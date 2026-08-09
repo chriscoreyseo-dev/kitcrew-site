@@ -7,61 +7,84 @@
 <meta name="description" content="Authorize KitCrew to build out your MarketHive account. One click, no password, revocable any time."/>
 <meta name="robots" content="noindex,follow"/>
 <link rel="canonical" href="https://kitcrew.ai/authorize/"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
+  /* KitCrew house theme — same palette as the group splash page.
+     Dark navy shell, teal accent, gold for the offer, green for the step rail. */
   :root{
-    --ink:#0b1120; --ink2:#1b2942; --paper:#f5f7ff; --white:#ffffff;
-    --indigo:#6366f1; --teal:#22d3c7; --muted:#5b6780; --line:#dfe4f2;
-    --ok:#0f9d58; --warn:#b45309;
+    --bg:#070b16; --panel:#0a0f1e; --panel2:#0d1424;
+    --ink:#e6ecf5; --muted:#c3cde0; --dim:#8fa0bd;
+    --teal:#2dd4bf; --gold:#f0b64a; --green:#4ade80;
+    --line2:rgba(255,255,255,.08);
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    line-height:1.6;-webkit-font-smoothing:antialiased;}
-  .wrap{max-width:760px;margin:0 auto;padding:0 20px 72px;}
-  header.hero{background:linear-gradient(160deg,#0b1120,#16213f 60%,#0b1120);color:#fff;
-    padding:44px 0 40px;margin-bottom:34px;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter','Segoe UI',Helvetica,Arial,sans-serif;line-height:1.6;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 22px 72px;}
+  header.hero{position:relative;overflow:hidden;padding:54px 0 46px;margin-bottom:32px;
+    background:radial-gradient(circle at 50% 0%,rgba(74,222,128,.10),rgba(7,11,22,0) 62%),
+      linear-gradient(160deg,#0a0f1e,#0d1526 55%,#070b16);
+    border-bottom:1px solid var(--line2);}
   .hero .wrap{padding-bottom:0;}
   .tag{display:inline-block;font-family:'IBM Plex Mono',Consolas,monospace;font-size:11px;
-    letter-spacing:2.5px;text-transform:uppercase;color:#0b1120;font-weight:700;
-    background:linear-gradient(135deg,var(--teal),var(--indigo));border-radius:999px;padding:6px 14px;}
-  h1{font-size:34px;line-height:1.15;letter-spacing:-.5px;margin:18px 0 10px;font-weight:800;}
-  .hero p{color:#c3cde0;margin:0;max-width:56ch;}
-  .card{background:var(--white);border:1px solid var(--line);border-radius:14px;
-    padding:28px 26px;margin-bottom:22px;box-shadow:0 1px 3px rgba(11,17,32,.05);}
-  h2{font-size:19px;margin:0 0 14px;letter-spacing:-.2px;}
-  .card ul{margin:0;padding-left:20px;}
-  .card li{margin-bottom:10px;}
-  .never{background:#f0fdfa;border-color:#99f6e4;}
-  .never strong{color:#0f766e;}
-  label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px;}
-  input[type=text],input[type=email]{width:100%;padding:12px 14px;font-size:16px;
-    border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-family:inherit;}
-  input:focus{outline:2px solid var(--indigo);outline-offset:1px;border-color:var(--indigo);}
-  .agree{display:flex;gap:12px;align-items:flex-start;background:#f8faff;border:1px solid var(--line);
-    border-radius:10px;padding:16px;margin:22px 0 6px;}
-  .agree input{margin-top:3px;width:19px;height:19px;accent-color:var(--indigo);flex:none;}
-  .agree label{margin:0;font-weight:500;font-size:14.5px;}
-  button{width:100%;margin-top:18px;padding:15px 20px;font-size:16.5px;font-weight:700;
-    color:#fff;background:linear-gradient(135deg,var(--indigo),#4f46e5);border:0;border-radius:10px;
-    cursor:pointer;font-family:inherit;letter-spacing:.2px;}
-  button:hover{filter:brightness(1.08);}
-  button:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+    letter-spacing:3px;text-transform:uppercase;color:#062d16;font-weight:600;
+    background:linear-gradient(135deg,var(--green),#22c55e);border-radius:999px;padding:6px 15px;}
+  h1{font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:35px;line-height:1.14;
+    letter-spacing:-.6px;margin:18px 0 12px;}
+  h1 .tint{color:var(--teal);}
+  .hero p{color:var(--muted);margin:0;max-width:58ch;font-size:16.5px;}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:14px;
+    padding:26px 24px;margin-bottom:20px;}
+  h2{font-family:'Sora','Inter',sans-serif;font-size:19px;margin:0 0 14px;
+    letter-spacing:-.2px;color:#fff;}
+  .card ul{margin:0;padding-left:20px;color:var(--muted);}
+  .card li{margin-bottom:11px;}
+  .card p{color:var(--muted);}
+  .card strong{color:var(--ink);}
+  .never{background:rgba(45,212,191,.06);border-color:rgba(45,212,191,.26);}
+  .never h2{color:var(--teal);}
+  .never strong{color:var(--teal);}
+  .term{background:rgba(240,182,74,.06);border-color:rgba(240,182,74,.30);}
+  .term h2{color:var(--gold);}
+  .term strong{color:var(--gold);}
+  .sign{border-color:rgba(74,222,128,.40);border-width:2px;}
+  .sign h2{color:var(--green);}
+  .steptag{display:inline-block;font-family:'IBM Plex Mono',Consolas,monospace;font-size:10.5px;
+    letter-spacing:2.5px;text-transform:uppercase;color:#062d16;font-weight:700;
+    background:var(--green);border-radius:999px;padding:5px 12px;margin-bottom:12px;}
+  label{display:block;font-weight:600;font-size:14px;margin:16px 0 7px;color:var(--ink);}
+  input[type=text],input[type=email]{width:100%;padding:13px 14px;font-size:16px;font-family:inherit;
+    border:1px solid rgba(74,222,128,.28);border-radius:9px;background:#070c18;color:var(--ink);}
+  input::placeholder{color:#5d6d8a;}
+  input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(74,222,128,.16);}
+  .agree{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.03);
+    border:1px solid var(--line2);border-radius:10px;padding:16px;margin:22px 0 6px;}
+  .agree input{margin-top:3px;width:19px;height:19px;accent-color:var(--green);flex:none;}
+  .agree label{margin:0;font-weight:500;font-size:14.5px;color:var(--muted);}
+  .agree a{color:var(--teal);}
+  button{width:100%;margin-top:20px;padding:16px 20px;border:0;border-radius:10px;cursor:pointer;
+    font-family:'IBM Plex Mono',Consolas,monospace;font-size:13px;letter-spacing:2.5px;
+    text-transform:uppercase;font-weight:600;color:#062d16;
+    background:linear-gradient(135deg,var(--green),#22c55e);
+    transition:filter .2s ease,transform .2s ease;}
+  button:hover{filter:brightness(1.1);transform:translateY(-1px);}
+  button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none;}
   .msg{margin-top:16px;padding:14px 16px;border-radius:9px;font-size:15px;display:none;}
-  .msg.err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
-  .msg.ok{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
-  .fine{font-size:13px;color:var(--muted);margin-top:22px;}
-  .fine a{color:var(--indigo);}
-  footer{border-top:1px solid var(--line);margin-top:38px;padding-top:20px;font-size:13px;color:var(--muted);}
-  .done h2{color:var(--ok);}
-  @media(max-width:600px){h1{font-size:27px;} .card{padding:22px 18px;}}
+  .msg.err{display:block;background:rgba(248,113,113,.10);border:1px solid rgba(248,113,113,.35);color:#fca5a5;}
+  .fine{font-size:13px;color:var(--dim);margin-top:20px;}
+  .fine a,footer a{color:var(--teal);}
+  footer{border-top:1px solid var(--line2);margin-top:36px;padding-top:20px;font-size:13px;color:var(--dim);}
+  .done h2{color:var(--green);font-size:24px;}
+  @media(max-width:600px){h1{font-size:27px;} .card{padding:21px 17px;}}
 </style>
 </head>
 <body>
 
 <header class="hero">
   <div class="wrap">
-    <span class="tag">KitCrew &middot; Member Authorization</span>
-    <h1>Authorize your buildout.</h1>
+    <span class="tag">KitCrew &middot; Step 1</span>
+    <h1>Authorize your <span class="tint">buildout.</span></h1>
     <p>One short form. It tells us we can build inside your MarketHive account, and it is the only thing standing between you and the queue.</p>
   </div>
 </header>
@@ -84,11 +107,11 @@
       <li>We never handle your payment details, wallets, or banking logins.</li>
       <li><strong>Your personal news feed stays yours.</strong> We do not post there in your name unless you ask us to.</li>
       <li>Every action we take is logged, and you can see that record any time.</li>
-      <li><strong>No income claims, ever</strong> — to you or to your prospects. We count that as a feature.</li>
+      <li><strong>No income claims, ever</strong> &mdash; to you or to your prospects. We count that as a feature.</li>
     </ul>
   </div>
 
-  <div class="card">
+  <div class="card term">
     <h2>Your Entrepreneur One keeps this running</h2>
     <ul>
       <li><strong>The Instagram channels are run by Tom Prendergast</strong>, ongoing, for as long as your Entrepreneur One stays active. One channel per E1 you activate. That side is his; the Kit Crew builds and maintains your MarketHive account.</li>
@@ -102,7 +125,8 @@
     <p style="margin:0"><strong>Ongoing operation is different.</strong> If you later subscribe to Duplicator Pro and our agents start publishing in your name, that starts approve-first: agents draft, you approve what goes out. You can revoke this authorization at any time by telling us in writing.</p>
   </div>
 
-  <form class="card" id="f" novalidate>
+  <form class="card sign" id="f" novalidate>
+    <span class="steptag">Step 1 &middot; Start here</span>
     <h2>Sign it</h2>
     <label for="full_name">Your full name</label>
     <input type="text" id="full_name" name="full_name" autocomplete="name" required/>
@@ -124,7 +148,7 @@
     <p class="fine">Typing your name above acts as your signature. We record the date, the exact terms you agreed to, and nothing else. Questions? <a href="mailto:ceo@kitfire.ai">ceo@kitfire.ai</a></p>
   </form>
 
-  <footer>KitCrew is a service of <strong>KitFire AI Inc</strong> &middot; Flushing, Michigan &middot; <a href="https://kitcrew.ai/terms/">Terms</a> &middot; <a href="https://kitcrew.ai/privacy.html">Privacy</a></footer>
+  <footer>KitCrew, by KitFire &middot; KitFire AI Inc &middot; Flushing, Michigan &middot; <a href="https://kitcrew.ai/terms/">Terms</a> &middot; <a href="https://kitcrew.ai/privacy.html">Privacy</a></footer>
 </div>
 
 <script>
@@ -140,7 +164,8 @@
       full_name: document.getElementById('full_name').value.trim(),
       mh_username: document.getElementById('mh_username').value.trim(),
       email: document.getElementById('email').value.trim(),
-      agreed: document.getElementById('agreed').checked
+      agreed: document.getElementById('agreed').checked,
+      source: 'kitcrew.ai/authorize'
     };
     if(!payload.full_name){ return show('err','Please enter your full name.'); }
     if(!payload.mh_username){ return show('err','Please enter your MarketHive username.'); }
@@ -154,10 +179,10 @@
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d && d.ok){
-        f.innerHTML = '<h2>You\'re authorized.</h2><p>' +
+        f.className = 'card sign done';
+        f.innerHTML = '<h2>You\'re authorized.</h2><p style="color:#c3cde0">' +
           (d.message || 'You\'re in the build queue.') +
-          '</p><p style="color:#5b6780;font-size:14px">Watch your thread in the Kit Crew group. We post every step there, including when we start and when it\'s done.</p>';
-        f.className = 'card done';
+          '</p><p style="color:#8fa0bd;font-size:14px">Next step is a few questions about your business so the build sounds like you. <a href="https://kitcrew.ai/onboarding/" style="color:#2dd4bf">Start your interview &rarr;</a></p>';
       } else {
         btn.disabled = false; btn.textContent = 'Authorize my buildout';
         show('err', (d && d.error) || 'We could not record that. Please try again.');
