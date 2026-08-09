@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Authorize your KitCrew buildout — KitCrew</title>
+<meta name="description" content="Authorize KitCrew to build out your MarketHive account. One click, no password, revocable any time."/>
+<meta name="robots" content="noindex,follow"/>
+<link rel="canonical" href="https://kitcrew.ai/authorize/"/>
+<style>
+  :root{
+    --ink:#0b1120; --ink2:#1b2942; --paper:#f5f7ff; --white:#ffffff;
+    --indigo:#6366f1; --teal:#22d3c7; --muted:#5b6780; --line:#dfe4f2;
+    --ok:#0f9d58; --warn:#b45309;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 72px;}
+  header.hero{background:linear-gradient(160deg,#0b1120,#16213f 60%,#0b1120);color:#fff;
+    padding:44px 0 40px;margin-bottom:34px;}
+  .hero .wrap{padding-bottom:0;}
+  .tag{display:inline-block;font-family:'IBM Plex Mono',Consolas,monospace;font-size:11px;
+    letter-spacing:2.5px;text-transform:uppercase;color:#0b1120;font-weight:700;
+    background:linear-gradient(135deg,var(--teal),var(--indigo));border-radius:999px;padding:6px 14px;}
+  h1{font-size:34px;line-height:1.15;letter-spacing:-.5px;margin:18px 0 10px;font-weight:800;}
+  .hero p{color:#c3cde0;margin:0;max-width:56ch;}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:14px;
+    padding:28px 26px;margin-bottom:22px;box-shadow:0 1px 3px rgba(11,17,32,.05);}
+  h2{font-size:19px;margin:0 0 14px;letter-spacing:-.2px;}
+  .card ul{margin:0;padding-left:20px;}
+  .card li{margin-bottom:10px;}
+  .never{background:#f0fdfa;border-color:#99f6e4;}
+  .never strong{color:#0f766e;}
+  label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px;}
+  input[type=text],input[type=email]{width:100%;padding:12px 14px;font-size:16px;
+    border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-family:inherit;}
+  input:focus{outline:2px solid var(--indigo);outline-offset:1px;border-color:var(--indigo);}
+  .agree{display:flex;gap:12px;align-items:flex-start;background:#f8faff;border:1px solid var(--line);
+    border-radius:10px;padding:16px;margin:22px 0 6px;}
+  .agree input{margin-top:3px;width:19px;height:19px;accent-color:var(--indigo);flex:none;}
+  .agree label{margin:0;font-weight:500;font-size:14.5px;}
+  button{width:100%;margin-top:18px;padding:15px 20px;font-size:16.5px;font-weight:700;
+    color:#fff;background:linear-gradient(135deg,var(--indigo),#4f46e5);border:0;border-radius:10px;
+    cursor:pointer;font-family:inherit;letter-spacing:.2px;}
+  button:hover{filter:brightness(1.08);}
+  button:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+  .msg{margin-top:16px;padding:14px 16px;border-radius:9px;font-size:15px;display:none;}
+  .msg.err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
+  .msg.ok{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+  .fine{font-size:13px;color:var(--muted);margin-top:22px;}
+  .fine a{color:var(--indigo);}
+  footer{border-top:1px solid var(--line);margin-top:38px;padding-top:20px;font-size:13px;color:var(--muted);}
+  .done h2{color:var(--ok);}
+  @media(max-width:600px){h1{font-size:27px;} .card{padding:22px 18px;}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">KitCrew &middot; Member Authorization</span>
+    <h1>Authorize your buildout.</h1>
+    <p>One short form. It tells us we can build inside your MarketHive account, and it is the only thing standing between you and the queue.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>What you're authorizing</h2>
+    <ul>
+      <li><strong>The interview.</strong> A few questions about your business so what we build sounds like you and not like a template.</li>
+      <li><strong>The buildout.</strong> Your group, splash page, capture pages, email sequence, blog and profile, built and wired together end to end.</li>
+      <li><strong>Ongoing operation</strong> only if you subscribe to Duplicator Pro. The buildout alone does not include it.</li>
+    </ul>
+  </div>
+
+  <div class="card never">
+    <h2>How access works, and what we never do</h2>
+    <ul>
+      <li><strong>We never ask for, store, or enter your password.</strong> Access happens through a session you open, or access MarketHive provides with your authorization.</li>
+      <li>We never handle your payment details, wallets, or banking logins.</li>
+      <li><strong>Your personal news feed stays yours.</strong> We do not post there in your name unless you ask us to.</li>
+      <li>Every action we take is logged, and you can see that record any time.</li>
+      <li><strong>No income claims, ever</strong> — to you or to your prospects. We count that as a feature.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>We build it, then you tell us what to change</h2>
+    <p style="margin:0 0 12px">We are not going to stop and ask you to approve every headline while we work. We build the whole system, tell you in the group that it is done, and you review it. If something is not right, say so and we fix it. It is your account and nothing we build is locked.</p>
+    <p style="margin:0"><strong>Ongoing operation is different.</strong> If you later subscribe to Duplicator Pro and our agents start publishing in your name, that starts approve-first: agents draft, you approve what goes out. You can revoke this authorization at any time by telling us in writing.</p>
+  </div>
+
+  <form class="card" id="f" novalidate>
+    <h2>Sign it</h2>
+    <label for="full_name">Your full name</label>
+    <input type="text" id="full_name" name="full_name" autocomplete="name" required/>
+
+    <label for="mh_username">Your MarketHive username</label>
+    <input type="text" id="mh_username" name="mh_username" placeholder="e.g. chriscorey" autocomplete="username" required/>
+
+    <label for="email">Your email</label>
+    <input type="email" id="email" name="email" autocomplete="email" required/>
+
+    <div class="agree">
+      <input type="checkbox" id="agreed"/>
+      <label for="agreed">I authorize KitCrew (KitFire AI Inc) to access my MarketHive account and perform the work above, under the <a href="https://kitcrew.ai/terms/" target="_blank" rel="noopener">KitCrew Terms of Service</a>.</label>
+    </div>
+
+    <button type="submit" id="btn">Authorize my buildout</button>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+    <p class="fine">Typing your name above acts as your signature. We record the date, the exact terms you agreed to, and nothing else. Questions? <a href="mailto:ceo@kitfire.ai">ceo@kitfire.ai</a></p>
+  </form>
+
+  <footer>KitCrew is a service of <strong>KitFire AI Inc</strong> &middot; Flushing, Michigan &middot; <a href="https://kitcrew.ai/terms/">Terms</a> &middot; <a href="https://kitcrew.ai/privacy.html">Privacy</a></footer>
+</div>
+
+<script>
+(function(){
+  var ENDPOINT = "https://obwjlqrzshdglrccsbtl.supabase.co/functions/v1/kitcrew-consent";
+  var f = document.getElementById('f'), btn = document.getElementById('btn'), msg = document.getElementById('msg');
+
+  function show(kind, text){ msg.className = 'msg ' + kind; msg.textContent = text; }
+
+  f.addEventListener('submit', function(e){
+    e.preventDefault();
+    var payload = {
+      full_name: document.getElementById('full_name').value.trim(),
+      mh_username: document.getElementById('mh_username').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      agreed: document.getElementById('agreed').checked
+    };
+    if(!payload.full_name){ return show('err','Please enter your full name.'); }
+    if(!payload.mh_username){ return show('err','Please enter your MarketHive username.'); }
+    if(!payload.email){ return show('err','Please enter your email address.'); }
+    if(!payload.agreed){ return show('err','Please check the box to authorize the buildout.'); }
+
+    btn.disabled = true; btn.textContent = 'Recording...'; show('', '');
+    fetch(ENDPOINT, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.ok){
+        f.innerHTML = '<h2>You\'re authorized.</h2><p>' +
+          (d.message || 'You\'re in the build queue.') +
+          '</p><p style="color:#5b6780;font-size:14px">Watch your thread in the Kit Crew group. We post every step there, including when we start and when it\'s done.</p>';
+        f.className = 'card done';
+      } else {
+        btn.disabled = false; btn.textContent = 'Authorize my buildout';
+        show('err', (d && d.error) || 'We could not record that. Please try again.');
+      }
+    })
+    .catch(function(){
+      btn.disabled = false; btn.textContent = 'Authorize my buildout';
+      show('err','Network problem. Please try again in a moment.');
+    });
+  });
+})();
+</script>
+</body>
+</html>
