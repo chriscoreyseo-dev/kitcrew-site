@@ -26,9 +26,15 @@
   </url>
   <url>
     <loc>https://kitcrew.ai/blog/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kitcrew.ai/blog/answering-dms-and-comments-network-marketing/</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://kitcrew.ai/blog/why-network-marketing-leads-go-cold/</loc>
