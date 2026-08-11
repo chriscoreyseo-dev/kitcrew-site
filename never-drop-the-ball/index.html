@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Somebody Asked You For The Link At 2am — KitCrew, by KitFire</title>
+<meta name="description" content="Someone asks for your link in the comments — they get it in their DMs, written fresh, any time. A one-time setup for your own Instagram account."/>
+<!--
+  STAGED PAGE — NOT LIVE. Built under cockpit/OVERNIGHT_QUEUE_S297.md's governing rule
+  (BUILD EVERYTHING, PROMOTE NOTHING). The Stripe Payment Link for this $199 one-time
+  product does not exist yet (Chris's hands, RULE ZERO — S297-DRL-04 rules the price,
+  not the product). This page is intentionally NOT in nav, sitemap.xml, or llms.txt, and
+  carries a noindex tag, until that link exists.
+
+  TO GO LIVE (two edits, both one line):
+    1. assets/brand.js — set CTA_ACCOUNT_SETUP_URL to the real Stripe Payment Link.
+       Every [data-buy-setup] element on this page reads that one value.
+    2. This file — remove the <meta name="robots" content="noindex,follow"/> tag below.
+  Then add the page to sitemap.xml and nav at the operator's discretion (still not this
+  agent's call — business/promotion decisions stay operator-hands per S236 canon).
+-->
+<meta name="robots" content="noindex,follow"/>
+<link rel="canonical" href="https://kitcrew.ai/never-drop-the-ball/"/>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+<meta property="og:title" content="Somebody Asked You For The Link At 2am"/>
+<meta property="og:description" content="They get it in their DMs, written fresh, any time — whether you're awake or not. A one-time setup for your own Instagram account."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://kitcrew.ai/never-drop-the-ball/"/>
+<meta property="og:site_name" content="KitCrew"/>
+<meta property="og:image" content="https://kitcrew.ai/assets/blog-followup.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://kitcrew.ai/assets/blog-followup.jpg"/>
+<meta name="twitter:title" content="Somebody Asked You For The Link At 2am"/>
+<meta name="twitter:description" content="They get it in their DMs, written fresh, any time — whether you're awake or not."/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=2"/>
+<link rel="alternate" type="application/rss+xml" title="KitCrew Blog" href="/blog/feed.xml"/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Instagram Account Setup — KitCrew",
+  "description": "We set your account up so the ones who ask actually get an answer — a comment asking for your link gets it in their DMs, right then, written fresh every time.",
+  "brand": { "@type": "Brand", "name": "KitCrew" },
+  "offers": {
+    "@type": "Offer",
+    "price": "199",
+    "priceCurrency": "USD",
+    "url": "https://kitcrew.ai/never-drop-the-ball/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this against Instagram's rules?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It runs on Instagram's own approved messaging tools, on your account, with your permission. Nothing logs in as you, and nothing goes looking through other people's accounts." }
+    },
+    {
+      "@type": "Question",
+      "name": "What if someone asks it something it does not know?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It hands them to you instead of guessing. We would rather it say nothing than say something wrong with your name on it." }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does it take?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You send us what you want people to receive and where you want them to end up. We build it and hand it back working. We are not going to give you a date we might miss." }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I hate it?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Tell us inside 30 days and we give you the $199 back." }
+    }
+  ]
+}
+</script>
+
+<style>
+  /* Page-scoped additions only — shared style.css untouched (LESSONS.md: a new page that
+     reuses existing classes doesn't need a sitewide stylesheet bump). Voss-letter layout,
+     price-line weight, and the screenshot slot live here. */
+  .sales-letter { max-width: 700px; margin: 0 auto; padding-top: 6px; }
+  .sales-letter h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; margin: 46px 0 16px; }
+  .sales-letter h2:first-of-type { margin-top: 0; }
+  .sales-letter p { color: var(--text-dim); font-size: 16px; margin-bottom: 16px; }
+  .sales-letter strong { color: var(--text); font-weight: 700; }
+  .sales-letter .price-lead { font-family: var(--font-brand); font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 14px; }
+  .sales-letter .qa-grid .pain-card h3 { font-size: 15.5px; font-weight: 700; margin-bottom: 8px; }
+  .proof-slot { margin: 6px 0 44px; }
+  .proof-slot-frame {
+    border: 1px dashed var(--line-strong); border-radius: 14px; background: var(--bg-raise);
+    max-width: 300px; margin: 0 auto; aspect-ratio: 9 / 16;
+    display: flex; align-items: center; justify-content: center; padding: 22px; text-align: center;
+  }
+  .proof-slot-label { font-size: 12.5px; color: var(--text-faint); font-style: italic; line-height: 1.6; }
+  .close-cta { text-align: center; margin-top: 30px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="wordmark" href="/">
+      <svg class="mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="kc-g-nav" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c7"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="url(#kc-g-nav)"/>
+        <g stroke="#f5f7ff" stroke-width="1.6" stroke-linecap="round" opacity="0.85">
+          <line x1="16" y1="10" x2="10.5" y2="20"/><line x1="16" y1="10" x2="21.5" y2="20"/><line x1="10.5" y1="20" x2="21.5" y2="20"/>
+        </g>
+        <circle cx="16" cy="10" r="3.1" fill="#ffffff"/><circle cx="10.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/><circle cx="21.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/>
+      </svg>
+      <span class="wm-text">KitCrew</span><span class="wm-by">by KitFire</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#crew">The Crew</a>
+      <a href="/#how">How it works</a>
+      <a href="/markethive/">MarketHive</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/blog/">Blog</a>
+      <a href="/prompts/">Video Prompts</a>
+      <a class="btn-login" href="#" data-app-login>Member login</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero" style="padding-bottom:20px;">
+    <h1>Somebody asked you for the link at 2am.<br/><span class="accent">They did not get it.</span></h1>
+  </section>
+
+  <article class="post sales-letter">
+
+    <p>You are probably thinking this is one of those bots.</p>
+    <p>The kind that replies to every single comment with the same four words until the account reads like a vending machine. You have seen those. They are embarrassing, and they make the person running them look like they stopped caring.</p>
+    <p>You would be right to want nothing to do with that.</p>
+    <p>So before anything else: that is the thing we built this to not be.</p>
+
+    <h2>The pain</h2>
+    <p>It probably feels like the only way to keep up is to be on your phone all day.</p>
+    <p>So you try. You answer the ones you catch. You tell yourself you will get the rest tonight.</p>
+    <p>Then a post does better than usual, and forty people comment, and you answer nine of them.</p>
+    <p>The other thirty-one asked you for something and got nothing back. Not because you did not want to. Because you were driving, or working, or asleep, or it was just a lot.</p>
+    <p>Here is the part that stings. <strong>They do not tell you they gave up.</strong> They do not send a follow-up. They scroll on and forget they asked, and it looks exactly like nothing happened.</p>
+    <p>You have likely already tried fixing this by being faster. That is not a speed problem. You are one person and the internet is open at 3am.</p>
+
+    <h2>The band-aid</h2>
+    <p>We set your account up so the ones who ask actually get an answer.</p>
+    <p>Somebody comments asking for your link. They get it, in their DMs, right then. Whether that is Tuesday lunchtime or Sunday at 3am, and whether you are awake or not.</p>
+    <p><strong>Written fresh every time.</strong> Not the same four words forty times over. The next person gets a different sentence than the last one, because the version where everyone gets an identical reply is the version that makes you look like a vending machine.</p>
+    <p><strong>And it remembers.</strong> Everyone who put their hand up ends up on a list. What they asked for. Whether they opened what you sent. You stop guessing who was actually interested.</p>
+    <p>That is it. That is the whole thing.</p>
+    <p>Your account stops dropping the ball, because the thing answering does not get busy, does not forget, and does not sleep.</p>
+
+    <!-- SCREENSHOT SLOT — leave for a real screenshot of a live account answering a real
+         comment/DM. Chris: his close is the live reference; one real account answering
+         someone at 3am beats the whole page. Do not fill this with a mockup or a
+         generated image — it has to be real or it stays empty. -->
+    <figure class="proof-slot">
+      <div class="proof-slot-frame">
+        <span class="proof-slot-label">[ Screenshot slot — real account, real reply, drop image here ]</span>
+      </div>
+    </figure>
+
+    <h2>What you get handed back</h2>
+    <p>On your own account, working, when we give it back to you:</p>
+    <ul class="mh-list">
+      <li>Someone asks for something in your comments, they get a reply, written fresh</li>
+      <li>Whatever you promised in the post lands in their DMs on its own</li>
+      <li>A running list of everyone who asked and who opened it</li>
+      <li>Shortcuts in your inbox so people can find your offer without asking you</li>
+      <li>Three openers on your profile so a first-time visitor has something to tap</li>
+      <li>A clean one-tap way out for anyone who wants it, which is what keeps the account healthy</li>
+    </ul>
+
+    <h2>What it costs</h2>
+    <div class="mh-panel">
+      <p class="price-lead">$199. One time. One account.</p>
+      <p>Not a subscription. Nothing renews with us. There is no contract to get out of.</p>
+      <p style="margin-bottom:0;">And one thing we would rather tell you here than have you find out later: the messaging service this runs on is about <strong>$13 a month</strong>, billed in your name, by them, not us. You own that account and you can cancel it any time you like. Our $199 is the setup, and it is the only thing you pay us.</p>
+    </div>
+
+    <h2>The things you are still thinking</h2>
+    <div class="pain-grid qa-grid">
+      <div class="pain-card">
+        <h3>&ldquo;Is this against Instagram's rules?&rdquo;</h3>
+        <p>No. It runs on Instagram's own approved messaging tools, on your account, with your permission. Nothing logs in as you, and nothing goes looking through other people's accounts.</p>
+      </div>
+      <div class="pain-card">
+        <h3>&ldquo;What if someone asks it something it does not know?&rdquo;</h3>
+        <p>It hands them to you instead of guessing. We would rather it say nothing than say something wrong with your name on it.</p>
+      </div>
+      <div class="pain-card">
+        <h3>&ldquo;How long does it take?&rdquo;</h3>
+        <p>You send us what you want people to receive and where you want them to end up. We build it and hand it back working. We are not going to give you a date we might miss.</p>
+      </div>
+      <div class="pain-card">
+        <h3>&ldquo;What if I hate it?&rdquo;</h3>
+        <p>Tell us inside 30 days and we give you the $199 back.</p>
+      </div>
+    </div>
+
+    <h2>The close</h2>
+    <p>Would it be ridiculous to let your account answer people while you sleep?</p>
+    <p>If it would, no hard feelings, and you should not buy this.</p>
+    <p>If it would not, the only real question left is what another month of doing it by hand costs you in people who asked once and never came back.</p>
+    <p><strong>$199, one time.</strong></p>
+    <div class="close-cta">
+      <a class="btn-primary" href="#stripe-link-pending" data-buy-setup>Set my account up &rarr;</a>
+    </div>
+
+  </article>
+
+</div>
+
+<footer>
+  <div class="wrap foot-inner">
+    <a class="wordmark" href="/">
+      <svg class="mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="kc-g-foot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c7"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="url(#kc-g-foot)"/>
+        <g stroke="#f5f7ff" stroke-width="1.6" stroke-linecap="round" opacity="0.85">
+          <line x1="16" y1="10" x2="10.5" y2="20"/><line x1="16" y1="10" x2="21.5" y2="20"/><line x1="10.5" y1="20" x2="21.5" y2="20"/>
+        </g>
+        <circle cx="16" cy="10" r="3.1" fill="#ffffff"/><circle cx="10.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/><circle cx="21.5" cy="20" r="2.5" fill="#f5f7ff" opacity="0.92"/>
+      </svg>
+      <span class="wm-text">KitCrew</span><span class="wm-by">by KitFire</span>
+    </a>
+    <div class="foot-links">
+      <a href="#" data-app-login>Member login</a>
+      <a href="/markethive/">MarketHive</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/blog/">Blog</a>
+      <a href="/prompts/">Video Prompts</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="https://kitfire.ai/">KitFire</a>
+    </div>
+    <!-- Footer legal text on THIS page only omits the word "agents" (present in the sitewide
+         footer elsewhere) — S295-DRL-04 "Output Never The How" bans that word on this specific
+         product's page. Flagged in the build report, not a silent copy edit. -->
+    <p class="foot-legal">&copy; 2026 KitFire AI Inc. KitCrew is a product of KitFire AI Inc. KitCrew builds and runs done-for-you tools for network marketers and affiliates; it is not affiliated with, endorsed by, or a distributor of any network marketing company. No income claims, ever — that's the point. Contact: ceo@kitfire.ai &middot; (810) 510-2801 (AI-answered, 24/7 &mdash; that's a feature, not a placeholder).</p>
+  </div>
+</footer>
+
+<script src="/assets/brand.js"></script>
+<script src="/assets/motion.js?v=2"></script>
+</body>
+</html>
