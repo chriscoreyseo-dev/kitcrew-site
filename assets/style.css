@@ -78,6 +78,10 @@ h1 .accent { background: linear-gradient(90deg, var(--crew-teal), var(--crew-ind
 section { padding: 72px 0; }
 .sec-kicker { color: var(--crew-teal); font-weight: 700; font-size: 13px; letter-spacing: 1.6px; text-transform: uppercase; margin-bottom: 14px; }
 h2 { font-family: var(--font-brand); font-size: clamp(24px, 3.4vw, 36px); font-weight: 700; letter-spacing: -0.7px; line-height: 1.22; margin-bottom: 16px; }
+/* WO-251-04: page-lead heading carrying H1 semantics at section-heading scale.
+   Values mirror the h2 rule above exactly, so converting a lead h2 to h1 changes
+   the document outline without changing a single rendered pixel. */
+h1.as-h2 { font-size: clamp(24px, 3.4vw, 36px); font-weight: 700; letter-spacing: -0.7px; line-height: 1.22; max-width: none; margin: 0 0 16px; }
 h2.center { text-align: center; max-width: 720px; margin-left: auto; margin-right: auto; }
 .sec-sub { color: var(--text-dim); max-width: 640px; font-size: 16.5px; margin-bottom: 42px; }
 .sec-sub.center { margin-left: auto; margin-right: auto; text-align: center; }
