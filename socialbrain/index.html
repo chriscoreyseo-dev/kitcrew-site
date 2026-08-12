@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Social Brain</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='9' fill='%2359e2ff'/></svg>"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="stage"></div>
+
+    <header id="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <h1>SOCIAL<span>BRAIN</span></h1>
+      </div>
+      <div id="sources" class="sources"></div>
+      <div class="top-actions">
+        <span id="stamp" class="stamp">loading…</span>
+        <button id="mic" class="btn mic" title="Ask out loud (Space)"
+          aria-label="Ask by voice">🎙 Ask</button>
+        <button id="predictBtn" class="btn" title="Check a draft against comparable posts">Draft check</button>
+        <button id="refresh" class="btn" title="Re-pull every configured API">Refresh</button>
+      </div>
+    </header>
+
+    <section id="ask" class="ask hidden">
+      <div class="ask-row">
+        <span id="askDot" class="ask-dot"></span>
+        <input id="askInput" type="text" autocomplete="off" spellcheck="false"
+          placeholder="Ask: what is the newest video on any platform?" />
+        <button id="askGo" class="btn">Ask</button>
+        <button id="askClose" class="btn ghost" aria-label="Close">✕</button>
+      </div>
+      <div id="askRead" class="ask-read"></div>
+      <ol id="askHits" class="ask-hits"></ol>
+      <div class="ask-examples">
+        try: “most viewed on youtube” · “newest anywhere” · “top 5 most commented”
+        · “what has the most shares on reddit”
+      </div>
+    </section>
+
+    <aside id="left" class="panel">
+      <div class="field">
+        <input id="search" type="search" placeholder="Search titles, creators, platforms…" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="lbl">Size nodes by</label>
+        <div id="metrics" class="segmented">
+          <button data-metric="score" class="on">Engagement</button>
+          <button data-metric="views">Views</button>
+          <button data-metric="likes">Likes</button>
+          <button data-metric="comments">Comments</button>
+          <button data-metric="shares">Shares</button>
+        </div>
+        <label class="check sub"><input type="checkbox" id="sizeCats" checked />
+          Scale categories by it too</label>
+      </div>
+
+      <div class="field">
+        <label class="lbl">Platforms</label>
+        <div id="platforms" class="platforms"></div>
+      </div>
+
+      <div class="field row">
+        <label class="check"><input type="checkbox" id="newOnly" /> New in last 24h</label>
+        <label class="check"><input type="checkbox" id="spin" checked /> Auto-rotate</label>
+        <label class="check"><input type="checkbox" id="colorCode" checked /> Colour-code categories</label>
+      </div>
+
+      <div class="field grow">
+        <label class="lbl">Top by <span id="topMetricName">engagement</span></label>
+        <ol id="top" class="top"></ol>
+      </div>
+
+      <div class="field">
+        <button id="reset" class="btn wide">Reset view</button>
+      </div>
+    </aside>
+
+    <aside id="detail" class="panel detail hidden"></aside>
+
+    <section id="predict" class="ask predict hidden">
+      <div class="ask-row predict-head">
+        <span id="pfIcon" class="ico-wrap head-ico"></span>
+        <span class="predict-heading">
+          <strong class="predict-title">Draft check</strong>
+          <span class="predict-sub">what comparable posts actually got</span>
+        </span>
+        <button id="predictClose" class="btn ghost" aria-label="Close">✕</button>
+      </div>
+
+      <div class="predict-card">
+        <div class="predict-form">
+          <label class="pf">
+            <span class="lbl">Platform</span>
+            <select id="pfPlatform"></select>
+          </label>
+          <label class="pf">
+            <span class="lbl">Category</span>
+            <select id="pfBranch"><option value="">any</option></select>
+          </label>
+          <label class="pf">
+            <span class="lbl">Posting at</span>
+            <input id="pfWhen" type="datetime-local" />
+          </label>
+        </div>
+
+        <label class="pf">
+          <span class="lbl">Title / caption of your draft</span>
+          <input id="pfTitle" type="text" autocomplete="off"
+            placeholder="e.g. I tried posting daily for 30 days — honest results" />
+        </label>
+
+        <button id="pfRun" class="btn wide glowy">Check it</button>
+      </div>
+
+      <div id="pfOut" class="predict-out"></div>
+    </section>
+
+    <div id="tooltip" class="tooltip hidden"></div>
+
+    <div id="hint" class="hint">
+      drag to orbit · scroll to zoom · click a node to focus · double-click to open
+    </div>
+
+    <div id="boot" class="boot">
+      <div class="boot-inner">
+        <div class="pulse"></div>
+        <p id="bootMsg">waking the brain…</p>
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
