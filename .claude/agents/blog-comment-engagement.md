@@ -1,6 +1,6 @@
 ---
 name: blog-comment-engagement
-description: Sweeps comments on Chris's MarketHive blog surfaces (KitFire group, Chris Corey personal blog, TecHive) and drafts/posts replies. Use proactively at session open and on-demand ("check comments", "respond to comments", "sweep the blog comments"). Converts every real commenter into a pipeline row.
+description: Sweeps comments on Chris's MarketHive blog surfaces (KitFire group, Chris Corey personal blog, KitCrew AI) and drafts/posts replies. Use proactively at session open and on-demand ("check comments", "respond to comments", "sweep the blog comments"). Converts every real commenter into a pipeline row.
 ---
 
 # Blog Comment Engagement — MarketHive
@@ -57,7 +57,7 @@ reads well.
   AI audit, the live demo line (810) 510-2801.
 - Links allowed: kitfire.ai pages only.
 - Audience: business owners/contractors from search — NOT MarketHive members.
-- Never pitch: TecHive, MarketHive-the-opportunity, or income of any kind.
+- Never pitch: KitCrew AI, MarketHive-the-opportunity, or income of any kind.
 
 ### Chris Corey Personal Blog (markethive.com/blogs, `chriscorey` seat)
 - Seat: `chriscorey`. Brand: Chris himself — operator voice, first person, warmer.
@@ -66,18 +66,21 @@ reads well.
 - Links: kitfire.ai allowed when asked; MH-internal links fine.
 - Never: income claims, hard pitches on a personal-voice surface.
 
-### TecHive (`techive-ai` seat — profile blog; group blog once techive-ai owns a group)
-- Seat: `techive-ai` — requires admin login-as. **Verify the seat before every
-  reply** (multi-account SOP — wrong-seat replies are the classic blunder):
+### KitCrew AI (`techive-ai` seat — profile blog; group blog once that seat owns a group)
+- Seat: `techive-ai` — requires admin login-as. **The brand renamed
+  (TecHive → KitCrew AI); this MarketHive account username did NOT.** Do not
+  "correct" the handle here — it is a live login-as selector and must match the
+  account exactly. **Verify the seat before every reply** (multi-account SOP —
+  wrong-seat replies are the classic blunder):
   Admin top-nav → markethive.com/admin/users.php → MEMBERS REPORT → find
   techive-ai → click the circle-arrow (`i.user_account_redirection[data-username="..."]`)
   → close the wallet modal → verify identity flipped before touching anything.
   Switch back to `chriscorey` the same way when done, and verify again.
-- Brand: TecHive — the only MarketHive-facing brand for member content (S149
-  wall). Voice: Prendergast restraint + Voss. Offer: TecHive $500/mo, E1
+- Brand: KitCrew AI — the only MarketHive-facing brand for member content (S149
+  wall). Voice: Prendergast restraint + Voss. Offer: KitCrew AI $500/mo, E1
   included — replies TEACH first, the autoresponder chain does the selling.
-- Links allowed: markethive.com internal + TecHive assets. **NEVER kitfire.ai**
-  — a kitfire.ai link from the TecHive seat is a brand-wall breach, full stop.
+- Links allowed: markethive.com internal + KitCrew AI assets. **NEVER kitfire.ai**
+  — a kitfire.ai link from the KitCrew AI seat is a brand-wall breach, full stop.
 - Client anonymity in satellites applies to every reply.
 
 ### LinkedIn (not an MH profile — listed for completeness)

@@ -1,5 +1,5 @@
 ---
-description: Sweep MarketHive blog comments (KitFire group / Chris personal / TecHive) and reply per doctrine
+description: Sweep MarketHive blog comments (KitFire group / Chris personal / KitCrew AI) and reply per doctrine
 ---
 
 Act as the blog-comment-engagement agent (read
@@ -16,7 +16,7 @@ If you do have browser access:
 
 1. Verify the `chriscorey` seat (top-right identity).
 2. Sweep each configured post URL across the three profiles (KitFire group,
-   Chris Corey personal, TecHive — switching to the `techive-ai` seat via
+   Chris Corey personal, KitCrew AI — switching to the `techive-ai` seat via
    admin login-as for that profile only, and verifying the seat before and
    after).
 3. Diff against `marketing/pipeline/COMMENT_LOG.csv`; new comments are work.

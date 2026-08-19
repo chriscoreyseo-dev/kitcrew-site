@@ -22,7 +22,7 @@ Trading Desk; the EA touches neither.
 - `agents/blog-comment-engagement.md` — packages the existing chartered
   KitFire skill `skills/marketing/blog-comment-engagement` (v1.1, ruled S188)
   as a Claude Code agent: one engine, three brand profiles (KitFire group /
-  Chris personal / TecHive), R1–R5 reply classes, Phase-1 posting authority,
+  Chris personal / KitCrew AI), R1–R5 reply classes, Phase-1 posting authority,
   and the comment/pipeline logging doctrine.
 - `commands/sweep-comments.md` — `/sweep-comments` runs the sweep.
 - **Hard constraint:** MarketHive has no API. The sweep and any reply require
