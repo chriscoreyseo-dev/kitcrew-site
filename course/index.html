@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Last AI Course You'll Ever Need — $97 | KitCrew</title>
+<meta name="description" content="Fifteen chapters, every prompt we use, and a build track that leaves you with a working AI operating system — written from hundreds of logged sessions of a real company actually run on AI. $97, one payment." />
+<link rel="canonical" href="https://kitcrew.ai/course/" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="The Last AI Course You'll Ever Need" />
+<meta property="og:description" content="Built from hundreds of logged sessions of a real company actually run on AI. Fifteen chapters, the Prompt Vault, the Build-Along track. $97." />
+<meta property="og:url" content="https://kitcrew.ai/course/" />
+<meta property="og:image" content="https://kitcrew.ai/course/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<style>
+:root{
+  --paper:#FAF7F2; --card:#FFFFFF; --ink:#1C1915; --ink2:#5C564E;
+  --ember:#D96C1F; --ember-deep:#B54708; --hair:#E7E0D6; --dark:#111014;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:'Segoe UI',Arial,Helvetica,sans-serif;
+  --mono:'Consolas','SF Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 22px}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.22;margin:0 0 .5em}
+h1{font-size:clamp(34px,6.5vw,58px);letter-spacing:-.015em}
+h2{font-size:clamp(26px,4.4vw,38px);margin-top:0}
+h3{font-size:clamp(20px,3vw,25px)}
+h4{font-size:19px;margin-bottom:.35em}
+p{margin:0 0 1.05em;max-width:70ch}
+em{color:var(--ink2)}
+strong{color:var(--ink)}
+a{color:var(--ember-deep)}
+section{padding:54px 0;border-bottom:1px solid var(--hair)}
+section:last-of-type{border-bottom:0}
+.kicker{font-family:var(--sans);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ember-deep);font-weight:700;margin-bottom:14px}
+.hero{padding:66px 0 54px;border-bottom:1px solid var(--hair)}
+.hero .sub{font-family:var(--serif);font-size:clamp(17px,2.5vw,21px);color:var(--ink2);margin:0 0 26px;line-height:1.45}
+.hero .deck{font-size:19px;max-width:64ch}
+.cta{display:inline-block;background:var(--ember);color:#fff;font-family:var(--sans);font-weight:700;font-size:19px;
+  padding:17px 34px;border-radius:7px;text-decoration:none;min-height:44px;border:0;cursor:pointer;
+  box-shadow:0 1px 0 var(--ember-deep)}
+.cta:hover{background:var(--ember-deep)}
+.microline{font-size:16px;color:var(--ink2);margin-top:14px;max-width:56ch}
+.receipt{background:var(--card);border:1px solid var(--hair);border-left:5px solid var(--ember);
+  border-radius:4px;padding:22px 26px;margin:26px 0}
+.receipt .big{font-family:var(--serif);font-size:clamp(23px,3.6vw,31px);line-height:1.25;margin:0 0 14px}
+.receipt .num{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.receipt p{margin-bottom:.7em}
+.receipt p:last-child{margin-bottom:0}
+.story{background:var(--card);border:1px solid var(--hair);border-left:5px solid var(--ember);
+  border-radius:4px;padding:26px 28px;margin:24px 0}
+.pull{font-family:var(--serif);font-size:clamp(20px,3.1vw,26px);line-height:1.32;color:var(--ink);
+  border-left:3px solid var(--ember);padding-left:18px;margin:22px 0}
+.mod{background:var(--card);border:1px solid var(--hair);border-radius:5px;padding:26px 28px;margin:20px 0}
+.mod .n{font-family:var(--serif);font-size:44px;line-height:1;color:var(--ember);opacity:.9;margin-bottom:6px}
+.mod h3{margin-bottom:.45em}
+.passbar{border-top:1px solid var(--hair);margin-top:18px;padding-top:14px;font-size:16px;color:var(--ink2)}
+.passbar b{color:var(--ink)}
+.notlist p{border-left:3px solid var(--hair);padding-left:16px}
+.faq{border-top:1px solid var(--hair);padding-top:18px;margin-top:18px}
+.faq:first-of-type{border-top:0}
+.faq h4{font-family:var(--sans);font-weight:700;font-size:17px}
+.upbox{background:var(--card);border:2px solid var(--ember);border-radius:6px;padding:26px 28px;margin:26px 0}
+.upbox .price{font-family:var(--serif);font-size:clamp(24px,3.8vw,32px);margin:0 0 10px}
+.foot{padding:40px 0 70px;color:var(--ink2);font-size:16px}
+.closing{font-family:var(--serif);font-size:18px;color:var(--ink2);border-left:3px solid var(--hair);padding-left:16px}
+.foot a{color:var(--ink2)}
+
+/* ---------- upgrade popup ---------- */
+.modal{position:fixed;inset:0;background:rgba(17,16,20,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
+.modal[hidden]{display:none}
+.modal-card{background:var(--card);border-radius:8px;max-width:560px;width:100%;max-height:90vh;overflow:auto;
+  padding:28px 30px;position:relative;border-top:5px solid var(--ember)}
+.modal-card h3{margin-top:0;padding-right:34px}
+.modal-card ul{margin:0 0 16px;padding-left:20px}
+.modal-card li{margin-bottom:8px}
+.modal-x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:28px;line-height:1;
+  color:var(--ink2);cursor:pointer;padding:6px}
+.math{font-family:var(--mono);font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--hair);
+  border-radius:4px;padding:10px 14px}
+.btn{display:block;text-align:center;background:var(--ember);color:#fff;font-weight:700;font-size:18px;
+  padding:15px 20px;border-radius:7px;text-decoration:none;margin:0 0 4px}
+.btn:hover{background:var(--ember-deep)}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--hair)}
+.btn.ghost:hover{background:var(--paper);color:var(--ink)}
+.fine{font-size:14.5px;color:var(--ink2);margin-top:10px}
+
+@media (max-width:600px){
+  body{font-size:16.5px}
+  section{padding:40px 0}
+  .mod,.story,.receipt,.upbox{padding:20px 18px}
+  .modal-card{padding:22px 18px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>The Last AI Course You'll Ever Need</h1>
+    <p class="sub">Built from hundreds of logged sessions of a real company actually run on AI.</p>
+    <p class="deck">Fifteen chapters, every prompt we use, and a build track that leaves you with a
+      working system — not opinions about one. Written by people who run a company this way,
+      including the parts where it went wrong.</p>
+    <button class="cta buy-open" type="button">Get the course — $97</button>
+    <p class="microline">One payment. Your fifteen chapters are kept current as the tools change.
+      30-day refund, no questions asked. The Complete upgrade — the full audiobook plus The Payback
+      Course — is an optional $47 at checkout.</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">The opening story</div>
+    <div class="story">
+      <p>We shipped a finished reader package to a real deadline. Every file was in place. The folder
+        opened, the pages loaded, the layout was clean, and the whole thing was wrong — every play
+        button in it was dead.</p>
+      <p>The folder had been copied before the media was added. That's all. One step, out of order,
+        on a Tuesday.</p>
+      <p>Here is the part that matters. Nothing in our process caught it. The build reported success,
+        because the build <em>did</em> succeed. The file count was right. The file sizes were right.
+        Every inspection we ran passed, and every inspection we ran was asking the wrong question.
+        We were checking whether the machine said it was done. Nobody opened the artifact.</p>
+    </div>
+
+    <p class="pull"><strong>The rule we run now:</strong> a reply is a claim, not a result.</p>
+
+    <p>That sentence is the spine of this course. An AI telling you a task is finished is not evidence
+      that the task is finished — it is evidence that the AI produced the words "task finished." Those
+      are different things, and the distance between them is where every expensive mistake in this line
+      of work lives.</p>
+    <p>Most AI courses will teach you to get better answers. This one is about the difference between
+      an answer and a result, and about building the thing that checks.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">The problem</div>
+    <h2>A chat window that's brilliant for twenty minutes and useless on Thursday</h2>
+    <p>You already know AI can write. That stopped being interesting some time ago.</p>
+    <p>What you probably have instead is a chat window that is very good for twenty minutes and useless
+      on Thursday. You explained your business to it on Monday. It forgot. You worked out a good way to
+      phrase something, and it's gone, because you closed the tab. Every session starts from zero, so
+      nothing compounds, so the total value of a year of using it is roughly one good afternoon repeated
+      two hundred times.</p>
+    <p>That is not a prompting problem. You can write a perfect prompt into a system with no memory and
+      get a perfect one-off. The gap is structural: a chat has no state, no record of what it decided,
+      no obligation to check its own work, and no way to hand a job to anything else.</p>
+    <p>The second problem is the one nobody selling you an AI course will say out loud. <strong>AI lies
+      about finishing.</strong> Not maliciously — it produces the shape of a completion report because
+      completion reports are what the situation calls for. If you have ever asked for a file and received
+      an enthusiastic description of a file that does not exist, you have met this already. Left
+      unaddressed, it caps how much you can ever delegate, because you have to personally verify
+      everything, which means you are still doing the work.</p>
+    <p>Both of those are solvable. Neither is solved by a better prompt. They are solved by building a
+      system around the model — memory it must read first, a protocol that opens and closes, a log it
+      cannot edit backwards, and a gate that opens the artifact instead of trusting the summary.</p>
+    <p>That system is what this course teaches, and the reason we can teach it is that we had to build
+      it to survive.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">What the course actually is</div>
+    <h2>Fifteen chapters, three parts</h2>
+    <p>Written first, illustrated, and phone-readable — you can work through it on a laptop or read it
+      standing in a parking lot before a meeting.</p>
+
+    <h3>Part I — Use AI</h3>
+    <p>For the person who has a chat window open right now and keeps getting mush out of it. Why the mush
+      happens, the three levers that fix it, giving the model a memory, making it show its work, and
+      using it for content without producing the kind of output a stranger can spot from across the room.</p>
+
+    <h3>Part II — Build Your AI OS</h3>
+    <p>The flagship. Sessions and state. An append-only decision log. Recording <em>why</em> you decided
+      something, so a decision can be reversed later on purpose instead of by accident. Verification
+      culture — gates, receipts, and the rule that a result far better than you expected is a bug until
+      proven otherwise. Chartering your first AI seat: one property, hard boundaries, a written escalation
+      rule. And the safety rails, which are not a compliance chapter but the reason delegation is possible
+      at all — the machine never holds credentials, never moves money, and never takes an instruction from
+      a web page.</p>
+    <p>By the end of Part II you have built a working miniature of the system this company runs on. Not
+      read about it. Built it.</p>
+
+    <h3>Part III — Run It</h3>
+    <p>Measuring before explaining. Delegation at scale — job packets, cheap models for volume and
+      expensive models for judgment, and QA that does not take the worker's word for anything. Then
+      keeping the whole thing alive as tools change underneath it.</p>
+
+    <h3>Every chapter carries a real incident</h3>
+    <p>Numbered, self-contained, and structured the same way: what the problem was, what it cost, what
+      fixed it, and the rule we now run because of it. The misses are in there on purpose. Four AI agents
+      on four browsers hitting one account at the same time. A platform that accepted an hour of saves and
+      stored none of them — no error, no row, nothing. A run that reported a finished job it had not done,
+      twice.</p>
+    <p>We include the misses because they are the credibility. A course with no failures in it was written
+      by somebody who has not shipped anything.</p>
+
+    <h3>The Prompt Vault</h3>
+    <p>Every prompt from every chapter — 52 of them — in one place, in the house pattern: a role, a
+      refusal clause, a required output shape, and a falsifier that makes the model attack its own answer.
+      Copy, fill the brackets, paste. Sub-prompt variations for each: a follow-up, a falsifier probe, and
+      a tighter-constraint version.</p>
+    <p>The falsifier is the part most people have never seen and the part that changes results immediately.
+      It is one extra instruction that ends every prompt: <em>now tell me which part of your own answer is
+      weakest, and why.</em></p>
+
+    <h3>The Build-Along track</h3>
+    <p>Each chapter ends with a build assignment and a pass bar — a specific, checkable condition that tells
+      you whether you actually did it. Work the track start to finish and you end up with your own memory
+      file, your own session protocol, your own decision log, your own verification gate, and your first
+      chartered AI seat.</p>
+    <p>The pass bars are strict on purpose. Chapter 9's, for instance, is that your gate must catch
+      something on run three that run one missed. If all three runs come out identical, you built a
+      scheduled prompt, not a loop, and the chapter tells you so.</p>
+
+    <h3>Built not to go stale</h3>
+    <p>Every AI course you have ever seen rots, because it teaches this quarter's buttons. This one
+      separates the two layers on purpose. The method — memory, protocol, logs, verification, charters
+      and rails — is independent of which model is winning this quarter, and it is most of the book. The
+      tool-specific layer is written against <em>your current model</em>, whatever that is when you read
+      it, and it gets replaced as reality changes — because the updates are a byproduct of running the
+      company, not a product we have to go make.</p>
+    <p>That is the only condition under which a course can honestly be called the last one you need, and it
+      is why the title is a structure rather than a boast.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Who is teaching this</div>
+    <p>Fair question, and you should ask it of everyone who sells you a course. Most authors in this
+      category answer it with a follower count.</p>
+    <p>I'm Chris Corey, Co-Founder of KitFire AI Inc. Before any of this I spent <strong>ten years in
+      merchant processing</strong> — selling card payment services to local businesses. Restaurants,
+      contractors, shops. Walking in the door, sitting across the desk, handling the objections, closing
+      or not closing.</p>
+    <p>I was <strong>Salesman of the Year in 2013 and 2014, back to back, at a Michigan processing company
+      called Zero Fee Solutions.</strong> Then they promoted me to <strong>National Sales Trainer</strong>
+      — my job stopped being closing deals and became teaching the company's reps across the country to
+      close them. After that Anthony and I left and started our own processing company,
+      <strong>Swipe It Inc</strong>, and ran it as an ISO.</p>
+    <p>So: I did the job, I was the best at it two years running, and then I was the person the company
+      trusted to teach it.</p>
+    <p>That matters here for a specific reason, not a general one. Merchant processing is a trust-poor
+      industry. Every small business owner in America has been lied to by somebody selling payment services
+      — rate sheets built to confuse, contracts with teeth buried in them, reps who vanish after the
+      install. Selling in that environment for ten years means the only thing that works is being the
+      person who doesn't do that. Everything this course says about references, disclosure, and leading
+      with a delivered artifact comes out of that, not out of a sales book.</p>
+
+    <div class="story">
+      <p><strong>And I didn't get there on my own.</strong></p>
+      <p>Zero Fee Solutions was Bob Derthick's company. He called me every single morning, right after I
+        woke up.</p>
+      <p class="pull">"Hey. Good morning, champ. We got five appointments for you today. I know you're
+        gonna knock 'em out of the park."</p>
+      <p>Same voice, same time, and the appointments were already booked before I had my shoes on.</p>
+      <p>I thought at the time it was motivation. It took me years and a company of my own to understand
+        what it actually was: a loop. Fixed trigger, fixed structure, work staged in advance, a check at
+        the end of the day. The Payback Course's fourth module is about building those out of software.
+        Bob was building them out of phone calls in 2013.</p>
+      <p><em>(That's a thank-you, and nothing more than one. Bob has no involvement in KitFire, this
+        course, or anything I sell today, and none of the above is his endorsement of any of it — it is my
+        own memory of the man who taught me.)</em></p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">The receipts</div>
+    <p>Our whole position is that the numbers on this page are real. So here is how that gets handled:
+      every figure below is one we can point at, and there are no figures about <em>you</em> anywhere on
+      this page, because I don't have any and I won't invent them.</p>
+
+    <div class="receipt">
+      <p class="big">AI produces <span class="num">~95%</span> of our work product, carries
+        <span class="num">~90%</span> of the labor, and holds <span class="num">0%</span> of the authority.</p>
+    </div>
+
+    <p>Read the third number as carefully as the first two. Nothing here delegates a decision. The machine
+      does the work; a person owns the call, and the course spends a whole chapter on exactly where that
+      line sits and why moving it is how people get hurt.</p>
+
+    <h3>One real contract, described accurately</h3>
+
+    <div class="receipt">
+      <p class="big"><span class="num">$13,900</span> to build it. <span class="num">$21,000</span> a year to run it.</p>
+      <p>One regional specialty contractor. One signed twelve-month agreement.</p>
+      <p><strong>The build — <span class="num">$13,900</span>, one time:</strong> <span class="num">$9,500</span>
+        for the website, <span class="num">$2,400</span> for an e-commerce catalog and inquiry cart,
+        <span class="num">$2,000</span> for the AI install. The AI install was paid in full, upfront.
+        <strong><span class="num">$7,950</span> of it came in on the first check, before a line of code was
+        written.</strong></p>
+      <p><strong>The run — <span class="num">$1,750</span> a month, <span class="num">$21,000</span> a year:</strong>
+        <span class="num">$1,450</span> for the SEO and organic social, <span class="num">$300</span> for the
+        agent that does the work.</p>
+    </div>
+
+    <p>Read the two halves separately, because they behave differently. The build is a good month. The run
+      is a business — it is still paying in month nine for work done in month one. Year two of that
+      agreement is the $21,000, not the $34,900, and I'd rather say so here than have you do that
+      arithmetic later and stop trusting the rest of the page.</p>
+    <p>The client is not named, here or anywhere. Records private, method public — that's a standing rule
+      and it applies to you too if you ever become one.</p>
+    <p><strong>That contract is also the map of The Payback Course</strong> — the five-module course in
+      the Complete upgrade below. The $1,450 line is what its first three modules teach you to sell. The
+      $300 line is what its last two teach you to build. It's the playbook, not a theory of one.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">The Complete upgrade — optional, $47</div>
+    <h2>The course teaches you to build. This teaches you to sell what you built.</h2>
+
+    <div class="upbox">
+      <p class="price">+$47 at checkout, or added later from inside your account</p>
+      <p><strong>Two things, together:</strong></p>
+      <p><strong>1. The full audiobook.</strong> All fifteen chapters, narrated end to end, chaptered, and
+        it remembers where you stopped. For the drive, the walk, the gym, and the hour before a meeting
+        when you want the method back in your head and you can't be looking at a screen.</p>
+      <p><strong>2. The Payback Course.</strong> Five modules on what to sell with what you just learned to
+        build — and it's narrated too. It's one thing to learn how to build. It's just as important to
+        know how to sell what you built — arguably more.</p>
+    </div>
+
+    <p><strong>To be clear about what's what:</strong> the $97 course is complete on its own — fifteen
+      chapters, the Prompt Vault, the Build-Along track, nothing in the written product held back. The
+      upgrade is optional and separate, and it is where the audiobook and The Payback Course live.</p>
+
+    <h3>What's inside The Payback Course</h3>
+    <p>Modules 1–3 are things somebody will pay you for. Modules 4–5 are how you deliver them at a margin —
+      the difference between doing the work by hand for three clients and running it as a shop for a book
+      of them.</p>
+
+    <div class="mod">
+      <div class="n">1</div>
+      <h3>Build and sell websites with AI</h3>
+      <p>The shortest distance to a first dollar. A local business with a bad or missing site is a problem
+        you can see from the sidewalk. The module covers the only three kinds of site worth selling and
+        what each is actually worth, scoping from what the business has already published, and the
+        plausibility pass — fixing the tells that make a prospect say <em>this looks like AI did it</em>
+        before you show anyone.</p>
+      <p class="passbar"><b>What you walk away with:</b> one finished small-business site, and a one-page
+        scope sheet you could hand a client on Monday.</p>
+    </div>
+
+    <div class="mod">
+      <div class="n">2</div>
+      <h3>Selling AI services to local business</h3>
+      <p>The module that decides whether the other four earn anything. No cold-outreach scripts — not
+        because cold outreach is beneath anyone, but because <strong>we don't do it</strong>, and teaching
+        you a play we won't run ourselves would make this the one dishonest module in the set. What it
+        teaches instead is the close I ran for a decade and then taught nationally: <strong>the bird-dog
+        live-reference play.</strong> Deliver one real result for one business. Turn that business into a
+        paid live reference — someone a prospect can actually pick up the phone and call. Compensate them
+        per closed deal, in writing, disclosed to everybody involved.</p>
+      <p class="passbar"><b>What you walk away with:</b> one artifact delivered to a real business with
+        nothing asked in return, one reference arrangement in writing, and five named prospects.</p>
+    </div>
+
+    <div class="mod">
+      <div class="n">3</div>
+      <h3>Finding the ideal customer</h3>
+      <p>The research layer that makes the first two land, and the one that stops you burning a month on
+        people who were never going to buy. Three lenses — their own published surfaces, their pain mapped
+        to an actual named role, and the vendor landscape, so you find out what they can already buy for
+        $40 a month before you propose it at $400. Then the part almost nobody teaches: disqualifying
+        fast, on purpose.</p>
+      <p class="passbar"><b>What you walk away with:</b> three-lens briefs on five prospects, plus a
+        written disqualification list.</p>
+    </div>
+
+    <div class="mod">
+      <div class="n">4</div>
+      <h3>From prompting to loop engineering</h3>
+      <p>Where the money changes shape. A prompt is a favor you do once. A loop is a repeatable cycle that
+        runs the same way every time, checks its own work, and gets better because it remembers — and it's
+        something you can charge for monthly, because it keeps producing while you sleep. On the contract
+        above, it is the <strong>$300 a month</strong> line. The module is honest about the failure modes
+        too: loops drift, and a loop you set and forget is a liability with your name on it.</p>
+      <p class="passbar"><b>What you walk away with:</b> one working loop with a verification gate and a
+        log file, run three times, where run three catches something run one missed.</p>
+    </div>
+
+    <div class="mod">
+      <div class="n">5</div>
+      <h3>From loop engineering to graph engineering</h3>
+      <p>Many loops with defined seats, boundaries, handoffs and escalation paths — work routed to the
+        right worker, running in parallel where it safely can, with a human holding the decisions that
+        matter. This is how one operator serves a book of clients instead of a handful: the loop you built
+        once runs for all of them, and your marginal cost per client approaches nothing.</p>
+      <p class="passbar"><b>What you walk away with:</b> a working two-seat graph — a charter each, one
+        handoff, one escalation path.</p>
+    </div>
+
+    <h3>And to be straight with you about what this is</h3>
+    <p>It is a method for selling and delivering work. It is not a promise about what you'll make. There is
+      no income figure on this page, no range, no screenshot of anybody's dashboard, and that's deliberate
+      rather than modest — one real contract of ours is described above so you can see the shape of one.
+      Yours will be a different shape entirely.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">What this is not</div>
+    <h2>The other half, so you can leave now if this isn't it</h2>
+    <div class="notlist">
+      <p><strong>It is not a tips-and-tricks course.</strong> If what you want is forty clever things to type
+        into a chat box, this will feel like a lot of work for the first two chapters and then like the wrong
+        book. The material is a system, and systems take a weekend, not an afternoon.</p>
+      <p><strong>It will not make AI run your business unattended.</strong> Nothing here does. The whole
+        verification layer exists precisely because unattended AI produces plausible garbage, and the honest
+        version of the pitch is that you are trading <em>doing the work</em> for <em>checking the work</em> —
+        which is a very good trade, and is not the same as being free.</p>
+      <p><strong>It is not a cold-outreach course.</strong> No scripts for messaging strangers at volume, no
+        list-buying, no scraping. Those work for some people. They aren't what we do.</p>
+      <p><strong>I'm not going to tell you what you'll earn.</strong> Not a range, not a projection, not a
+        testimonial with a number in it. One contract of ours is described accurately so you can see the shape
+        of a real one. I don't know your market, your rate, or how much of this you'll actually execute, and
+        anyone who tells you they do is selling you a number they invented.</p>
+      <p><strong>It is not finished, and that's the design.</strong> The tool-specific parts get replaced as
+        the tools change. If you want a sealed artifact that never changes, this is the wrong shape of
+        product.</p>
+      <p><strong>It won't work if you only read it.</strong> I put pass bars on the build track for a reason.
+        A reader who does the build assignments ends up with a working system; a reader who doesn't
+        ends up with opinions about one.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">FAQ</div>
+    <div class="faq"><h4>Do I need to be technical?</h4>
+      <p>No. I wrote Part I assuming you aren't. You need to be able to open a text file and follow numbered
+        steps. Part II gets more involved, but there is no chapter that requires you to write code.</p></div>
+    <div class="faq"><h4>Which AI does this work with?</h4>
+      <p>The method is model-independent — memory, protocol, logs, verification and charters work the same
+        whichever model is winning this quarter. Where a chapter gives tool-specific instructions, it is
+        written against your current model and gets updated as things change.</p></div>
+    <div class="faq"><h4>How long does it take?</h4>
+      <p>Part I is an evening. Part II is where the time goes, because you're building rather than reading —
+        figure a weekend, and a few weeks of real use before the compounding shows up.</p></div>
+    <div class="faq"><h4>What's the difference between this and the free stuff on YouTube?</h4>
+      <p>Sequence, and receipts. There's a lot of true information out there and almost no ordering of it, so
+        you end up with forty disconnected tactics and no system. And most of it is demonstrated on toy
+        problems. Every story in this course is a thing that actually happened to a running company,
+        including the ones where we lost work.</p></div>
+    <div class="faq"><h4>Do I get future updates?</h4>
+      <p>The fifteen chapters you buy are kept current as the tools change — corrections and revisions
+        to your copy are included, so what you paid for does not go stale. Genuinely new products we
+        build later are sold separately.</p></div>
+    <div class="faq"><h4>Is the audiobook included?</h4>
+      <p>No — it's part of the $47 Complete upgrade, together with The Payback Course. You can add it at
+        checkout or later from inside your account. Nothing in the written product is held back for the
+        audio tier.</p></div>
+    <div class="faq"><h4>Can I read some of it before buying?</h4>
+      <p>Yes. <a href="https://kitcrew.ai/chapter-one/">Chapter one is free</a> — the full text, with the
+        audio, so you can judge the writing and the method before spending a dollar.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Refund</div>
+    <h2>30 days, no questions asked</h2>
+    <p>If the course isn't for you, email us within 30 days of purchase and we'll refund you in full.
+      No reason needed, nothing to return. Same terms on the course and the Complete upgrade alike.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>You can keep prompting, or you can build the thing that runs.</h2>
+    <p>Everything in here came out of running a company this way — the parts that worked and the parts that
+      cost us a week. Fifteen chapters, the full Prompt Vault, and the build track that leaves you with a
+      system of your own. One payment, $97, kept current as the tools change.</p>
+    <button class="cta buy-open" type="button">Get the course — $97</button>
+    <p class="microline">The Complete upgrade — the full audiobook plus The Payback Course — is an
+      optional $47 at checkout, or add it later from inside your account.</p>
+  </div>
+</section>
+
+<div class="foot">
+  <div class="wrap">
+    <p class="closing">A reply is a claim, not a result. That goes for this page too — every number on it
+      traces to something I can show you.</p>
+    <p style="margin-top:26px">Offered by KitCrew · created by KitFire AI Inc · © 2026 KitFire AI Inc ·
+      <a href="https://kitcrew.ai/privacy.html">Privacy</a></p>
+  </div>
+</div>
+
+<!-- UPGRADE POPUP -->
+<div class="modal" id="upsell" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="upTitle" tabindex="-1">
+    <button class="modal-x" type="button" id="upX" aria-label="Close and stay on this page">&times;</button>
+    <h3 id="upTitle">Before you check out — one thing.</h3>
+    <p>The course teaches you to <b>build</b> it. The Payback Course teaches you to
+       <b>sell</b> it — which matters just as much, arguably more. Five modules, plus the
+       whole course narrated so you can take it with you.</p>
+    <ul>
+      <li><b>The full audiobook</b> — all 15 chapters, chaptered, remembers where you stopped</li>
+      <li><b>Build and Sell Websites With AI</b> — one finished site and a scope sheet you
+          could hand a client tomorrow</li>
+      <li><b>Selling AI Services to Local Business</b> — the bird-dog close, from ten years
+          of selling to these exact doors</li>
+      <li><b>Finding the Ideal Customer</b> — three-lens briefs, and the discipline of
+          walking away from two of five</li>
+      <li><b>From Prompting to Loop Engineering</b> — the part a client pays monthly for</li>
+      <li><b>From Loop Engineering to Graph Engineering</b> — how one person serves twenty
+          clients instead of three</li>
+      <li>The Payback Course is narrated too</li>
+    </ul>
+    <p class="math">$97 course &nbsp;+&nbsp; $47 upgrade &nbsp;=&nbsp; <b>$144 today</b></p>
+    <p><a class="btn" id="upYes" href="https://buy.stripe.com/6oUfZi167g0s4mlgo03Ru0f">Yes — add the upgrade</a></p>
+    <p><a class="btn ghost" id="upNo" href="https://buy.stripe.com/14A28scOPg0s2ed6Nq3Ru0e">No thanks, just the course — $97</a></p>
+    <p class="fine">Same 30-day refund either way. You can also add the upgrade later from
+       inside your account.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('upsell');
+  var card = modal.querySelector('.modal-card');
+  document.querySelectorAll('.buy-open').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      modal.hidden = false;
+      card.focus();
+    });
+  });
+  function close(){ modal.hidden = true; }
+  document.getElementById('upX').addEventListener('click', close);
+  modal.addEventListener('click', function(e){ if (e.target === modal) close(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !modal.hidden) close(); });
+})();
+</script>
+
+</body>
+</html>
