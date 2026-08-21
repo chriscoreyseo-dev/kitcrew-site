@@ -163,6 +163,38 @@ article.post p { color: var(--text-dim); font-size: 16px; margin-bottom: 18px; }
 article.post ul { margin: 0 0 18px 20px; color: var(--text-dim); font-size: 16px; }
 article.post li { margin-bottom: 8px; }
 
+/* course blog line - S353 */
+article.post .post-dek {
+  font-size: 19px; line-height: 1.55; color: var(--text);
+  margin: -18px 0 30px; max-width: 62ch;
+}
+article.post blockquote.post-quote {
+  margin: 30px 0; padding: 22px 26px;
+  border-left: 3px solid var(--crew-teal);
+  background: var(--bg-raise); border-radius: 12px;
+}
+article.post blockquote.post-quote p {
+  margin: 0; font-size: 18px; line-height: 1.5; color: var(--text); font-style: italic;
+}
+article.post aside.post-note {
+  margin: 30px 0; padding: 20px 24px;
+  background: var(--bg-raise); border: 1px solid var(--line);
+  border-left: 3px solid var(--crew-teal); border-radius: 12px;
+}
+article.post aside.post-note p { margin: 0 0 8px; }
+article.post aside.post-note p:last-child { margin-bottom: 0; }
+article.post aside.post-note a { color: var(--crew-teal); }
+article.post aside.post-note strong a,
+article.post p > strong > a[href*="free-chapter"] {
+  display: inline-block; min-height: 44px; line-height: 44px;
+  padding: 0 20px; margin: 2px 0;
+  background: var(--crew-teal); color: #06121a;
+  border-radius: 999px; text-decoration: none; font-weight: 700;
+}
+article.post aside.post-note strong a:hover,
+article.post p > strong > a[href*="free-chapter"]:hover { background: #14b8ad; color: #06121a; }
+
+
 /* ============ FINAL CTA ============ */
 .final-cta { text-align: center; }
 .final-cta h2 { margin: 0 auto 16px; }

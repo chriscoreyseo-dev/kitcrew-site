@@ -10,7 +10,7 @@
 ## Key pages
 - [Home](https://kitcrew.ai/): what KitCrew is, the six agents, how onboarding works, pricing.
 - [FAQ](https://kitcrew.ai/faq/): direct answers — income claims, working with your company, MarketHive membership, the referral dashboard.
-- [MarketHive members](https://kitcrew.ai/markethive/): the Entrepreneur One / Super Groups free build-out for MarketHive members.
+- [MarketHive members](https://kitcrew.ai/markethive/): the Entrepreneur One / Super Groups free build-out for MarketHive members. Free with the Entrepreneur One package itself (no KitCrew subscription required), limited to the first 100 new or reactivated Entrepreneur One packages.
 - [Blog](https://kitcrew.ai/blog/): plain-English posts on follow-up, content, leads, and engagement for network marketers and affiliates.
 - [Video Prompts](https://kitcrew.ai/prompts/): free AI video prompt playbook — four complete video prompts, the eleven-block prompt structure for cinematic AI video, and the rules that stop generated footage looking fake.
 
