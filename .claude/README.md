@@ -29,3 +29,16 @@ Trading Desk; the EA touches neither.
   driving Chris's authenticated browser session (Claude-in-Chrome /
   computer-use), so it only runs in a session with that access — not in a
   headless/remote session.
+
+## Vendor & tool fit (`vendor-fit`)
+
+- `skills/vendor-fit/SKILL.md` — the ruling doctrine for "should we add this
+  tool?": gates G0–G9 (provenance, capability atoms, source discipline, true
+  cost, exit cost, **stack redundancy**, offer math, platform-policy risk,
+  access blast radius, and what to steal instead), resolving to one verdict —
+  BUY / PILOT / STEAL / SKIP / TIER-3 — plus what would change it.
+- `commands/vendor-fit.md` — `/vendor-fit <name or link>` runs the ruling.
+- `skills/vendor-fit/cases/` — filed rulings. First case: Zeely, 2026-08.
+- **Hard constraint:** RULE ZERO without exception. The skill never signs up,
+  never starts a trial, never enters a card, and never grants account or
+  partner access. Every vendor call is Tier-3 and stays Chris's.
