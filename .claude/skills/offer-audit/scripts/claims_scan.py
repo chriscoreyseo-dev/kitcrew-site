@@ -46,10 +46,13 @@ MONEY_NEARBY = re.compile(
 # a page for stating what it costs gets switched off, and then it catches
 # nothing at all.
 NEVER = {
-    # "earn" is excluded when it takes a non-money object ("earns your trust").
+    # "earn" is excluded when it takes a non-money object — "earns your trust",
+    # "earns the renewal", "earning its keep". The verb is only a claim when
+    # what's being earned is money.
     "earnings": r"\b(earnings|income|profits?)\b"
-                r"|\b(earn|earns|earning)\b(?!\s+(your|their|our|my)\s+"
-                r"(trust|respect|confidence|keep|place|way|spot))",
+                r"|\b(earn|earns|earning)\b(?!\s+(your|their|our|my|its|his|her|the|a|an)\s+"
+                r"(trust|respect|confidence|keep|place|way|spot|renewal|right|"
+                r"reputation|credibility|attention))",
     "making money": r"\b(make|makes|making) money\b|\bmoney[- ]making\b",
     "replacing a job": r"\b(replace your (income|job|salary)|quit your job|fire your boss)\b",
     "freedom framing": r"\b(financial freedom|time freedom|passive income|residual income)\b",
@@ -75,21 +78,44 @@ CAREFUL = {
     "ROI": r"\bROI\b",
 }
 
-# The business's own doctrine statements, including copy that earns its keep by
-# explicitly refusing to make a claim. Those refusals necessarily contain the
-# vocabulary they're refusing, so matching on the word alone would flag the
-# strongest compliance writing on the site as a violation.
+# Text that PROHIBITS a claim necessarily contains the vocabulary it prohibits.
+# Three kinds of writing do this, and all three are the rule working rather than
+# breaking: the site's doctrine lines, sales copy that pointedly refuses to make
+# a claim, and any policy document, skill No-list, or spec that defines the rule.
+#
+# That last kind matters structurally — a skill's No list says "never mention
+# income", so without this a gate demanding a clean scan would fail every skill
+# that correctly forbids the thing.
 DOCTRINE = [
+    # Site doctrine
     r"no income claims",
     r"income claims are blocked",
     r"income claims,? market[Hh]ive",
     r"never a projection",
     r"blocked at the system level",
+    # Copy that refuses to make a claim
     r"not (a promise|going to tell you) (about )?what you('ll| will)",
     r"no income (figure|range|claim)",
     r"not\b[^.]{0,40}\b(a range|a projection|a testimonial with a number)",
     r"(never|not|no)\b[^.]{0,30}\b(income|earnings) (claims?|figures?|representations?)",
+    # Naming the rule as a thing (an "income claim", a "claims firewall").
+    # Deliberately narrow: broader prohibition-shaped patterns were tried and
+    # removed, because "no ... earn" within a sentence also suppresses a real
+    # claim like "no guessing about what you'll earn". Suppressing a live claim
+    # is a far worse failure than a noisy policy document, and policy documents
+    # have their own answer below.
+    r"(income|earnings) (claims?|questions?|representations?)",
+    r"claims? (firewall|scan|gate|discipline|pass)",
 ]
+
+# Some files are *about* the rule rather than subject to it — this reference
+# doc's tables of banned vocabulary, a skill's No list, a policy spec. They will
+# always be dense with the words they prohibit, and no pattern can reliably tell
+# that apart from using them. So they say so explicitly: a file containing this
+# marker is still scanned and still reports, but never blocks.
+#
+# Never put this marker in anything a buyer will read.
+POLICY_MARKER = re.compile(r"claims-scan:\s*policy", re.I)
 
 
 def strip_markup(raw: str) -> str:
@@ -121,7 +147,7 @@ def scan(text: str):
     return hits, prices
 
 
-def report(name: str, text: str) -> int:
+def report(name: str, text: str, policy: bool = False) -> int:
     hits, prices = scan(text)
     live = [h for h in hits if not h[3]]
     doctrine = [h for h in hits if h[3]]
@@ -141,12 +167,16 @@ def report(name: str, text: str) -> int:
         print(f"\n  ({prices} bare currency figure(s) read as prices and not "
               f"reported — check they are prices.)")
 
-    print(f"\n  {len(fatal)} blocking, {len(live) - len(fatal)} to read, "
+    label = "would block" if (fatal and policy) else "blocking"
+    print(f"\n  {len(fatal)} {label}, {len(live) - len(fatal)} to read, "
           f"{len(doctrine)} doctrine, {prices} price(s).")
-    if not fatal:
+    if policy:
+        print("  Marked `claims-scan: policy` — this file defines the rule "
+              "rather than being subject to it, so it never blocks.")
+    elif not fatal:
         print("  Vocabulary is clean. Now read the page for implied claims — "
               "see references/compliance.md section 5.")
-    return 1 if fatal else 0
+    return 1 if (fatal and not policy) else 0
 
 
 def main() -> int:
@@ -165,7 +195,8 @@ def main() -> int:
             worst = max(worst, 2)
             continue
         worst = max(worst, report("stdin" if path == "-" else path,
-                                  strip_markup(raw)))
+                                  strip_markup(raw),
+                                  bool(POLICY_MARKER.search(raw))))
     return worst
 
 

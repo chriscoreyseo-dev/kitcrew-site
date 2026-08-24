@@ -1,5 +1,6 @@
 # The claims firewall — background and worked substitutions
 
+<!-- claims-scan: policy — this file lists the vocabulary it prohibits. -->
 Read this when drafting offer copy for KitCrew, KitFire, or any network-marketing-
 adjacent or affiliate audience, and any time a claim feels borderline.
 
