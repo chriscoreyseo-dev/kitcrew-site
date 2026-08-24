@@ -104,8 +104,11 @@ DOCTRINE = [
     # claim like "no guessing about what you'll earn". Suppressing a live claim
     # is a far worse failure than a noisy policy document, and policy documents
     # have their own answer below.
-    r"(income|earnings) (claims?|questions?|representations?)",
-    r"claims? (firewall|scan|gate|discipline|pass)",
+    # Separator is a class, not a space — "income-claim rules" is the same
+    # phrase as "income claim rules" and both are naming the rule, not making
+    # a claim.
+    r"(income|earnings)[- ](claims?|questions?|representations?|rules?)",
+    r"claims? [- ]?(firewall|scan|gate|discipline|pass)",
 ]
 
 # Some files are *about* the rule rather than subject to it — this reference
