@@ -2,10 +2,44 @@
 
 <!-- claims-scan: policy — vendor reference; quotes claim vocabulary to prohibit it in contract. -->
 
+> ## ⚠ SUPERSEDED — written on the wrong premise. Do not act on this.
+>
+> Drafted assuming creators would **endorse KitCrew to their own audiences**.
+> Both halves of that are wrong:
+>
+> - The product is **InstaForge** (Instagram builds, at `instaforge.in`,
+>   handed to MarketHive), not KitCrew.
+> - The creators are **content contractors producing assets for pages we or
+>   the customer control** — to scale "shadow pages" feeding the Instagram
+>   builds. They are not influencers vouching to their own followers.
+>
+> **That changes the instrument.** The endorsement rider below governs paid
+> influencer endorsement. Work-for-hire content production needs a
+> **work-for-hire agreement with IP assignment** instead — a different
+> document. The FTC disclosure analysis is lighter (nobody is endorsing to
+> their own audience); platform-authenticity questions replace it.
+>
+> **Open before rewriting** (parked S372, to resume from desktop):
+> 1. What "shadow pages" means — brand/customer-owned satellite pages
+>    (ordinary content production) vs. accounts presenting as independent
+>    (FTC material-connection + Instagram coordinated-account exposure).
+>    Note `/never-drop-the-ball/` publicly answers *"Is this against
+>    Instagram's rules?"* with **No** — a growth tactic must not contradict
+>    the reassurance the buyer is paying for.
+> 2. InstaForge's actual product, audience, and margin model.
+>    `instaforge.in` is egress-blocked from the session and indexed nowhere;
+>    it could not be read.
+> 3. **Ownership of InstaForge is unrecorded** (S372-DRL-01) — so the
+>    contracting party for any vendor deal is undetermined.
+>
+> What survives below: the vendor's commercial terms, and the claims rider as
+> a starting point *if* an endorsement-shaped engagement ever happens.
+
+---
+
 **Filed at Tom's request, S372.** Reference only. Okara is recorded here as a
-**potential supplier of creator campaigns**, to be engaged only if MarketHive
-does not supply enough. This is not a competitive threat assessment and no
-engagement is proposed.
+**potential supplier**, to be engaged only if MarketHive does not supply
+enough. Not a competitive threat assessment; no engagement is proposed.
 
 ---
 
