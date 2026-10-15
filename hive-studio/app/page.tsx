@@ -1,9 +1,16 @@
 import { MODELS } from "@/generation/catalog"
+import { currentUser } from "@/lib/session"
 import { StudioTemplate } from "@/layouts/studio"
 
 import { NoModels } from "@/components/studio/no-models"
 
-export default function Page() {
+export default async function Page() {
   if (MODELS.length === 0) return <NoModels />
-  return <StudioTemplate title="Hive Studio" />
+  const user = await currentUser()
+  return (
+    <StudioTemplate
+      title="Hive Studio"
+      user={user ? { email: user.email } : null}
+    />
+  )
 }

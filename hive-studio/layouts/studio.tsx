@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { ComponentProps } from "react"
 import { Compass, Folder } from "lucide-react"
 
+import { AccountRow } from "@/components/auth/account-row"
+import { AuthDialog } from "@/components/auth/auth-dialog"
 import { StudioPromptBox } from "@/components/studio/studio-prompt-box"
 import {
   ExamplePresets,
@@ -41,6 +43,7 @@ import {
   runToGalleryItems,
   runToLibraryItems,
 } from "@/lib/studio/gallery-items"
+import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
 import { useProjects } from "@/lib/studio/projects"
 import {
   uploadAsset,
@@ -260,11 +263,14 @@ export interface StudioTemplateProps {
   title?: string
   /** Hero headline above the dock. */
   headline?: string
+  /** Signed-in user from the server, or null. Generate/upload need one. */
+  user?: { email: string } | null
 }
 
 export function StudioTemplate({
   title = "Studio",
   headline = "Turn any idea into images and video",
+  user = null,
 }: StudioTemplateProps) {
   const [view, setView] = useState<StudioView>({ kind: "home" })
   const [collapsed, setCollapsed] = useState(false)
@@ -272,6 +278,7 @@ export function StudioTemplate({
   const [media, setMedia] = useState<MediaItem[]>([])
   const [canceling, setCanceling] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [authReason, setAuthReason] = useState<string | null>(null)
 
   const surface = useActive((s) => s.surface)
   const modelId = useActive((s) => s.model)
@@ -281,6 +288,20 @@ export function StudioTemplate({
   const projectsStore = useProjects()
   const uploads = useUploads((s) => s.items)
   const runs = useRuns()
+
+  // Restore what the user had in the dock before signing in (never auto-submit).
+  useEffect(() => {
+    if (!user) return
+    const draft = takeDockDraft()
+    if (!draft) return
+    // localStorage is unavailable during SSR, so this one-time restore must run
+    // after mount; it fires at most once per sign-in and the draft is cleared.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPrompt(draft.prompt)
+    setMedia(draft.media)
+    if (MODELS.some((m) => m.id === draft.modelId))
+      setActiveModel(draft.modelId)
+  }, [user, setActiveModel])
 
   const surfaces = useMemo(
     () =>
@@ -375,15 +396,49 @@ export function StudioTemplate({
     ) ||
     (model.requirePrompt && !prompt.trim())
 
+  const askToSignIn = useCallback(
+    (reason: string) => {
+      saveDockDraft({ prompt, media, modelId: model.id })
+      setAuthReason(reason)
+    },
+    [media, model.id, prompt]
+  )
+
   const handleGenerate = useCallback(() => {
     if (!canGenerate || generating || !prepared.plane) return
+    if (!user) {
+      askToSignIn(
+        "Sign in to generate. Your prompt will be here when you're back."
+      )
+      return
+    }
     setLocalError(null)
     const projectId = view.kind === "project" ? view.projectId : undefined
     void runs.submit(prepared.plane, projectId).then((record) => {
       if (record && view.kind === "home") setView({ kind: "all" })
       if (record && projectId) projectsStore.touch(projectId)
     })
-  }, [canGenerate, generating, prepared.plane, projectsStore, runs, view])
+  }, [
+    askToSignIn,
+    canGenerate,
+    generating,
+    prepared.plane,
+    projectsStore,
+    runs,
+    user,
+    view,
+  ])
+
+  const handleUpload = useCallback(
+    async (file: File) => {
+      if (!user) {
+        askToSignIn("Sign in to upload references.")
+        throw new Error("Sign in to upload references.")
+      }
+      return uploadAsset(file)
+    },
+    [askToSignIn, user]
+  )
 
   const handleCancel = useCallback(() => {
     if (!generating || canceling) return
@@ -460,7 +515,7 @@ export function StudioTemplate({
         )
       }
     },
-    library: { items: libraryItems, onUpload: uploadAsset },
+    library: { items: libraryItems, onUpload: handleUpload },
     prompt,
     onPromptChange: setPrompt,
     onGenerate: handleGenerate,
@@ -479,6 +534,15 @@ export function StudioTemplate({
   return (
     <div className="flex h-dvh overflow-hidden bg-background">
       <StudioSidebar
+        footer={(isCollapsed) => (
+          <AccountRow
+            email={user?.email ?? null}
+            collapsed={isCollapsed}
+            onSignIn={() =>
+              setAuthReason("Enter your email and we'll send you a link.")
+            }
+          />
+        )}
         title={title}
         view={view}
         onViewChange={setView}
@@ -522,6 +586,13 @@ export function StudioTemplate({
           />
         )}
       </main>
+      <AuthDialog
+        open={authReason !== null}
+        onOpenChange={(open) => {
+          if (!open) setAuthReason(null)
+        }}
+        reason={authReason ?? undefined}
+      />
     </div>
   )
 }

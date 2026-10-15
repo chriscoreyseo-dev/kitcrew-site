@@ -104,3 +104,47 @@ The spec lists removing IndexedDB under Phase 1. The Mongo replacement needs a `
 
 ### D-017 Server action errors (to fix in Phase 3)
 Errors thrown from server actions show their message in the dock in development. In production, Next replaces them with a generic message. Phase 3 changes the actions to return typed `{ ok, error }` results with plain-language messages.
+
+## 2026-10-15 — Phase 2
+
+### D-018 Auth stack versions
+- `next-auth@5.0.0-beta.32`, pinned exactly. v5 is still tagged beta on npm, and its peer range includes Next 16.
+- `@auth/mongodb-adapter@3.11.3` requires the `mongodb` v6 driver, so the driver moved from 7.7 to **6.21**.
+- `@react-email/components` is deprecated on npm ("no longer supported"). It was replaced by `react-email@6` for components and `@react-email/render` for rendering.
+- authjs.dev is blocked from the container, so the integration follows the installed package source and types.
+
+### D-019 Auth config
+- Built per request (`NextAuth(() => config)`), so builds and keyless dev boots don't need auth env.
+- Database sessions (30 days). The session exposes only `id` and `role`.
+- Adapter collection names match §6 (`verification_tokens` is the adapter default). Sessions and verification tokens get TTL indexes.
+- Magic links expire after **30 minutes**, down from Auth.js's default of 24 hours.
+- `events.createUser` sets `role: "user"`, `createdAt` and zeroed credit buckets, and grants `SIGNUP_BONUS_CREDITS` through the ledger (`grantCredits`, refId = user id, so the grant is idempotent). The Stripe customer is still created lazily at first checkout.
+- `trustHost: true` (needed behind Vercel and other proxies).
+
+### D-020 Magic-link abuse controls
+- Limits: 3 emails per address per 15 minutes, and 10 per IP per hour.
+- They're enforced inside `sendVerificationRequest`, so a direct POST to `/api/auth/signin/resend` is limited too, not just the form.
+- Counters live in fixed windows in Mongo `rate_limits`, with a TTL index.
+- A small built-in list of disposable-email domains is refused. It isn't exhaustive by design.
+- The form action maps the wrapped Auth.js errors to plain messages.
+
+### D-021 Keeping dock state through sign-in
+When a signed-out user hits Generate or Upload:
+1. The sign-in modal opens.
+2. The prompt, references and model are saved to `localStorage` (`hive.dockDraft.v1`, 1-hour expiry). It isn't `sessionStorage` because the magic link usually opens a new tab.
+3. After sign-in the dock is restored once and the draft is cleared.
+
+**Nothing auto-submits.** Spending credits always takes an explicit click after signing in. The spec's "continue the action" is read as "continue where you left off".
+
+### D-022 proxy.ts and the real gate
+- `proxy.ts` redirects signed-out visitors away from `/assets`, `/account` and `/admin`. It checks only that the session cookie exists.
+- Real checks happen in each page and handler (`currentUser()`, `requireUser()`). Verified: a forged session cookie passes `proxy.ts` but `/account` still redirects to `/login`.
+- `currentUser()` returns null rather than throwing when auth env is missing, so public pages render while integrations are pending.
+
+### D-023 Phase 2 checkpoint status
+Verified:
+- Unit tests: 20 total.
+- Typecheck, lint and build pass. The secret scan passes with fake secrets present at build time.
+- Browser checks: the signed-out modal opens on Generate; the draft is saved; disposable-email and unconfigured-auth errors show; `/account` and `/assets` redirect; error page copy is correct.
+
+**Not verified (needs operator):** a real magic link arriving and signing in, sign-out after a real session, the sign-up bonus grant against Atlas, and the draft restore after a real sign-in. These need `MONGODB_URI`, `AUTH_SECRET`, `AUTH_RESEND_KEY` and a Resend-verified `EMAIL_FROM` domain.

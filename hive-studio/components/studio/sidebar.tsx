@@ -39,6 +39,8 @@ export interface StudioSidebarProps {
   onDeleteProject: (projectId: string) => void | Promise<void>
   collapsed: boolean
   onCollapsedChange: (collapsed: boolean) => void
+  /** Pinned under the project list (account row). Receives the collapsed state. */
+  footer?: (collapsed: boolean) => ReactNode
 }
 
 function Row({
@@ -123,6 +125,7 @@ export function StudioSidebar({
   onDeleteProject,
   collapsed,
   onCollapsedChange,
+  footer,
 }: StudioSidebarProps) {
   return (
     <aside
@@ -246,6 +249,7 @@ export function StudioSidebar({
           ) : null}
         </div>
       </nav>
+      {footer ? <div className="pt-2">{footer(collapsed)}</div> : null}
     </aside>
   )
 }
