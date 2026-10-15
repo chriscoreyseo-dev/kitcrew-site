@@ -148,3 +148,59 @@ Verified:
 - Browser checks: the signed-out modal opens on Generate; the draft is saved; disposable-email and unconfigured-auth errors show; `/account` and `/assets` redirect; error page copy is correct.
 
 **Not verified (needs operator):** a real magic link arriving and signing in, sign-out after a real session, the sign-up bonus grant against Atlas, and the draft restore after a real sign-in. These need `MONGODB_URI`, `AUTH_SECRET`, `AUTH_RESEND_KEY` and a Resend-verified `EMAIL_FROM` domain.
+
+## 2026-10-15 — Phase 3
+
+### D-024 Generation lifecycle
+`lib/generations/lifecycle.ts`: submit → `pending_submit` → platform → `queued`.
+- **Definite 4xx:** the run fails and is refunded.
+- **Unclear outcome** (timeout, ambiguous 5xx): the run stays `pending_submit`. After 2 minutes the reconciler fails and refunds it. The platform has no lookup by our id, so we can't prove whether a job exists; the user is never left charged for nothing. Cost to us: Higgsfield may have run and billed a job we refunded. It's rare and logged.
+- **Double submits:** a client UUID `clientRequestId` with a unique `{userId, clientRequestId}` index means a double click creates one run and one platform job. The REST API documents no idempotency key.
+- **Finalize** takes a 90-second lease (`finalizingUntil`) before fetching status. Concurrent webhook, cron and cancel paths never settle or copy twice. Every terminal transition is a conditional update, and **only the caller that made the transition refunds**. Tests cover the cancel-versus-webhook race; with the guard removed, a refund is paid twice.
+- **15-minute cap:** a still-queued run is canceled on the platform first, then failed and refunded.
+- **Concurrency:** a temporary cap of `MAX_IN_FLIGHT = 4` per user. Phase 5 replaces it with the per-plan limit inside the debit transaction.
+- **Costs and refunds:** all runs cost 0 until Phase 5. `refundGeneration` is the hook Phase 5 implements through the ledger.
+
+### D-025 Retries on submit
+The spec says to retry 429 and 5xx. Submit retries **only 429, 503, and connection-refused/DNS failures**. A 500, 502, 504 or timeout may mean the job was created, and retrying would double-create (and double-bill) it; those go to the reconciler instead. Status, cancel and upload calls retry 429, 5xx and network errors. Backoff is full jitter (1s base, 15s cap for submit) and honors `Retry-After`.
+
+### D-026 Status payload shapes (to verify against docs)
+- `images[].url` and `video.url` come from the template.
+- **`audio.url` is assumed** for audio models, based on the docs not being reachable. Check it in Phase 4 against the audio model pages.
+- An unknown status is treated as still running, and the 15-minute cap ends it.
+
+### D-027 Webhook handling
+- The URL token (`gid` plus HMAC) is compared in constant time. A bad token gets a 404.
+- Events are deduped in `hf_webhook_events {requestId, status}`.
+- The response comes back immediately, and `finalizeGeneration` runs in `after()`, because R2 copies of video can exceed the 10-second webhook deadline.
+- The body is never trusted: status is always re-fetched from the platform.
+
+### D-028 Reconciler and local dev
+- `/api/cron/reconcile` is protected by `Authorization: Bearer $CRON_SECRET` (what Vercel Cron sends). `vercel.json` schedules it every minute. **Per-minute crons need a Vercel Pro plan**; on Hobby the cron runs daily at most, so webhooks must be configured.
+- With webhooks on, a run is re-checked if it hasn't been checked for 3 minutes. Without them, the threshold is 8 seconds.
+- In development with Mongo and `HF_CREDENTIALS` set and no `HF_WEBHOOK_BASE_URL`, `instrumentation.ts` runs the reconciler every 5 seconds in place of the cron.
+
+### D-029 R2
+- Outputs are streamed to `u/{userId}/{generationId}/{n}.{ext}`, with the extension taken from the real content type. Cache headers are `immutable`, with a 2 GB cap.
+- Without R2 in development, platform URLs are kept (they expire in about 7 days) and a warning is logged. Production refuses to finalize without R2.
+- Image dimensions aren't probed; the feed uses the aspect ratio from settings. Revisit if justified rows look off.
+- Deleting a generation removes its R2 objects (best effort, failures logged).
+
+### D-030 Media ownership and uploads
+- `/api/upload` checks the declared size against our limits (image 20 MB, video 200 MB, audio 50 MB), applies a 30-per-minute limit per user, and **stores the platform's `public_url` server-side** in `uploads` as `pending`.
+- After the PUT, the browser confirms by upload id.
+- Submit rejects any media URL that isn't one of the user's ready uploads or completed outputs, so the browser can't make the platform fetch arbitrary URLs.
+
+### D-031 Access before billing
+`GENERATION_ACCESS` (default `admins`) limits production generation and uploads to `role: "admin"` users until Phase 5 ships billing. Development is open to any signed-in user. To make an account an admin, set `role: "admin"` on its `users` document.
+
+### D-032 Client
+- `useRuns(enabled)` loads the newest 500 runs through a server action and polls the status route every 3.5 seconds while anything is running. Deeper paging comes with `/assets` in Phase 6.
+- Projects use client UUIDs, so `create()` stays synchronous for the template's UI. Changes apply optimistically and roll back on error.
+- Deleting a project keeps its generations, which move back to All Generations.
+- Server actions return typed `{ ok, code, message }` results (resolves D-017).
+
+### D-033 Phase 3 checkpoint status
+- 49 unit tests, including lifecycle tests on an in-memory Mongo (`mingo`): idempotent submit, refund exactly once, concurrent finalize, cancel, timeouts, ownership.
+- Routes smoke-tested: webhook and cron return 404 without credentials; status and upload return 401 signed out.
+- **Not verified (needs operator keys):** a real image and video generation end to end, survival across refresh, serving from R2, and a real cancel. These need `HF_CREDENTIALS`, Atlas, R2, and either `HF_WEBHOOK_BASE_URL` plus a tunnel or the dev poller.

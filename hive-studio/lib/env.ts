@@ -46,6 +46,11 @@ const schema = z.object({
   R2_PUBLIC_BASE_URL: url.optional(),
 
   CRON_SECRET: z.string().min(16).optional(),
+
+  /** Who may spend the platform key in production. "admins" until billing
+      ships (Phase 5); then "everyone". Development is always open to
+      signed-in users. */
+  GENERATION_ACCESS: z.enum(["admins", "everyone"]).default("admins"),
 })
 
 export type Env = z.infer<typeof schema>

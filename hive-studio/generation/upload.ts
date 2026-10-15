@@ -1,11 +1,13 @@
 import { parseUploadTicket, requireUploadContentType } from "./upload-contract"
 
-export async function uploadMedia(file: File): Promise<{ url: string }> {
+/** Browser half of an upload: ask our server for a signed URL (it records the
+    public URL), then PUT the file straight to storage without cookies. */
+export async function uploadMedia(file: File): Promise<{ uploadId: string }> {
   const contentType = requireUploadContentType(file.type)
   const res = await fetch("/api/upload", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contentType }),
+    body: JSON.stringify({ contentType, size: file.size }),
   })
   let payload: unknown
   try {
@@ -27,7 +29,13 @@ export async function uploadMedia(file: File): Promise<{ url: string }> {
     )
   }
   const ticket = parseUploadTicket(payload, contentType)
-  // The storage request must not carry the platform key or browser cookies.
+  const uploadId =
+    payload && typeof payload === "object" && "uploadId" in payload
+      ? payload.uploadId
+      : null
+  if (typeof uploadId !== "string")
+    throw new Error("Could not prepare reference upload. Try again.")
+  // The storage request must not carry our cookies.
   const uploaded = await fetch(ticket.upload_url, {
     method: "PUT",
     headers: ticket.upload_headers,
@@ -38,5 +46,5 @@ export async function uploadMedia(file: File): Promise<{ url: string }> {
     throw new Error(
       `Reference upload failed (${uploaded.status}). Try uploading the file again.`
     )
-  return { url: ticket.public_url }
+  return { uploadId }
 }

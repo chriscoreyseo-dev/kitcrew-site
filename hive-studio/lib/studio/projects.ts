@@ -1,7 +1,10 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
 
-import { browserStorage } from "@/generation/stores/browser-storage"
+import {
+  createProjectAction,
+  deleteProjectAction,
+  renameProjectAction,
+} from "@/generation/library-actions"
 
 export interface Project {
   id: string
@@ -12,53 +15,65 @@ export interface Project {
 
 type ProjectsState = {
   projects: Project[]
+  error: string | null
+  hydrate: (projects: Project[]) => void
   create: (name: string) => Project
   rename: (id: string, name: string) => void
   remove: (id: string) => void
   touch: (id: string) => void
 }
 
-function newId(): string {
-  return typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
-}
+/** Projects live in MongoDB. Mutations apply optimistically (the id is a
+    client UUID, so `create` can return synchronously) and roll back on error. */
+export const useProjects = create<ProjectsState>()((set, get) => {
+  const rollback = (previous: Project[], message: string) =>
+    set({ projects: previous, error: message })
 
-/** Local-first projects. Swap the storage for a database when the app has accounts. */
-export const useProjects = create<ProjectsState>()(
-  persist(
-    (set, get) => ({
-      projects: [],
-      create: (name) => {
-        const now = Date.now()
-        const project: Project = {
-          id: newId(),
-          name: name.trim() || "Untitled",
-          createdAt: now,
-          updatedAt: now,
-        }
-        set({ projects: [project, ...get().projects] })
-        return project
-      },
-      rename: (id, name) =>
-        set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === id
-              ? { ...p, name: name.trim() || p.name, updatedAt: Date.now() }
-              : p
-          ),
-        })),
-      remove: (id) =>
-        set((state) => ({
-          projects: state.projects.filter((p) => p.id !== id),
-        })),
-      touch: (id) =>
-        set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === id ? { ...p, updatedAt: Date.now() } : p
-          ),
-        })),
-    }),
-    { name: "hf.projects.v1", storage: browserStorage() }
-  )
-)
+  return {
+    projects: [],
+    error: null,
+    hydrate: (projects) => set({ projects, error: null }),
+    create: (name) => {
+      const now = Date.now()
+      const project: Project = {
+        id: crypto.randomUUID(),
+        name: name.trim().slice(0, 80) || "Untitled",
+        createdAt: now,
+        updatedAt: now,
+      }
+      const previous = get().projects
+      set({ projects: [project, ...previous] })
+      void createProjectAction(project.id, project.name).then((r) => {
+        if (!r.ok) rollback(previous, r.message)
+      })
+      return project
+    },
+    rename: (id, name) => {
+      const previous = get().projects
+      const trimmed = name.trim().slice(0, 80)
+      if (!trimmed) return
+      set({
+        projects: previous.map((p) =>
+          p.id === id ? { ...p, name: trimmed, updatedAt: Date.now() } : p
+        ),
+      })
+      void renameProjectAction(id, trimmed).then((r) => {
+        if (!r.ok) rollback(previous, r.message)
+      })
+    },
+    remove: (id) => {
+      const previous = get().projects
+      set({ projects: previous.filter((p) => p.id !== id) })
+      void deleteProjectAction(id).then((r) => {
+        if (!r.ok) rollback(previous, r.message)
+      })
+    },
+    // The server bumps updatedAt on submit; this only reorders locally.
+    touch: (id) =>
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p.id === id ? { ...p, updatedAt: Date.now() } : p
+        ),
+      })),
+  }
+})

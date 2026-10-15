@@ -1,10 +1,9 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
 
-import { browserStorage } from "@/generation/stores/browser-storage"
+import type { MediaKind } from "@/generation/catalog/types"
+import { confirmUploadAction } from "@/generation/library-actions"
 import { uploadMedia } from "@/generation/upload"
 import { mediaKindFromMime } from "@/generation/upload-contract"
-import type { MediaKind } from "@/generation/catalog/types"
 
 export type AssetKind = MediaKind
 
@@ -23,44 +22,28 @@ export interface AssetLibraryItem extends AssetSelection {
 
 type UploadsState = {
   items: AssetLibraryItem[]
+  hydrate: (items: AssetLibraryItem[]) => void
   add: (item: AssetLibraryItem) => void
-  remove: (id: string) => void
 }
 
-/** Remember uploaded reference URLs in this browser. */
-export const useUploads = create<UploadsState>()(
-  persist(
-    (set) => ({
-      items: [],
-      add: (item) =>
-        set((s) => ({
-          items: [item, ...s.items.filter((i) => i.id !== item.id)].slice(
-            0,
-            200
-          ),
-        })),
-      remove: (id) =>
-        set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
-    }),
-    { name: "hf.uploads.v1", storage: browserStorage() }
-  )
-)
+/** The user's uploaded references, loaded from MongoDB. */
+export const useUploads = create<UploadsState>()((set) => ({
+  items: [],
+  hydrate: (items) => set({ items }),
+  add: (item) =>
+    set((s) => ({ items: [item, ...s.items.filter((i) => i.id !== item.id)] })),
+}))
 
 export function kindOf(file: File): AssetKind {
   return mediaKindFromMime(file.type)
 }
 
-/** Record a reference only after the Higgsfield storage upload succeeds. */
+/** Signed URL → PUT → confirm. Recorded only after the storage upload succeeds. */
 export async function uploadAsset(file: File): Promise<AssetLibraryItem> {
-  const { url } = await uploadMedia(file)
-  const item: AssetLibraryItem = {
-    id: url,
-    src: url,
-    kind: kindOf(file),
-    name: file.name,
-    source: "upload",
-    createdAt: Date.now(),
-  }
+  const { uploadId } = await uploadMedia(file)
+  const result = await confirmUploadAction(uploadId, file.size, file.name)
+  if (!result.ok) throw new Error(result.message)
+  const item: AssetLibraryItem = { ...result.data, source: "upload" }
   useUploads.getState().add(item)
   return item
 }

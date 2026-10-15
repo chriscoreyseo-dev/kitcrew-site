@@ -1,70 +1,87 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-
-import { cancelGeneration, submitGeneration } from "@/generation/actions"
-import { getModel } from "@/generation/catalog"
-import type { GenerationPlane } from "@/generation/catalog"
-import type { GenerationStatus } from "@/lib/higgsfield/types"
-import { stopWatching, watchRequest } from "@/generation/poll"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
-  aspectFromSettings,
-  loadHistory,
-  saveHistory,
-  type RunRecord,
-} from "./history"
+  cancelGenerationAction,
+  deleteGenerationAction,
+  listGenerationsAction,
+  submitGenerationAction,
+} from "@/generation/actions"
+import type { GenerationPlane } from "@/generation/catalog"
+
+import type { RunRecord } from "./history"
+
+export const STATUS_POLL_MS = 3500
 
 /**
- * The studio's generation controller: submits planes to the platform through
- * the server action, keeps every run in IndexedDB-backed history, and resumes
- * polls for runs that were still in flight when the page reloaded.
+ * The studio's generation controller. Same interface as the template's, but
+ * runs live in MongoDB: submit/cancel/delete are server actions, history loads
+ * from the server, and in-flight runs are refreshed by polling our own
+ * GET /api/generations/status (DB only). Never poll through a server action:
+ * Next runs them one at a time per client, so polls would queue ahead of the
+ * next submit.
  */
-export function useRuns() {
+export function useRuns(enabled = true) {
   const [records, setRecords] = useState<RunRecord[]>([])
-  const [loaded, setLoaded] = useState(false)
+  const [loaded, setLoaded] = useState(!enabled)
   const [error, setError] = useState<string | null>(null)
+  const recordsRef = useRef(records)
+  useEffect(() => {
+    recordsRef.current = records
+  }, [records])
 
-  const update = useCallback((id: string, patch: Partial<RunRecord>) => {
-    setRecords((current) =>
-      current.map((r) => (r.id === id ? { ...r, ...patch } : r))
-    )
+  const merge = useCallback((updates: RunRecord[]) => {
+    if (!updates.length) return
+    const byId = new Map(updates.map((u) => [u.id, u]))
+    setRecords((current) => current.map((r) => byId.get(r.id) ?? r))
   }, [])
 
-  const watch = useCallback(
-    (record: RunRecord) => {
-      watchRequest(record.requestId, {
-        deadline: record.createdAt + 15 * 60_000,
-      })
-        .then((status) => update(record.id, settle(status)))
-        .catch((caught: unknown) => {
-          update(record.id, {
-            status: "failed",
-            error: caught instanceof Error ? caught.message : String(caught),
-          })
-        })
-    },
-    [update]
-  )
-
   useEffect(() => {
+    if (!enabled) return
     let alive = true
-    void loadHistory().then((stored) => {
+    void listGenerationsAction().then((result) => {
       if (!alive) return
-      setRecords(stored)
+      if (result.ok) setRecords(result.data)
+      else setError(result.message)
       setLoaded(true)
-      for (const record of stored)
-        if (record.status === "running") watch(record)
     })
     return () => {
       alive = false
-      stopWatching()
     }
-  }, [watch])
+  }, [enabled])
+
+  const refresh = useCallback(
+    async (ids: string[]) => {
+      if (!ids.length) return
+      try {
+        const res = await fetch(
+          `/api/generations/status?ids=${ids.join(",")}`,
+          {
+            cache: "no-store",
+          }
+        )
+        if (!res.ok) return
+        const body = (await res.json()) as { runs?: RunRecord[] }
+        merge(body.runs ?? [])
+      } catch {
+        /* offline for a moment: the next tick retries */
+      }
+    },
+    [merge]
+  )
+
+  const runningKey = records
+    .filter((r) => r.status === "running")
+    .map((r) => r.id)
+    .join(",")
 
   useEffect(() => {
-    if (loaded) void saveHistory(records)
-  }, [loaded, records])
+    if (!runningKey) return
+    const ids = runningKey.split(",")
+    const timer = setInterval(() => void refresh(ids), STATUS_POLL_MS)
+    return () => clearInterval(timer)
+  }, [refresh, runningKey])
 
   const submit = useCallback(
     async (
@@ -72,81 +89,49 @@ export function useRuns() {
       projectId?: string
     ): Promise<RunRecord | null> => {
       setError(null)
-      const model = getModel(plane.model)
-      try {
-        const queued = await submitGeneration(plane)
-        const record: RunRecord = {
-          id: queued.requestId,
-          requestId: queued.requestId,
-          surface: model.surface,
-          modelId: model.id,
-          modelLabel: model.label,
-          prompt: plane.prompt.text,
-          settings: plane.settings,
-          ...(projectId ? { projectId } : {}),
-          aspect: aspectFromSettings(plane.settings),
-          status: "running",
-          urls: [],
-          createdAt: Date.now(),
-        }
-        setRecords((current) => [record, ...current])
-        watch(record)
-        return record
-      } catch (caught) {
-        setError(caught instanceof Error ? caught.message : String(caught))
+      const result = await submitGenerationAction({
+        plane,
+        clientRequestId: crypto.randomUUID(),
+        ...(projectId ? { projectId } : {}),
+      })
+      if (!result.ok) {
+        setError(result.message)
         return null
       }
+      const record = result.data
+      setRecords((current) => [
+        record,
+        ...current.filter((r) => r.id !== record.id),
+      ])
+      return record
     },
-    [watch]
+    []
   )
 
   const cancel = useCallback(
     async (id: string) => {
-      const record = records.find((r) => r.id === id)
+      const record = recordsRef.current.find((r) => r.id === id)
       if (!record || record.status !== "running") return
-      try {
-        await cancelGeneration({ requestIds: [record.requestId] })
-        update(id, { status: "failed", error: "Canceled" })
-      } catch (caught) {
-        setError(caught instanceof Error ? caught.message : String(caught))
-      }
+      const result = await cancelGenerationAction(id)
+      if (!result.ok) setError(result.message)
+      else if (result.data === "already_started")
+        setError("That generation already started, so it can't be canceled.")
+      await refresh([id])
     },
-    [records, update]
+    [refresh]
   )
 
-  const remove = useCallback((id: string) => {
+  const remove = useCallback(async (id: string) => {
+    const previous = recordsRef.current
     setRecords((current) => current.filter((r) => r.id !== id))
+    const result = await deleteGenerationAction(id)
+    if (!result.ok) {
+      setRecords(previous)
+      setError(result.message)
+    }
   }, [])
 
   const running = records.filter((r) => r.status === "running")
 
   return { records, running, loaded, error, submit, cancel, remove, setError }
-}
-
-function settle(status: GenerationStatus): Partial<RunRecord> {
-  const urls = [
-    ...(status.images?.map((i) => i.url) ?? []),
-    ...(status.video ? [status.video.url] : []),
-  ]
-  if (status.status === "completed" && urls.length > 0)
-    return { status: "completed", urls }
-  const reason =
-    status.status === "nsfw"
-      ? "Blocked by the content filter"
-      : status.status === "canceled"
-        ? "Canceled"
-        : (describeError(status.error) ??
-          "The generation did not produce media")
-  return { status: "failed", error: reason }
-}
-
-function describeError(error: unknown): string | undefined {
-  if (typeof error === "string") return error
-  if (error && typeof error === "object") {
-    const detail =
-      (error as { detail?: unknown; message?: unknown }).detail ??
-      (error as { message?: unknown }).message
-    if (typeof detail === "string") return detail
-  }
-  return undefined
 }

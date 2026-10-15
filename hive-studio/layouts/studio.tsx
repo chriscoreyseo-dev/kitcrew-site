@@ -43,6 +43,7 @@ import {
   runToGalleryItems,
   runToLibraryItems,
 } from "@/lib/studio/gallery-items"
+import { listLibraryAction } from "@/generation/library-actions"
 import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
 import { useProjects } from "@/lib/studio/projects"
 import {
@@ -287,7 +288,25 @@ export function StudioTemplate({
   const setSetting = useSettings((s) => s.set)
   const projectsStore = useProjects()
   const uploads = useUploads((s) => s.items)
-  const runs = useRuns()
+  const runs = useRuns(Boolean(user))
+
+  // Projects and uploads live on the server; load them once signed in.
+  useEffect(() => {
+    if (!user) return
+    let alive = true
+    void listLibraryAction().then((result) => {
+      if (!alive || !result.ok) return
+      useProjects.getState().hydrate(result.data.projects)
+      useUploads
+        .getState()
+        .hydrate(
+          result.data.uploads.map((u) => ({ ...u, source: "upload" as const }))
+        )
+    })
+    return () => {
+      alive = false
+    }
+  }, [user])
 
   // Restore what the user had in the dock before signing in (never auto-submit).
   useEffect(() => {
@@ -527,6 +546,7 @@ export function StudioTemplate({
     error:
       localError ??
       runs.error ??
+      projectsStore.error ??
       (!missingRequiredInput && media.length > 0 ? prepared.error : null) ??
       undefined,
   }

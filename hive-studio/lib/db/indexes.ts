@@ -63,6 +63,16 @@ export const INDEXES: readonly IndexDef[] = [
   },
   {
     collection: "generations",
+    key: { userId: 1, clientRequestId: 1 },
+    options: { name: "client_request_unique", unique: true },
+  },
+  {
+    collection: "generations",
+    key: { status: 1, checkedAt: 1 },
+    options: { name: "status_checked" },
+  },
+  {
+    collection: "generations",
     key: { status: 1, updatedAt: 1 },
     options: { name: "status_updated" },
   },
@@ -81,6 +91,16 @@ export const INDEXES: readonly IndexDef[] = [
     collection: "uploads",
     key: { userId: 1, createdAt: -1 },
     options: { name: "user_recent" },
+  },
+  {
+    collection: "uploads",
+    key: { userId: 1, publicUrl: 1 },
+    options: { name: "user_url" },
+  },
+  {
+    collection: "generations",
+    key: { userId: 1, "outputs.url": 1 },
+    options: { name: "user_output_url" },
   },
 
   // Credits: the unique triple makes every grant, debit and refund idempotent.
