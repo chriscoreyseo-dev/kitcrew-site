@@ -48,7 +48,8 @@ Status: waiting on operator.
 ### D-006 API host
 - The SDK (`higgsfield-js/src/config.ts`) defaults `baseURL` to `https://api.higgsfield.ai`.
 - The template reads `HF_API_BASE_URL` from env and has no default in code.
-- Decision: default to `https://api.higgsfield.ai`, as the spec says. Re-confirm against the docs once they can be reached.
+- **Correction to the spec:** the spec says the template uses `platform.higgsfield.ai`. No file in any of the five reference repos mentions that host; they all use `api.higgsfield.ai`. The key-management URLs differ too: `open.higgsfield.ai` (template) and `cloud.higgsfield.ai` (Python SDK). The live docs should say which is current.
+- Decision: default to `https://api.higgsfield.ai`. Re-confirm against the docs once they can be reached.
 
 ### D-007 Webhook authenticity
 - The v2 SDK's `subscribe()` accepts `webhook: { url, secret }`, but it only appends `?hf_webhook=<url>` and **never sends the secret** (`src/v2/client.ts:268-273`).
@@ -62,3 +63,9 @@ Reason: one less dependency. The v2 SDK also types its inputs as `any`, which br
 ### D-009 Template is at the repo root
 The registry item is `higgsfield-ai/app-templates/studio`, but the source sits at the repo root (`app/`, `generation/`, `components/studio/`), not under `studio/`.
 The pinned versions are Next `16.3.8` and React `19.2.8`.
+
+### D-010 Model catalog findings (see `model-catalog.md`)
+- **38 template entries** (8 image, 30 video) across 28 files. **68 more models** appear in the CLI or skills with no REST path known; they are marked Unverified and stay out of the picker until the docs confirm them. That includes all 7 audio models, so **the audio surface can't ship until the docs can be reached**.
+- 24 of the 38 entries use the template's **shared default settings** instead of model-specific ones, and several contradict the CLI: Hailuo durations and resolutions, Kling 2.6 durations, Wan 2.6 `quality` vs `resolution`, 4k on Flux 2 and Recraft. Decision: in Phase 4, fix the settings per model from the live docs and log each change here.
+- **Template mapping bugs to fix in Phase 4.** Confirmed: LTX 2.5's path ends in `/fast`, so `t2v()` never builds an image path, yet the model declares a `start` slot, so an attached frame is silently dropped. Reported and not yet checked: Kling O1/O3, Kling 2.5 and DoP send prompt-only runs to frame or image paths. Each fix gets a snapshot test.
+- End frames go under three different field names in the template (`end_image_url`, `last_image_url`, `last_frame_url`). These may be correct per model; check each against the docs.
