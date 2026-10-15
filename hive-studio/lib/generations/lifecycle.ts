@@ -6,6 +6,9 @@ import { getModel, parseSettings } from "@/generation/catalog"
 import type { GenerationPlane } from "@/generation/catalog/types"
 import { toPlatform } from "@/generation/to-platform"
 import { refundGeneration } from "@/lib/billing/charges"
+import { insertChargedGeneration } from "@/lib/billing/ledger"
+import { planOf } from "@/lib/billing/plans"
+import { quoteFor } from "@/lib/billing/pricing"
 import { db } from "@/lib/db/mongo"
 import { env } from "@/lib/env"
 import { platform, PlatformError } from "@/lib/higgsfield"
@@ -26,8 +29,6 @@ import { outcomeOf, submitFailureIsDefinite } from "./outcome"
 const LEASE_MS = 90_000
 export const PENDING_SUBMIT_GRACE_MS = 2 * 60_000
 export const RUN_DEADLINE_MS = 15 * 60_000
-/** Phase 5 replaces this with the per-plan parallel limit, checked in the debit transaction. */
-export const MAX_IN_FLIGHT = 4
 
 export class GenerationInputError extends Error {
   constructor(message: string) {
@@ -139,14 +140,24 @@ export async function submitGeneration(
   if (input.projectId && !(await projectBelongsTo(userId, input.projectId)))
     throw new GenerationInputError("That project no longer exists.")
 
-  const inFlight = await generations().countDocuments({
-    userId,
-    status: { $in: IN_FLIGHT },
-  })
-  if (inFlight >= MAX_IN_FLIGHT)
-    throw new GenerationInputError(
-      `You can run ${MAX_IN_FLIGHT} generations at once. Wait for one to finish.`
+  const { enabled, quote } = await quoteFor(model.id, plane.settings)
+  if (!enabled)
+    throw new GenerationInputError("That model isn't available right now.")
+  let cost = quote?.credits ?? null
+  if (cost === null) {
+    if (process.env.NODE_ENV === "production")
+      throw new GenerationInputError(
+        `${model.label} isn't priced yet. Try another model.`
+      )
+    console.warn(
+      `[billing] ${model.id} has no price; charging 0 credits (dev only)`
     )
+    cost = 0
+  }
+  const owner = await db()
+    .collection<{ _id: ObjectId; plan?: string }>("users")
+    .findOne({ _id: userId }, { projection: { plan: 1 } })
+  const parallelLimit = planOf(owner?.plan).concurrency[model.surface]
 
   const now = new Date()
   const doc: GenerationDoc = {
@@ -168,7 +179,7 @@ export async function submitGeneration(
       ...(m.name ? { name: m.name.slice(0, 120) } : {}),
     })),
     status: "pending_submit",
-    cost: 0,
+    cost,
     outputs: [],
     aspect: aspectFromSettings(plane.settings),
     isPublic: false,
@@ -176,14 +187,18 @@ export async function submitGeneration(
     updatedAt: now,
   }
   try {
-    await generations().insertOne(doc)
+    // Debit + per-plan parallel limit + insert, in one transaction.
+    Object.assign(doc, await insertChargedGeneration(doc, cost, parallelLimit))
   } catch (error) {
     // Lost a double-click race on {userId, clientRequestId}: return the winner.
-    const winner = await generations().findOne({
-      userId,
-      clientRequestId: input.clientRequestId,
-    })
-    if (winner) return winner
+    // The loser's transaction rolled back, so it was never charged.
+    if ((error as { code?: unknown })?.code === 11000) {
+      const winner = await generations().findOne({
+        userId,
+        clientRequestId: input.clientRequestId,
+      })
+      if (winner) return winner
+    }
     throw error
   }
 

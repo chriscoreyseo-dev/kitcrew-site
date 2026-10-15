@@ -123,6 +123,16 @@ export const INDEXES: readonly IndexDef[] = [
   },
 
   {
+    collection: "topup_purchases",
+    key: { paymentIntent: 1 },
+    options: { name: "payment_intent", unique: true, sparse: true },
+  },
+  {
+    collection: "users",
+    key: { stripeSubscriptionId: 1 },
+    options: { name: "stripe_subscription", sparse: true },
+  },
+  {
     collection: "presets",
     key: { slug: 1 },
     options: { name: "slug_unique", unique: true },

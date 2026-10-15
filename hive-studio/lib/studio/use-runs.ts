@@ -22,7 +22,17 @@ export const STATUS_POLL_MS = 3500
  * Next runs them one at a time per client, so polls would queue ahead of the
  * next submit.
  */
-export function useRuns(enabled = true) {
+export function useRuns(
+  enabled = true,
+  options: {
+    onInsufficientCredits?: (message: string) => void
+    onSettled?: () => void
+  } = {}
+) {
+  const optionsRef = useRef(options)
+  useEffect(() => {
+    optionsRef.current = options
+  })
   const [records, setRecords] = useState<RunRecord[]>([])
   const [loaded, setLoaded] = useState(!enabled)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +74,9 @@ export function useRuns(enabled = true) {
         if (!res.ok) return
         const body = (await res.json()) as { runs?: RunRecord[] }
         merge(body.runs ?? [])
+        // A run that ended may have refunded credits: let the balance refresh.
+        if (body.runs?.some((r) => r.status !== "running"))
+          optionsRef.current.onSettled?.()
       } catch {
         /* offline for a moment: the next tick retries */
       }
@@ -95,10 +108,16 @@ export function useRuns(enabled = true) {
         ...(projectId ? { projectId } : {}),
       })
       if (!result.ok) {
-        setError(result.message)
+        if (
+          result.code === "INSUFFICIENT_CREDITS" &&
+          optionsRef.current.onInsufficientCredits
+        )
+          optionsRef.current.onInsufficientCredits(result.message)
+        else setError(result.message)
         return null
       }
       const record = result.data
+      optionsRef.current.onSettled?.()
       setRecords((current) => [
         record,
         ...current.filter((r) => r.id !== record.id),

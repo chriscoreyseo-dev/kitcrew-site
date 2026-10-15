@@ -2,6 +2,10 @@ import "server-only"
 
 import { GenerationForbiddenError } from "@/lib/access"
 import { SignInRequiredError } from "@/lib/auth-guard"
+import {
+  ConcurrencyLimitError,
+  InsufficientCreditsError,
+} from "@/lib/billing/ledger"
 import { EnvError } from "@/lib/env"
 import {
   GenerationInputError,
@@ -14,6 +18,8 @@ export type ActionErrorCode =
   | "NOT_FOUND"
   | "INVALID"
   | "RATE_LIMITED"
+  | "INSUFFICIENT_CREDITS"
+  | "PARALLEL_LIMIT"
   | "UNAVAILABLE"
   | "FAILED"
 
@@ -41,6 +47,10 @@ export async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
       return { ok: false, code: "NOT_FOUND", message: error.message }
     if (error instanceof GenerationInputError)
       return { ok: false, code: "INVALID", message: error.message }
+    if (error instanceof InsufficientCreditsError)
+      return { ok: false, code: "INSUFFICIENT_CREDITS", message: error.message }
+    if (error instanceof ConcurrencyLimitError)
+      return { ok: false, code: "PARALLEL_LIMIT", message: error.message }
     if (error instanceof RateLimitedError)
       return { ok: false, code: "RATE_LIMITED", message: error.message }
     if (error instanceof EnvError) {

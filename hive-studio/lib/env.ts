@@ -38,6 +38,15 @@ const schema = z.object({
 
   STRIPE_SECRET_KEY: nonEmpty.optional(),
   STRIPE_WEBHOOK_SECRET: nonEmpty.optional(),
+  STRIPE_PRICE_STARTER_MONTHLY: nonEmpty.optional(),
+  STRIPE_PRICE_STARTER_ANNUAL: nonEmpty.optional(),
+  STRIPE_PRICE_PLUS_MONTHLY: nonEmpty.optional(),
+  STRIPE_PRICE_PLUS_ANNUAL: nonEmpty.optional(),
+  STRIPE_PRICE_ULTRA_MONTHLY: nonEmpty.optional(),
+  STRIPE_PRICE_ULTRA_ANNUAL: nonEmpty.optional(),
+  STRIPE_PRICE_TOPUP_SMALL: nonEmpty.optional(),
+  STRIPE_PRICE_TOPUP_MEDIUM: nonEmpty.optional(),
+  STRIPE_PRICE_TOPUP_LARGE: nonEmpty.optional(),
 
   R2_ACCOUNT_ID: nonEmpty.optional(),
   R2_ACCESS_KEY_ID: nonEmpty.optional(),

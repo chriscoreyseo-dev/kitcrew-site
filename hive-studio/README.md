@@ -2,7 +2,7 @@
 
 An AI image, video and audio studio on the Higgsfield API, with credits billed through Stripe. It lives inside `kitcrew-site` and deploys to Vercel separately (Root Directory = `hive-studio`).
 
-**Status:** Phases 0–3 code done (research, scaffold, auth, generation core). Live tests need Atlas, Resend, Higgsfield and R2 keys. Phase 4 partly done (mapping fixes, picker metadata, audio plumbing); adding the unverified models needs docs.higgsfield.ai. Next is Phase 5 (credits and Stripe).
+**Status:** Phases 0–3 code done (research, scaffold, auth, generation core). Live tests need Atlas, Resend, Higgsfield and R2 keys. Phase 4 partly done (mapping fixes, picker metadata, audio plumbing); adding the unverified models needs docs.higgsfield.ai. Phase 5 (credits and Stripe) code done; plan amounts and model prices are TBD. Next is Phase 6 (UI clone).
 
 - Spec: [`docs/build-prompt.md`](docs/build-prompt.md)
 - Decisions and open items: [`docs/decisions.md`](docs/decisions.md)

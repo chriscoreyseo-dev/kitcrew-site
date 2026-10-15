@@ -148,12 +148,37 @@ function plainEquality(filter: Doc): Doc {
 
 export function fakeDb(unique: Record<string, string[][]> = {}) {
   const collections = new Map<string, FakeCollection>()
+  let queue: Promise<unknown> = Promise.resolve()
   return {
     collections,
     collection(name: string) {
       if (!collections.has(name))
         collections.set(name, new FakeCollection(unique[name] ?? []))
       return collections.get(name)!
+    },
+    /** Serializable transactions: one at a time; a throw restores every
+        collection to its state when the transaction began. */
+    client: {
+      startSession() {
+        return {
+          async withTransaction(fn: () => Promise<unknown>) {
+            const run = queue.then(async () => {
+              const snapshot = new Map(
+                [...collections].map(([k, c]) => [k, clone(c.docs)])
+              )
+              try {
+                await fn()
+              } catch (error) {
+                for (const [k, c] of collections) c.docs = snapshot.get(k) ?? []
+                throw error
+              }
+            })
+            queue = run.catch(() => undefined)
+            await run
+          },
+          async endSession() {},
+        }
+      },
     },
   }
 }

@@ -13,23 +13,27 @@ const h = vi.hoisted(() => ({
     cancel: vi.fn(),
     createUpload: vi.fn(),
   },
-  refunds: [] as string[],
+  quote: { credits: 10, usd: 0.0667 } as {
+    credits: number
+    usd: number
+  } | null,
   copies: [] as string[],
   deleted: [] as string[],
 }))
 
-vi.mock("@/lib/db/mongo", () => ({ db: () => h.db, mongoClient: () => ({}) }))
+vi.mock("@/lib/db/mongo", () => ({
+  db: () => h.db,
+  mongoClient: () => h.db.client,
+}))
+vi.mock("@/lib/billing/pricing", () => ({
+  quoteFor: async () => ({ enabled: true, quote: h.quote }),
+}))
 vi.mock("@/lib/higgsfield", async () => {
   const actual = await vi.importActual<
     typeof import("@/lib/higgsfield/platform")
   >("@/lib/higgsfield/platform")
   return { platform: () => h.platform, PlatformError: actual.PlatformError }
 })
-vi.mock("@/lib/billing/charges", () => ({
-  refundGeneration: async (doc: { _id: ObjectId }) => {
-    h.refunds.push(doc._id.toHexString())
-  },
-}))
 vi.mock("@/lib/storage/r2", () => ({
   isR2Configured: () => true,
   copyToR2: async (input: {
@@ -84,9 +88,34 @@ async function stored(id: ObjectId) {
   return (await gens().findOne({ _id: id })) as unknown as GenerationDoc | null
 }
 
-beforeEach(() => {
-  h.db = fakeDb({ generations: [["userId", "clientRequestId"]] })
-  h.refunds.length = 0
+/** Generation ids that received a refund ledger entry (one per bucket used). */
+function refunds(): string[] {
+  return h.db
+    .collection("credit_ledger")
+    .docs.filter((e) => e.reason === "generation_refund")
+    .map((e) => String(e.refId).split(":")[0]!)
+}
+
+async function user(id: string) {
+  return h.db
+    .collection("users")
+    .findOne({ _id: new ObjectId(id) }) as unknown as Promise<{
+    credits: { subscription: number; topup: number }
+  }>
+}
+
+beforeEach(async () => {
+  h.db = fakeDb({
+    generations: [["userId", "clientRequestId"]],
+    credit_ledger: [["reason", "refType", "refId"]],
+  })
+  h.quote = { credits: 10, usd: 0.0667 }
+  for (const id of [USER, OTHER])
+    await h.db.collection("users").insertOne({
+      _id: new ObjectId(id),
+      plan: "ultra",
+      credits: { subscription: 0, topup: 1000 },
+    })
   h.copies.length = 0
   h.deleted.length = 0
   for (const fn of Object.values(h.platform)) fn.mockReset()
@@ -159,7 +188,7 @@ describe("submit", () => {
     const doc = await submit()
     expect(doc.status).toBe("failed")
     expect(doc.error).toMatch(/bad aspect/)
-    expect(h.refunds).toEqual([doc._id.toHexString()])
+    expect(refunds()).toEqual([doc._id.toHexString()])
   })
 
   it("an unclear outcome stays pending_submit; the reconciler refunds it once", async () => {
@@ -168,17 +197,61 @@ describe("submit", () => {
     )
     const doc = await submit()
     expect(doc.status).toBe("pending_submit")
-    expect(h.refunds).toEqual([])
+    expect(refunds()).toEqual([])
     const later = Date.now() + life.PENDING_SUBMIT_GRACE_MS + 1000
     await life.reconcile(later)
     await life.reconcile(later)
     expect((await stored(doc._id))?.status).toBe("failed")
-    expect(h.refunds).toEqual([doc._id.toHexString()])
+    expect(refunds()).toEqual([doc._id.toHexString()])
   })
 
-  it("caps runs in flight per user", async () => {
-    for (let i = 0; i < life.MAX_IN_FLIGHT; i += 1) await submit()
-    await expect(submit()).rejects.toThrow(/at once/)
+  it("enforces the plan's parallel limit per surface", async () => {
+    await h.db
+      .collection("users")
+      .updateOne({ _id: new ObjectId(USER) }, { $set: { plan: "free" } })
+    await submit()
+    await expect(submit()).rejects.toThrow(/1 image generation at a time/)
+  })
+
+  it("debits the quoted cost and refunds it to the same bucket", async () => {
+    h.platform.submit.mockRejectedValue(
+      new PlatformError(422, { detail: "bad" })
+    )
+    const doc = await submit()
+    expect(doc.cost).toBe(10)
+    expect((await user(USER)).credits.topup).toBe(1000)
+    expect(
+      h.db.collection("credit_ledger").docs.map((e) => [e.reason, e.delta])
+    ).toEqual([
+      ["generation_debit", -10],
+      ["generation_refund", 10],
+    ])
+  })
+
+  it("two simultaneous submits with credits for one: exactly one runs", async () => {
+    await h.db
+      .collection("users")
+      .updateOne(
+        { _id: new ObjectId(USER) },
+        { $set: { credits: { subscription: 0, topup: 10 } } }
+      )
+    const results = await Promise.allSettled([submit(), submit()])
+    expect(results.map((r) => r.status).sort()).toEqual([
+      "fulfilled",
+      "rejected",
+    ])
+    expect(
+      (results.find((r) => r.status === "rejected") as PromiseRejectedResult)
+        .reason.name
+    ).toBe("InsufficientCreditsError")
+    expect((await user(USER)).credits.topup).toBe(0)
+    expect(gens().docs).toHaveLength(1)
+  })
+
+  it("a double click is charged once", async () => {
+    const id = crypto.randomUUID()
+    await Promise.all([submit(id), submit(id)])
+    expect((await user(USER)).credits.topup).toBe(990)
   })
 })
 
@@ -202,7 +275,7 @@ describe("finalize", () => {
       `https://media.test/u/${USER}/${doc._id.toHexString()}/1.png`,
     ])
     expect(h.copies).toHaveLength(2)
-    expect(h.refunds).toEqual([])
+    expect(refunds()).toEqual([])
   })
 
   it("concurrent finalizers (webhook + reconciler) settle once", async () => {
@@ -228,7 +301,7 @@ describe("finalize", () => {
     const saved = await stored(doc._id)
     expect(saved?.status).toBe("nsfw")
     expect(saved?.error).toBe("Blocked by content filter. Credits refunded.")
-    expect(h.refunds).toEqual([doc._id.toHexString()])
+    expect(refunds()).toEqual([doc._id.toHexString()])
   })
 
   it("a non-terminal answer records progress and keeps the run open", async () => {
@@ -257,7 +330,7 @@ describe("cancel", () => {
     )
     expect(h.platform.cancel).toHaveBeenCalledWith("req-1")
     expect((await stored(doc._id))?.status).toBe("canceled")
-    expect(h.refunds).toEqual([doc._id.toHexString()])
+    expect(refunds()).toEqual([doc._id.toHexString()])
   })
 
   it("cancel racing a webhook finalize still refunds exactly once", async () => {
@@ -276,7 +349,7 @@ describe("cancel", () => {
     release()
     await Promise.all([webhook, cancel])
     expect((await stored(doc._id))?.status).toBe("canceled")
-    expect(h.refunds).toEqual([doc._id.toHexString()])
+    expect(refunds()).toEqual([doc._id.toHexString()])
   })
 
   it("reports already_started when the platform answers 400", async () => {
@@ -286,7 +359,7 @@ describe("cancel", () => {
       "already_started"
     )
     expect((await stored(doc._id))?.status).toBe("in_progress")
-    expect(h.refunds).toEqual([])
+    expect(refunds()).toEqual([])
   })
 
   it("never touches another user's run (looks like not found)", async () => {
@@ -315,7 +388,7 @@ describe("reconcile and delete", () => {
     expect(report.timedOut).toBe(1)
     expect(h.platform.cancel).toHaveBeenCalledWith("req-1")
     expect((await stored(doc._id))?.error).toMatch(/Timed out/)
-    expect(h.refunds).toEqual([doc._id.toHexString()])
+    expect(refunds()).toEqual([doc._id.toHexString()])
   })
 
   it("delete removes the document and its R2 objects", async () => {

@@ -2,15 +2,12 @@ import "server-only"
 
 import type { GenerationDoc } from "@/lib/generations/model"
 
-/** Credit hooks for the generation lifecycle. Phase 3 runs at cost 0; Phase 5
-    implements pricing (lib/billing/price.ts), the transactional debit inside
-    submit, and this refund through the ledger (reason generation_refund,
-    refId = generation id, so a replayed refund is a no-op). */
+import { refundGenerationCredits } from "./ledger"
+
+/** Called exactly once per terminal failure (see settleRefund); the ledger's
+    unique key makes a replay a no-op anyway. */
 export async function refundGeneration(
-  doc: Pick<GenerationDoc, "_id" | "cost">
+  doc: Pick<GenerationDoc, "_id" | "userId" | "cost" | "costSplit">
 ): Promise<void> {
-  if (doc.cost === 0) return
-  throw new Error(
-    `Refund not implemented yet for generation ${doc._id.toHexString()}`
-  )
+  await refundGenerationCredits(doc)
 }

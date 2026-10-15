@@ -54,8 +54,10 @@ export type GenerationDoc = {
   }>
   status: GenerationStatus
   hfRequestId?: string
-  /** Credits debited for this run (Phase 5; 0 until billing ships). */
+  /** Credits debited for this run. */
   cost: number
+  /** Which buckets the debit came from; refunds go back the same way. */
+  costSplit?: { subscription: number; topup: number }
   outputs: GenerationOutput[]
   error?: string
   /** Width / height for the feed before media loads. */

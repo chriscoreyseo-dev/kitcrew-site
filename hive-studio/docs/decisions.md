@@ -229,3 +229,56 @@ A snapshot test (`tests/mappers.test.ts`) now records the exact request for ever
 - Correct the 24 models that use generic default settings, and the CLI-versus-template parameter conflicts (D-010).
 - Verify the 11 `t2v()`-derived image-to-video paths.
 - Run "at least one real generation per family". That also needs `HF_CREDENTIALS`.
+
+## 2026-10-15 — Phase 5
+
+### D-038 Pricing
+- `lib/billing/price.ts#priceFor(rule, settings, config)` is a pure function shared by the Generate button and the server.
+- Formula: `credits = ceil(hfUsd × CREDIT_MARKUP / CREDIT_USD_VALUE)`. The product is rounded to 6 decimals before `ceil`, so float noise never adds a credit.
+- Rules can charge per run, per image, or per second, with setting multipliers (for example, resolution).
+- `model_pricing` documents override a rule or disable a model.
+- **The browser never sees the markup or upstream cost.** `pricingAction` sends rules pre-scaled into credit units, and a test proves the client result equals the server's credits across durations and resolutions.
+
+### D-039 Every model is unpriced (TBD)
+`lib/billing/pricing-table.ts` has an entry for every model, all `null`. The per-model USD prices live in console.higgsfield.ai, which isn't reachable from here.
+- In **production**, an unpriced model is refused ("isn't priced yet").
+- In **development**, it runs at 0 credits with a warning.
+- To fix: fill the table from the console export, or insert `model_pricing` docs.
+
+### D-040 Credits and ledger
+- `insertChargedGeneration` does three things in one transaction: debits subscription credits first, then top-up credits; enforces the per-plan, per-surface parallel limit; and inserts the generation.
+- The balance update is conditioned on the exact balance read in the transaction, and it touches the user document on every submit, even at cost 0. Concurrent submits for one user therefore conflict and serialize, so the in-flight count holds.
+- A double click's losing transaction rolls back, so it's charged once.
+- The debit split is stored as `costSplit`. Refunds return credits to the same buckets, with ledger refIds `{generationId}:{bucket}`, idempotent through the unique `{reason, refType, refId}` index.
+- **Subscription credits reset on each paid invoice** (`setTo`, not add) and are spent first. **Top-up credits never expire.** Both behaviors follow the spec's defaults.
+- Balances never go below zero; clawbacks are clamped.
+
+### D-041 Plans and top-ups (amounts TBD for the operator)
+- `lib/billing/plans.ts` defines Free, Starter, Plus and Ultra (monthly and annual) and three top-up packs.
+- Every credit allowance and price is `null`. An option becomes purchasable only once its amounts **and** Stripe price ID are set.
+- Parallel limits: Free 1/1/1; Starter 4 image, 2 video, 2 audio; Plus 8/6/4; Ultra 12/8/6.
+- `topupBonus` (more credits per dollar on higher plans) is 1 everywhere until set.
+- Top-up credits are always computed from server config, never from Checkout metadata (a test passes a forged `credits` value in metadata and it's ignored).
+
+### D-042 Stripe
+- **Checkout:** the customer is created lazily, with an idempotency key and only if none is stored yet. The session carries `client_reference_id` and metadata. Success and cancel return to `/account/billing`.
+- **Portal:** at `/account/billing`.
+- **Webhook** (`/api/webhooks/stripe`, Node runtime): verifies the raw body with `constructEvent`, then inserts `stripe_events {_id: event.id}`; a duplicate gets a 200 and is skipped. If handling fails, the record is removed and the route returns 500 so Stripe retries. Tested with real SDK-signed payloads.
+- **Event handling:**
+  - Paid `checkout.session.completed` (mode payment) grants the top-up (refId = session id), records `topup_purchases` and sends a "Credits added" email through Resend.
+  - `invoice.paid` with `subscription_create` or `subscription_cycle` resets the subscription bucket to the plan allowance and sets `plan` and `planRenewsAt`. An unknown price throws, so Stripe retries until it's configured.
+  - `customer.subscription.updated` syncs the plan. `.deleted` (which fires at period end) moves the account to Free and zeroes plan credits.
+  - `charge.refunded` claws back top-up credits in proportion to the cumulative amount refunded, and flags the account `refund_review`.
+- Subscription and price IDs follow the 2026-09-30 API shapes: `invoice.parent.subscription_details`, `line.pricing.price_details.price`, and the item's `current_period_end`.
+
+### D-043 UI added in Phase 5 (restyled in Phase 6)
+- The Generate button shows the credit cost; unpriced models show none.
+- The sidebar shows your balance and a "Get more credits" button.
+- An upgrade modal opens on `INSUFFICIENT_CREDITS`.
+- `/account/billing` shows the balance by bucket, the plan and its renewal date, the portal, purchase options and the last 50 ledger entries.
+- Options without final numbers read "Coming soon" instead of showing an inert button.
+
+### D-044 Phase 5 checkpoint status
+- 117 tests. Covered: debit and refund idempotency, two simultaneous submits with credits for one (exactly one runs), double-click charged once, refunds to the original buckets, subscription reset idempotency, clawback never below zero, every Stripe event branch, webhook signature/dedupe/retry, and client-versus-server price equality.
+- **Not verified (needs operator):** a Stripe **test-mode** subscription and top-up crediting the right buckets end to end. That needs a Stripe test account, products and prices with their IDs in env, `stripe listen` and Atlas.
+- `GENERATION_ACCESS` stays `admins` by default until prices are set (D-031).

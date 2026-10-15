@@ -3,6 +3,10 @@ import "server-only"
 import { render } from "@react-email/render"
 import { Resend } from "resend"
 
+import CreditsAddedEmail, {
+  creditsAddedSubject,
+  creditsAddedText,
+} from "@/emails/credits-added"
 import MagicLinkEmail, {
   magicLinkSubject,
   magicLinkText,
@@ -32,4 +36,23 @@ export async function sendMagicLink(
   })
   // Never include the URL: it is a one-time sign-in credential.
   if (error) throw new Error(`Resend rejected the sign-in email: ${error.name}`)
+}
+
+/** "Credits added" receipt for top-ups (Stripe sends the payment receipt). */
+export async function sendCreditsAdded(
+  to: string,
+  credits: number,
+  balance: number,
+  accountUrl: string
+) {
+  const { AUTH_RESEND_KEY, EMAIL_FROM } = requireEnv("auth")
+  const props = { credits, balance, accountUrl }
+  const { error } = await new Resend(AUTH_RESEND_KEY).emails.send({
+    from: EMAIL_FROM,
+    to,
+    subject: creditsAddedSubject(credits),
+    html: await render(<CreditsAddedEmail {...props} />),
+    text: creditsAddedText(props),
+  })
+  if (error) throw new Error(`Resend rejected the receipt: ${error.name}`)
 }

@@ -6,6 +6,10 @@ import { Compass, Folder } from "lucide-react"
 
 import { AccountRow } from "@/components/auth/account-row"
 import { AuthDialog } from "@/components/auth/auth-dialog"
+import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
+import { balanceAction, pricingAction } from "@/generation/billing-actions"
+import { priceFor } from "@/lib/billing/price"
+import type { PriceRule } from "@/lib/billing/price"
 import { StudioPromptBox } from "@/components/studio/studio-prompt-box"
 import {
   ExamplePresets,
@@ -288,7 +292,27 @@ export function StudioTemplate({
   const setSetting = useSettings((s) => s.set)
   const projectsStore = useProjects()
   const uploads = useUploads((s) => s.items)
-  const runs = useRuns(Boolean(user))
+  const [upgradeReason, setUpgradeReason] = useState<string | null>(null)
+  const [balance, setBalance] = useState<number | null>(null)
+  const refreshBalance = useCallback(() => {
+    if (!user) return
+    void balanceAction().then((r) => {
+      if (r.ok) setBalance(r.data.subscription + r.data.topup)
+    })
+  }, [user])
+  useEffect(() => refreshBalance(), [refreshBalance])
+  const [pricing, setPricing] = useState<
+    Record<string, { rule: PriceRule | null; enabled: boolean }>
+  >({})
+  useEffect(() => {
+    void pricingAction().then((r) => {
+      if (r.ok) setPricing(r.data)
+    })
+  }, [])
+  const runs = useRuns(Boolean(user), {
+    onInsufficientCredits: (message) => setUpgradeReason(message),
+    onSettled: refreshBalance,
+  })
 
   // Projects and uploads live on the server; load them once signed in.
   useEffect(() => {
@@ -346,6 +370,11 @@ export function StudioTemplate({
     [settingsByModel, model.id]
   )
   const inputMode = inferInputMode(model, media)
+  // Same pure function the server charges with; rules arrive in credit units.
+  const quote = priceFor(pricing[model.id]?.rule, settings, {
+    markup: 1,
+    creditUsdValue: 1,
+  })
   const prepared = useMemo(() => {
     try {
       const plane: GenerationPlane = {
@@ -543,6 +572,7 @@ export function StudioTemplate({
     generating,
     canceling,
     generateDisabled: !canGenerate,
+    cost: quote ? quote.credits.toLocaleString("en-US") : undefined,
     disabledReason: prepared.error ?? undefined,
     error:
       localError ??
@@ -558,6 +588,10 @@ export function StudioTemplate({
         footer={(isCollapsed) => (
           <AccountRow
             email={user?.email ?? null}
+            balance={balance}
+            onBuyCredits={() =>
+              setUpgradeReason("Top up or pick a plan to keep generating.")
+            }
             collapsed={isCollapsed}
             onSignIn={() =>
               setAuthReason("Enter your email and we'll send you a link.")
@@ -607,6 +641,13 @@ export function StudioTemplate({
           />
         )}
       </main>
+      <UpgradeDialog
+        open={upgradeReason !== null}
+        onOpenChange={(open) => {
+          if (!open) setUpgradeReason(null)
+        }}
+        reason={upgradeReason ?? undefined}
+      />
       <AuthDialog
         open={authReason !== null}
         onOpenChange={(open) => {

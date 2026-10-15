@@ -1,6 +1,6 @@
 "use client"
 
-import { LogIn, LogOut } from "lucide-react"
+import { LogIn, LogOut, Sparkles } from "lucide-react"
 
 import { signOutAction } from "@/app/login/actions"
 import { Button } from "@/components/ui/button"
@@ -16,10 +16,14 @@ export function AccountRow({
   email,
   collapsed,
   onSignIn,
+  balance = null,
+  onBuyCredits,
 }: {
   email: string | null
   collapsed: boolean
   onSignIn: () => void
+  balance?: number | null
+  onBuyCredits?: () => void
 }) {
   if (!email)
     return (
@@ -35,36 +39,54 @@ export function AccountRow({
     )
 
   return (
-    <form
-      action={signOutAction}
-      className={cn(
-        "flex items-center gap-2 rounded-lg px-1.5 py-1",
-        collapsed && "justify-center px-0"
-      )}
-    >
-      {collapsed ? null : (
-        <span
-          className="min-w-0 flex-1 truncate text-xs text-muted-foreground"
-          title={email}
+    <div className="flex flex-col gap-1">
+      {balance !== null && onBuyCredits ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "justify-start font-mono",
+            collapsed && "justify-center px-0"
+          )}
+          onClick={onBuyCredits}
+          aria-label={`${balance.toLocaleString("en-US")} credits. Get more credits`}
+          title="Get more credits"
         >
-          {email}
-        </span>
-      )}
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              type="submit"
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Sign out"
-            />
-          }
-        >
-          <LogOut aria-hidden />
-        </TooltipTrigger>
-        <TooltipContent side="right">Sign out</TooltipContent>
-      </Tooltip>
-    </form>
+          <Sparkles aria-hidden className="text-primary" />
+          {collapsed ? null : balance.toLocaleString("en-US")}
+        </Button>
+      ) : null}
+      <form
+        action={signOutAction}
+        className={cn(
+          "flex items-center gap-2 rounded-lg px-1.5 py-1",
+          collapsed && "justify-center px-0"
+        )}
+      >
+        {collapsed ? null : (
+          <span
+            className="min-w-0 flex-1 truncate text-xs text-muted-foreground"
+            title={email}
+          >
+            {email}
+          </span>
+        )}
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="submit"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Sign out"
+              />
+            }
+          >
+            <LogOut aria-hidden />
+          </TooltipTrigger>
+          <TooltipContent side="right">Sign out</TooltipContent>
+        </Tooltip>
+      </form>
+    </div>
   )
 }
