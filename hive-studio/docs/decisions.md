@@ -69,3 +69,38 @@ The pinned versions are Next `16.3.8` and React `19.2.8`.
 - 24 of the 38 entries use the template's **shared default settings** instead of model-specific ones, and several contradict the CLI: Hailuo durations and resolutions, Kling 2.6 durations, Wan 2.6 `quality` vs `resolution`, 4k on Flux 2 and Recraft. Decision: in Phase 4, fix the settings per model from the live docs and log each change here.
 - **Template mapping bugs to fix in Phase 4.** Confirmed: LTX 2.5's path ends in `/fast`, so `t2v()` never builds an image path, yet the model declares a `start` slot, so an attached frame is silently dropped. Reported and not yet checked: Kling O1/O3, Kling 2.5 and DoP send prompt-only runs to frame or image paths. Each fix gets a snapshot test.
 - End frames go under three different field names in the template (`end_image_url`, `last_image_url`, `last_frame_url`). These may be correct per model; check each against the docs.
+
+## 2026-10-15 — Phase 1
+
+### D-011 Scaffold copied from the cloned template, not `shadcn init`
+`ui.shadcn.com` is blocked from the build container, so the template source was copied from `_reference/app-templates` (HEAD `1e15e22`). That is the same code the `higgsfield-ai/app-templates/studio` registry item installs. The untouched copy is committed as its own baseline commit so every later change shows as a reviewable diff.
+- `.npmrc` pointed at Higgsfield's private mirror (`socket-firewall.higgsfield.xyz`, 403). Switched to `registry.npmjs.org`. The lockfile stores integrity hashes only, so the pinned versions are unchanged.
+- Removed the root `registry.json` and the `registry:build` script (used to publish the template; we don't). `prebuild` now runs `pnpm models` only.
+
+### D-012 BYOK and device cookie removed
+Deleted: `generation/credentials.ts`, `generation/device.ts`, `proxy.ts`, `components/studio/key-dialog.tsx`, the sidebar's key status row, and the `save/clear/hasPlatformCredentials` actions.
+- The platform client moved to `lib/higgsfield/platform.ts` (`server-only`). `lib/higgsfield/index.ts#platform()` builds it from `HF_CREDENTIALS` + `HF_API_BASE_URL`. Client-safe types live in `lib/higgsfield/types.ts`.
+- Phase 2 brings back `proxy.ts` for redirects only.
+
+### D-013 Interim sign-in guard
+`lib/auth-guard.ts#requireUser()` is called by submit, status, cancel and upload. It allows access in development and **refuses in production**, so a deploy made before Phase 2 can't spend the platform key for anonymous visitors. Phase 2 replaces its body with `auth()`.
+
+### D-014 Browser history and projects kept until Phase 3 (deviation)
+The spec lists removing IndexedDB under Phase 1. The Mongo replacement needs a `userId` (Phase 2) and the DB-backed status route (Phase 3), so `lib/studio/history.ts`, `projects.ts` and `uploads.ts` stay as they are for now, behind the unchanged `useRuns` interface. They're replaced in Phase 3, when generations persist in Mongo.
+
+### D-015 Env validation
+`lib/env.ts` (zod) is called from `instrumentation.ts` at server start.
+- A malformed value always fails.
+- A missing feature group fails in production and is only listed as a warning in development, so the studio boots while integrations arrive phase by phase.
+- Blank values copied from `.env.example` count as unset.
+- Features read their group through `requireEnv(group)`, which names exactly what's missing.
+
+### D-016 Mongo, indexes, tests
+- `lib/db/mongo.ts`: one lazy client, cached on `globalThis` and shared with the Auth.js adapter later.
+- `lib/db/indexes.ts` lists every §6 index with explicit names, plus TTL indexes for sessions, verification tokens and rate limits. `pnpm db:init` applies them idempotently.
+- **db-init has not been run against a real MongoDB.** The MongoDB binary host is blocked from the container, so it's tested only against a stub. First real run: once `MONGODB_URI` is set.
+- Tests use vitest (`pnpm test`).
+- `postbuild` runs `scripts/check-bundle-secrets.mjs`. It scans `.next/static` for the literal values of server secrets and for known key prefixes. Verified by planting a fake leak, which failed the check as expected.
+
+### D-017 Server action errors (to fix in Phase 3)
+Errors thrown from server actions show their message in the dock in development. In production, Next replaces them with a generic message. Phase 3 changes the actions to return typed `{ ok, error }` results with plain-language messages.

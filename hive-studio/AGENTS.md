@@ -1,4 +1,8 @@
-# Studio template contract
+# Hive Studio: agent contract
+
+Spec: `docs/build-prompt.md`. Decisions: `docs/decisions.md`. The rules below
+come from the Higgsfield studio template, adapted where noted.
+
 
 This project is a starting scaffold for an AI-built product, not a finished
 demo. Adapt the Studio layout in place and finish the real user flow end to
@@ -24,9 +28,11 @@ end. Rendering the shipped examples is not completion.
 ## Runtime boundaries — preserve these
 
 - `generation/actions.ts` and `app/api/upload/route.ts` are the server boundaries.
-  The platform key lives in an httpOnly cookie (`generation/credentials.ts`);
-  `HF_API_BASE_URL` is read server-side only. Authenticated platform calls stay
-  on the server.
+  Hive Studio uses ONE platform key from server env (`HF_CREDENTIALS`, read via
+  `lib/env.ts` -> `lib/higgsfield`). There is no user-supplied key, no key cookie
+  and no `KeyDialog`. `lib/higgsfield/*` is `server-only`; client code may import
+  only `lib/higgsfield/types.ts`. Every action that spends the key calls
+  `requireUser()` (`lib/auth-guard.ts`; Auth.js from Phase 2).
 - Generate and Cancel both reach the platform (`submitGeneration`,
   `cancelGeneration`). Do not replace cancel with "stop polling".
 - Models come from `generation/catalog`. To add one, drop a file in
@@ -39,7 +45,7 @@ end. Rendering the shipped examples is not completion.
   is unverified and report that limitation. Verify every installed model appears
   in its image/video picker after adaptation.
 - Reference uploads request a signed URL through `app/api/upload/route.ts`
-  using the saved platform key. The browser PUTs the file with every returned
+  using the platform key. The browser PUTs the file with every returned
   upload header and no credentials. Record the public URL only after success;
   never log signed URLs. No separate storage token is needed.
 - History and projects are browser-local (`lib/studio/history.ts`,
@@ -68,8 +74,8 @@ end. Rendering the shipped examples is not completion.
 
 - Generate from prompt only and from image/video references; switch surface
   (image/video) and model; change a setting in the settings dialog.
-- Missing key (the key dialog opens), invalid key, content-filter block and
-  cancel each stay visible as feed tiles or dock errors.
+- Missing or invalid platform key, content-filter block and cancel each stay
+  visible as feed tiles or dock errors.
 - Empty history, populated history, a project with a few generations, project
   rename/delete.
 - Fast scrolling keeps loaded media; keyboard focus and reduced motion work;

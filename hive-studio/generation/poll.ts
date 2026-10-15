@@ -1,5 +1,5 @@
 import { getGenerationStatuses } from "./actions"
-import type { GenerationStatus, StatusResult } from "./platform"
+import type { GenerationStatus, StatusResult } from "@/lib/higgsfield/types"
 
 /** Statuses the platform never moves off again. */
 const TERMINAL = new Set(["completed", "failed", "nsfw", "canceled"])

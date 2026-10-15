@@ -25,8 +25,8 @@ const plexMono = IBM_Plex_Mono({
 
 // Replace with the product's own identity when adapting the scaffold.
 export const metadata: Metadata = {
-  title: "Studio",
-  description: "Generate images and video with Higgsfield models.",
+  title: "Hive Studio",
+  description: "Generate AI images, video and audio.",
 }
 
 export const viewport: Viewport = { themeColor: "#131416" }

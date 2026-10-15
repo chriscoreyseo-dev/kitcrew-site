@@ -11,7 +11,6 @@ import {
   type TemplateItem,
 } from "@/components/studio/template-picker"
 import { HeroComposition } from "@/components/studio/hero-composition"
-import { KeyDialog } from "@/components/studio/key-dialog"
 import {
   MyProjects,
   type MyProjectsProject,
@@ -20,7 +19,6 @@ import { StudioSidebar, type StudioView } from "@/components/studio/sidebar"
 import { UserGenerations } from "@/components/studio/user-generations"
 import type { GalleryItem } from "@/components/studio/gallery/gallery-types"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { hasPlatformCredentials } from "@/generation/actions"
 import { MODELS, getModel, parseSettings } from "@/generation/catalog"
 import type {
   GenerationPlane,
@@ -272,8 +270,6 @@ export function StudioTemplate({
   const [collapsed, setCollapsed] = useState(false)
   const [prompt, setPrompt] = useState("")
   const [media, setMedia] = useState<MediaItem[]>([])
-  const [keyOpen, setKeyOpen] = useState(false)
-  const [keyConfigured, setKeyConfigured] = useState(false)
   const [canceling, setCanceling] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -327,10 +323,6 @@ export function StudioTemplate({
       }
     }
   }, [inputMode, media, model, prompt, settings])
-
-  useEffect(() => {
-    void hasPlatformCredentials().then(setKeyConfigured)
-  }, [])
 
   const galleryItems = useMemo(
     () => runs.records.flatMap(runToGalleryItems),
@@ -386,24 +378,12 @@ export function StudioTemplate({
   const handleGenerate = useCallback(() => {
     if (!canGenerate || generating || !prepared.plane) return
     setLocalError(null)
-    if (!keyConfigured) {
-      setKeyOpen(true)
-      return
-    }
     const projectId = view.kind === "project" ? view.projectId : undefined
     void runs.submit(prepared.plane, projectId).then((record) => {
       if (record && view.kind === "home") setView({ kind: "all" })
       if (record && projectId) projectsStore.touch(projectId)
     })
-  }, [
-    canGenerate,
-    generating,
-    keyConfigured,
-    prepared.plane,
-    projectsStore,
-    runs,
-    view,
-  ])
+  }, [canGenerate, generating, prepared.plane, projectsStore, runs, view])
 
   const handleCancel = useCallback(() => {
     if (!generating || canceling) return
@@ -514,8 +494,6 @@ export function StudioTemplate({
         }}
         collapsed={collapsed}
         onCollapsedChange={setCollapsed}
-        keyConfigured={keyConfigured}
-        onOpenKey={() => setKeyOpen(true)}
       />
       <main className="relative flex min-w-0 flex-1 flex-col">
         {view.kind === "home" ? (
@@ -544,12 +522,6 @@ export function StudioTemplate({
           />
         )}
       </main>
-      <KeyDialog
-        open={keyOpen}
-        onOpenChange={setKeyOpen}
-        configured={keyConfigured}
-        onChange={setKeyConfigured}
-      />
     </div>
   )
 }

@@ -5,5 +5,5 @@ import { NoModels } from "@/components/studio/no-models"
 
 export default function Page() {
   if (MODELS.length === 0) return <NoModels />
-  return <StudioTemplate />
+  return <StudioTemplate title="Hive Studio" />
 }

@@ -4,7 +4,7 @@
 when adapting; replace their content, not their presence:
 
 1. **Projects-first sidebar** (`StudioSidebar`): Home, All Generations, the
-   project list with rename/delete, the key status row. Collapsible.
+   project list with rename/delete. Collapsible. (Key status row removed.)
 2. **Atmosphere**: `HERO_GLOW` radial glow and `HERO_DOTS` dot-field masked by
    `HERO_DOTS_MASK` behind the hero. Tune colours, keep the depth.
 3. **`HeroComposition`**: three latest ready outputs, falling back to

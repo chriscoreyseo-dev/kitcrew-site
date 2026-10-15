@@ -1,6 +1,15 @@
+import "server-only"
+
+import {
+  parseUploadTicket,
+  requireUploadContentType,
+} from "@/generation/upload-contract"
+import type { UploadTicket } from "@/generation/upload-contract"
+
 import { toAuthorizationHeader } from "./credentials"
-import { parseUploadTicket, requireUploadContentType } from "./upload-contract"
-import type { UploadTicket } from "./upload-contract"
+import type { GenerationStatus, QueuedGeneration } from "./types"
+
+export type { GenerationStatus, QueuedGeneration, StatusResult } from "./types"
 
 const UPLOAD_PATH = "/files/generate-upload-url"
 const MODEL_ID = /^[a-z0-9][a-z0-9._/-]*$/i
@@ -16,27 +25,6 @@ export class PlatformError extends Error {
     this.body = body
   }
 }
-
-export type QueuedGeneration = {
-  status: string
-  requestId: string
-  statusUrl: string
-  cancelUrl: string
-}
-
-export type GenerationStatus = {
-  status: string
-  requestId: string
-  images?: Array<{ url: string }>
-  video?: { url: string }
-  error?: unknown
-}
-
-/** One request's answer inside a batched status poll. A request that errors
-    carries its reason alone, so it cannot lose the answers standing beside it. */
-export type StatusResult =
-  | { requestId: string; status: GenerationStatus }
-  | { requestId: string; error: string }
 
 export type PlatformClientOptions = {
   apiKey: string

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react"
 import { cancelGeneration, submitGeneration } from "@/generation/actions"
 import { getModel } from "@/generation/catalog"
 import type { GenerationPlane } from "@/generation/catalog"
-import type { GenerationStatus } from "@/generation/platform"
+import type { GenerationStatus } from "@/lib/higgsfield/types"
 import { stopWatching, watchRequest } from "@/generation/poll"
 
 import {
