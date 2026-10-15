@@ -22,7 +22,8 @@
     --secondary: var(--hf-color-transparent-light-05);
     --secondary-foreground: var(--hf-color-text-primary);
     --muted: var(--hf-color-transparent-light-05);
-    --muted-foreground: var(--hf-color-text-secondary);
+    /* Lifted from grey-300 (#828282, 4.2:1 on cards) to clear WCAG AA 4.5:1. */
+    --muted-foreground: #9a9a9a;
     --accent: var(--hf-color-overlay-hover);
     --accent-foreground: var(--hf-color-text-primary);
     --destructive: var(--hf-color-state-error-fg);

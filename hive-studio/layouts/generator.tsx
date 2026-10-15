@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { MODELS } from "@/generation/catalog"
 import type { ModelEntry, Surface } from "@/generation/catalog"
 import { useComposer } from "@/hooks/use-composer"
+import { BRAND_TRIPTYCH } from "@/lib/brand-art"
 import type { ComposerInit } from "@/hooks/use-composer"
 
 type Mode = { id: string; label: string; models: ModelEntry[] }
@@ -82,11 +83,7 @@ const COPY: Record<
   },
 }
 
-const EMPTY_IMAGES = [
-  "/presets/placeholder-1.svg",
-  "/presets/placeholder-2.svg",
-  "/presets/placeholder-3.svg",
-] as const
+const EMPTY_IMAGES = BRAND_TRIPTYCH
 
 export function GeneratorLayout({
   surface,

@@ -2,7 +2,7 @@
 
 An AI image, video and audio studio on the Higgsfield API, with credits billed through Stripe. It lives inside `kitcrew-site` and deploys to Vercel separately (Root Directory = `hive-studio`).
 
-**Status:** Phases 0–3 code done (research, scaffold, auth, generation core). Live tests need Atlas, Resend, Higgsfield and R2 keys. Phase 4 partly done (mapping fixes, picker metadata, audio plumbing); adding the unverified models needs docs.higgsfield.ai. Phase 5 (credits and Stripe) code done; plan amounts and model prices are TBD. Phase 6 (UI) built from the spec; the side-by-side with higgsfield.ai is still blocked. Next is Phase 7 (content and polish).
+**Status:** Phases 0–7 code done. Phase 7 added brand art, a copy pass, an accessibility pass (Lighthouse 100) and `pnpm showcase` for effect covers. Live tests need Atlas, Resend, Higgsfield, R2 and Stripe test keys. Plan amounts and model prices are TBD. Next is Phase 8 (hardening, E2E, deploy, runbook).
 
 - Spec: [`docs/build-prompt.md`](docs/build-prompt.md)
 - Decisions and open items: [`docs/decisions.md`](docs/decisions.md)
@@ -28,6 +28,9 @@ Secrets go in `.env.local` locally and in Vercel project env for deploys. They a
 | `pnpm build` | Production build, then the client-bundle secret scan |
 | `pnpm db:init` | Create all MongoDB indexes (idempotent, needs `MONGODB_URI`) |
 | `pnpm models` | Regenerate the model barrel after adding a model file |
+| `pnpm presets:seed` | Upsert the starter effects |
+| `pnpm brand:art` | Regenerate logo, favicon and brand art from `lib/brand.ts` |
+| `pnpm showcase --email you@x.com` | Generate effect covers via the real lifecycle (needs Atlas, Higgsfield, R2) |
 
 ## Reference repos
 

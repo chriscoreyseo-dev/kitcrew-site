@@ -16,7 +16,9 @@
     "models": "node scripts/sync-models.mjs",
     "postbuild": "node scripts/check-bundle-secrets.mjs",
     "db:init": "tsx --env-file-if-exists=.env.local scripts/db-init.ts",
-    "presets:seed": "tsx --env-file-if-exists=.env.local scripts/seed-presets.ts"
+    "presets:seed": "tsx --env-file-if-exists=.env.local scripts/seed-presets.ts",
+    "brand:art": "tsx scripts/brand-art.ts",
+    "showcase": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-showcase.ts"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "3.11.3",

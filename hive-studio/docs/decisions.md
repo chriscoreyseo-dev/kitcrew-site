@@ -349,3 +349,44 @@ higgsfield.ai is still blocked from the container (D-004), so no live screenshot
   - The side-by-side comparison with higgsfield.ai (blocked).
   - Signed-in, admin, populated-feed and effects-with-data views (they need Atlas).
   - The final color palette (Markethive hex codes still pending, D-002).
+
+### D-051 Brand art replaces template placeholders
+- `pnpm brand:art` (`scripts/brand-art.ts`) writes `public/brand/art-1..4.svg`, `public/brand/mark.svg` and `app/icon.svg` from `BRAND` colors (a hexagon/honeycomb motif). When the Markethive palette lands (D-002), change `lib/brand.ts` and re-run the script.
+- These are used for:
+  - the header logo and favicon;
+  - the studio hero and generator empty-state triptych (`BRAND_TRIPTYCH`);
+  - the template picker cards (now derived from `PRESET_SEED`);
+  - the effect cover fallback.
+- Removed: `public/presets/placeholder-*.svg` and the template `favicon.ico`.
+- The hero keeps showing the user's own three latest outputs once they exist.
+
+### D-052 Copy pass
+- The studio home tabs are now "Effects / My Projects", so the label no longer clashes with the top-nav "Explore". The default headline is "What will you make today?".
+- The no-models screen is user-facing ("Back in a moment") and no longer shows vendor CLI commands.
+- The home link "See more" is now "See more from the community" (descriptive link text).
+- The legal pages stay explicit placeholders: legal copy is the operator's to supply.
+
+### D-053 Accessibility (Lighthouse 12, dev server, no DB)
+- **Fixes:**
+  - `--muted-foreground`: raised from `#828282` (4.2:1 on cards) to `#9a9a9a`, which clears AA 4.5:1.
+  - The slider's `aria-label` now reaches the thumb's `<input type="range">`.
+  - Pricing plan names changed from `h3` to `h2` to fix heading order.
+- **Result:** accessibility 100 on mobile and desktop for `/`, `/image`, `/video`, `/pricing`, `/login`, `/effects`, `/community`, `/assets`, `/legal/terms`, and `/account` (which redirects to login). Best practices is 100, except `/community` at 96 (a console error from the missing DB in this sandbox). SEO is 100.
+- **Not measured:**
+  - `/audio`: 404 until an audio model is installed.
+  - `/effects/[slug]`: needs seeded presets in Atlas.
+  - Signed-in views.
+  - Performance: production boot fails closed without the full env, so it is measured on the Phase 8 preview deploy.
+
+### D-054 Showcase covers
+- `pnpm showcase --email <account>` (`scripts/generate-showcase.ts`) generates a cover for each active effect without one, running through the real lifecycle: `submitGeneration` → `finalizeGeneration` polling → copy to R2. It then sets `presets.coverUrl`.
+- Options: `--force` regenerates every cover; `--only a,b` picks specific effects.
+- **Requirements:**
+  - Atlas, `HF_CREDENTIALS` and R2. It refuses to run without R2, because platform URLs expire.
+  - An account that has signed in once. Runs are charged to it and appear in its library.
+- **How it runs:**
+  - Under tsx with `--conditions react-server`, so the `server-only` imports resolve.
+  - Effects run one at a time to respect plan parallel limits; each has a 15-minute deadline.
+  - `{subject}` is filled from a fixed per-effect subject list in the script.
+- Hero media stays as brand art plus the user's own outputs (D-051), so no separate hero generation is needed.
+- **Not run here:** no keys in this sandbox. It was verified only to load and to fail fast on missing env.

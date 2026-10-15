@@ -53,6 +53,7 @@ import {
   runToLibraryItems,
 } from "@/lib/studio/gallery-items"
 import { listLibraryAction } from "@/generation/library-actions"
+import { BRAND_TRIPTYCH } from "@/lib/brand-art"
 import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
 import { useProjects } from "@/lib/studio/projects"
 import {
@@ -64,21 +65,17 @@ import { useRuns } from "@/lib/studio/use-runs"
 
 /**
  * StudioTemplate — the full creative workspace: projects-first sidebar, hero,
- * the floating prompt dock, Explore / My Projects, and the edge-to-edge
+ * the floating prompt dock, Effects / My Projects, and the edge-to-edge
  * generations feed. Generation goes through the model catalog and the
  * platform server actions; history and projects live in the browser.
  *
  * Keep the six structural parts when adapting (see AGENTS.md): sidebar,
  * glow + dot-field atmosphere, HeroComposition, StudioPromptBox, the
- * Explore / My Projects section, and the UserGenerations feed.
+ * Effects / My Projects section, and the UserGenerations feed.
  */
 
-// PLACEHOLDER ASSETS — replaced by the app's real outputs as soon as there are three.
-const HERO_FALLBACKS = [
-  "/presets/placeholder-2.svg",
-  "/presets/placeholder-1.svg",
-  "/presets/placeholder-3.svg",
-] as const
+// Our brand art until the user has three outputs of their own.
+const HERO_FALLBACKS = BRAND_TRIPTYCH
 
 const HERO_GLOW =
   "radial-gradient(60% 80% at 50% 0%, rgba(160,164,170,0.14) 0%, rgba(160,164,170,0.05) 42%, transparent 72%)"
@@ -167,7 +164,7 @@ function HomeState({
           >
             <TabsList>
               <TabsTrigger value="explore" start={<Compass />}>
-                Explore
+                Effects
               </TabsTrigger>
               <TabsTrigger value="projects" start={<Folder />}>
                 My Projects
@@ -284,7 +281,7 @@ export interface StudioTemplateProps {
 
 export function StudioTemplate({
   title = "Studio",
-  headline = "Turn any idea into images and video",
+  headline = "What will you make today?",
   user = null,
   initialView = { kind: "home" },
 }: StudioTemplateProps) {

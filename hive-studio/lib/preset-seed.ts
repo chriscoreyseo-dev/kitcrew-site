@@ -4,8 +4,8 @@ import type { Surface } from "@/generation/catalog/types"
 
 /** Starter effects. Pure data plus an idempotent upsert, with no
     `server-only` import so `scripts/seed-presets.ts` can run it under tsx.
-    Covers are left undefined: Phase 7 generates our own; the UI shows a
-    gradient placeholder until then. Model ids must exist in
+    Covers are left undefined: `pnpm showcase` generates them once keys
+    exist; the UI shows brand art until then. Model ids must exist in
     generation/catalog/models (tests/presets.test.ts checks). */
 
 export type PresetSeed = {

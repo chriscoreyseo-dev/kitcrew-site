@@ -3,14 +3,18 @@
 
 import type { KeyboardEvent, ReactNode } from "react"
 import {
-  BatteryFull,
-  Calendar,
-  House,
-  WandSparkles,
+  Clapperboard,
+  Move3d,
+  Package,
+  Palette,
+  Sparkles,
+  User,
   type LucideIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { brandArt } from "@/lib/brand-art"
+import { PRESET_SEED } from "@/lib/preset-seed"
 import { cn } from "@/lib/utils"
 
 /**
@@ -19,15 +23,6 @@ import { cn } from "@/lib/utils"
  * `TemplateCard` and `ExamplePresets` render them; the Explore tab on Home uses
  * `ExamplePresets`.
  */
-
-// PLACEHOLDER ASSETS — demo art in /presets/*.svg. An adapted app replaces
-// every template with bespoke, app-specific examples and real preview media.
-const THUMBS = [
-  "/presets/placeholder-1.svg",
-  "/presets/placeholder-2.svg",
-  "/presets/placeholder-3.svg",
-  "/presets/placeholder-4.svg",
-] as const
 
 export interface TemplateItem {
   id: string
@@ -45,53 +40,32 @@ export interface TemplateItem {
   settings?: Record<string, unknown>
 }
 
-// PLACEHOLDER content — replace when adapting.
-export const TEMPLATES: TemplateItem[] = [
-  {
-    id: "product-hero",
-    title: "Product hero shot",
-    subtitle: "Studio lighting, larger than life",
-    category: "commercial",
-    kind: "video",
-    images: [THUMBS[0], THUMBS[1], THUMBS[2]],
-    icon: BatteryFull,
-    prompt:
-      "Cinematic product hero shot on a dark studio backdrop, slow orbit, soft rim light, dust particles catching the light.",
-  },
-  {
-    id: "ugc-review",
-    title: "UGC review",
-    subtitle: "Handheld, creator-style",
-    category: "ugc",
-    kind: "video",
-    images: [THUMBS[1], THUMBS[3], THUMBS[0]],
-    icon: WandSparkles,
-    prompt:
-      "Handheld creator-style review filmed on a phone in a sunny kitchen, natural light, casual framing, subtle camera shake.",
-  },
-  {
-    id: "editorial-still",
-    title: "Editorial still",
-    subtitle: "Magazine-grade key visual",
-    category: "commercial",
-    kind: "image",
-    images: [THUMBS[2], THUMBS[0], THUMBS[1]],
-    icon: Calendar,
-    prompt:
-      "Editorial fashion still, 85mm, shallow depth of field, muted palette, single hard light from the left.",
-  },
-  {
-    id: "lifestyle-home",
-    title: "Lifestyle at home",
-    subtitle: "Warm three-shot story",
-    category: "ugc",
-    kind: "image",
-    images: [THUMBS[3], THUMBS[2], THUMBS[0]],
-    icon: House,
-    prompt:
-      "Warm lifestyle photo of a couple at home in the evening, lamp light, film grain, candid moment.",
-  },
-]
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  cinematic: Clapperboard,
+  motion: Move3d,
+  portrait: User,
+  product: Package,
+  art: Palette,
+}
+
+/** The studio's "what you can make" cards are our Effects starter set. */
+export const TEMPLATES: TemplateItem[] = PRESET_SEED.filter(
+  (p): p is typeof p & { surface: "image" | "video" } =>
+    p.surface === "image" || p.surface === "video"
+)
+  .slice(0, 8)
+  .map((p, i) => ({
+    id: p.slug,
+    title: p.title,
+    subtitle: p.description,
+    category: p.category,
+    kind: p.surface,
+    images: [brandArt(i), brandArt(i + 1), brandArt(i + 2)],
+    icon: CATEGORY_ICON[p.category] ?? Sparkles,
+    prompt: p.promptTemplate.replace(/\{subject\}/g, "").trim(),
+    modelId: p.modelId,
+    settings: p.settings,
+  }))
 
 function gradientFromSeed(seed: string): string {
   let hash = 0

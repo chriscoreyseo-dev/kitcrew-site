@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- static SVG brand mark */
 import Link from "next/link"
 
 import { MODELS } from "@/generation/catalog"
@@ -53,9 +54,14 @@ export async function SiteHeader() {
           className="flex shrink-0 items-center gap-2"
           aria-label={`${BRAND.name} home`}
         >
-          <span className="flex size-7 items-center justify-center rounded-lg bg-primary font-heading text-sm font-black text-primary-foreground">
-            H
-          </span>
+          <img
+            src="/brand/mark.svg"
+            alt=""
+            aria-hidden
+            width={28}
+            height={28}
+            className="size-7"
+          />
           <span className="font-heading text-base font-bold tracking-tight uppercase">
             {BRAND.name}
           </span>

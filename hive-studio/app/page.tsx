@@ -163,7 +163,7 @@ export default async function ExplorePage() {
               href="/community"
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              See more
+              See more from the community
             </Link>
           </div>
           {community.length ? (

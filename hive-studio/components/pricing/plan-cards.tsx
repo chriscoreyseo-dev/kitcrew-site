@@ -108,9 +108,9 @@ export function PlanCards({
                 </span>
               ) : null}
               <div>
-                <h3 className="font-heading text-2xl font-bold uppercase">
+                <h2 className="font-heading text-2xl font-bold uppercase">
                   {plan.name}
-                </h3>
+                </h2>
                 <p className="mt-3 font-heading text-4xl font-bold">
                   {perMonth != null ? usd(perMonth) : "TBA"}
                   {perMonth != null ? (
