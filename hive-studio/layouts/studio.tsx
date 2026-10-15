@@ -324,7 +324,8 @@ export function StudioTemplate({
 
   const surfaces = useMemo(
     () =>
-      (["video", "image"] as Surface[]).filter((s) =>
+      // A surface appears only when it has at least one verified model (audio has none yet).
+      (["video", "image", "audio"] as Surface[]).filter((s) =>
         MODELS.some((m) => m.surface === s)
       ),
     []

@@ -4,7 +4,7 @@
 import { useState } from "react"
 import type { ReactElement, ReactNode } from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { Copy, Download, Share2, X } from "lucide-react"
+import { Copy, Download, Share2, X, AudioLines } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { downloadMedia } from "@/lib/studio/download-media"
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
  */
 export interface GenerationDetail {
   src: string
-  mediaType?: "image" | "video"
+  mediaType?: "image" | "video" | "audio"
   poster?: string
   aspectRatio?: number
   prompt?: string
@@ -51,7 +51,12 @@ function defaultRows(g: GenerationDetail): GenerationDetailRow[] {
   rows.push({
     id: "type",
     label: "Type",
-    value: g.mediaType === "video" ? "Video" : "Image",
+    value:
+      g.mediaType === "video"
+        ? "Video"
+        : g.mediaType === "audio"
+          ? "Audio"
+          : "Image",
   })
   if (g.createdAt)
     rows.push({
@@ -75,7 +80,12 @@ export function GenerationDetailModal({
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const isVideo = generation.mediaType === "video"
-  const backdrop = isVideo ? generation.poster : generation.src
+  const backdrop =
+    generation.mediaType === "audio"
+      ? undefined
+      : isVideo
+        ? generation.poster
+        : generation.src
   const detailRows = rows ?? defaultRows(generation)
 
   return (
@@ -99,7 +109,17 @@ export function GenerationDetailModal({
             />
           ) : null}
           <div className="relative flex min-h-0 flex-1 items-center justify-center p-4 md:p-8">
-            {isVideo ? (
+            {generation.mediaType === "audio" ? (
+              <div className="flex w-full max-w-xl flex-col items-center gap-6 rounded-2xl border border-white/10 bg-card/60 p-8 shadow-2xl">
+                <AudioLines aria-hidden className="size-14 text-primary" />
+                <audio
+                  src={generation.src}
+                  controls
+                  autoPlay
+                  className="w-full"
+                />
+              </div>
+            ) : isVideo ? (
               <video
                 src={generation.src}
                 poster={generation.poster}

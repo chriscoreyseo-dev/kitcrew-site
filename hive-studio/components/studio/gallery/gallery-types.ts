@@ -1,5 +1,5 @@
 /** Data model for the justified-masonry feed. width/height only need the right ratio. */
-export type MediaKind = "image" | "video"
+export type MediaKind = "image" | "video" | "audio"
 export type ItemStatus = "ready" | "generating" | "failed"
 
 export interface GalleryItem {
@@ -10,7 +10,7 @@ export interface GalleryItem {
   createdAt: number
   kind: MediaKind
   status: ItemStatus
-  /** Still for images; poster (may be empty) for video. */
+  /** Still for images; poster (may be empty) for video; the file for audio. */
   src: string
   videoSrc?: string
   width: number

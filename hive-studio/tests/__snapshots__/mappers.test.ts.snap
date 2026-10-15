@@ -1,0 +1,1173 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toPlatform snapshots > dop 1`] = `
+{
+  "prompt only": {
+    "error": "Add a start frame to use DoP.",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "higgsfield-ai/dop/lite",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > flux-2 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "flux-2-pro",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "flux-2-pro",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > flux-3 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "blackforestlabs/flux-3/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "blackforestlabs/flux-3/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > grok-imagine-2 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "xai/grok-imagine-image-2.0",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "xai/grok-imagine-image-2.0",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > grok-imagine-video-1.5 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "xai/grok-imagine-video/v1.5/reference-to-video",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "xai/grok-imagine-video/v1.5/reference-to-video",
+  },
+  "video reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_urls": [
+        "https://in.test/video0",
+      ],
+    },
+    "path": "xai/grok-imagine-video/v1.5/reference-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > happy-horse-1 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/happy-horse/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/happy-horse/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > happy-horse-1.1 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/happy-horse/v1.1/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/happy-horse/v1.1/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > ideogram-4 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "ideogram/v4.0",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "ideogram/v4.0",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-2.5 1`] = `
+{
+  "prompt only": {
+    "error": "Add a start frame to use Kling 2.5.",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/v2.5-turbo/standard/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-2.6 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/v2.6/pro/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/v2.6/pro/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-3-4k 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/4k/text-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "last_image_url": "https://in.test/end0",
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/4k/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/4k/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-3-motion-pro 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "character_orientation": "video",
+      "keep_original_sound": "yes",
+      "prompt": "a lighthouse at dusk",
+    },
+    "path": "kling-video/v3/motion-control/pro",
+  },
+  "start frame": {
+    "body": {
+      "character_orientation": "video",
+      "image_url": "https://in.test/start0",
+      "keep_original_sound": "yes",
+      "prompt": "a lighthouse at dusk",
+    },
+    "path": "kling-video/v3/motion-control/pro",
+  },
+  "video reference": {
+    "body": {
+      "character_orientation": "video",
+      "keep_original_sound": "yes",
+      "prompt": "a lighthouse at dusk",
+      "video_url": "https://in.test/video0",
+    },
+    "path": "kling-video/v3/motion-control/pro",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-3-motion-std 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "character_orientation": "video",
+      "keep_original_sound": "yes",
+      "prompt": "a lighthouse at dusk",
+    },
+    "path": "kling-video/v3/motion-control/std",
+  },
+  "start frame": {
+    "body": {
+      "character_orientation": "video",
+      "image_url": "https://in.test/start0",
+      "keep_original_sound": "yes",
+      "prompt": "a lighthouse at dusk",
+    },
+    "path": "kling-video/v3/motion-control/std",
+  },
+  "video reference": {
+    "body": {
+      "character_orientation": "video",
+      "keep_original_sound": "yes",
+      "prompt": "a lighthouse at dusk",
+      "video_url": "https://in.test/video0",
+    },
+    "path": "kling-video/v3/motion-control/std",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-3-pro 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/pro/text-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "last_image_url": "https://in.test/end0",
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/pro/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/pro/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-3-std 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/std/text-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "last_image_url": "https://in.test/end0",
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/std/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "cfg_scale": 0.5,
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "multi_shots": false,
+      "prompt": "a lighthouse at dusk",
+      "sound": "on",
+    },
+    "path": "kling-video/v3.0/std/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-3-turbo 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/v3.0-turbo/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/v3.0-turbo/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-o1 1`] = `
+{
+  "prompt only": {
+    "error": "Add a start frame to use Kling O1 (Omni).",
+  },
+  "start + end frames": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "first_frame_url": "https://in.test/start0",
+      "last_frame_url": "https://in.test/end0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/omni/first-last-frame",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "first_frame_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/omni/first-last-frame",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > kling-o3 1`] = `
+{
+  "prompt only": {
+    "error": "Add a start frame to use Kling O3.",
+  },
+  "start + end frames": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "first_frame_url": "https://in.test/start0",
+      "last_frame_url": "https://in.test/end0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/o3/first-last-frame",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "first_frame_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "kling-video/o3/first-last-frame",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > ltx-2.5-fast 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "lightricks/ltx-2.5/text-to-video/fast",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > ltx-2.5-pro 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "lightricks/ltx-2.5/text-to-video/pro",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > minimax-h3 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "minimax/h3/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "minimax/h3/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > minimax-hailuo-2.3 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "minimax/hailuo-2.3/standard/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "minimax/hailuo-2.3/standard/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > pixverse-6 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "pixverse/v6/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "pixverse/v6/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > qwen-image-3 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "alibaba/qwen-image-3/text-to-image",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "alibaba/qwen-image-3/text-to-image",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > recraft-4.1 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "recraft/v4.1/text-to-image",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "recraft/v4.1/text-to-image",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > seedance-2 1`] = `
+{
+  "audio reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "audio_urls": [
+        "https://in.test/audio0",
+      ],
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/reference-to-video",
+  },
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/text-to-video",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/reference-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "duration": 5,
+      "end_image_url": "https://in.test/end0",
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "duration": 5,
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/image-to-video",
+  },
+  "video reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_urls": [
+        "https://in.test/video0",
+      ],
+    },
+    "path": "bytedance/seedance-2.0/reference-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > seedance-2.5 1`] = `
+{
+  "audio reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "audio_urls": [
+        "https://in.test/audio0",
+      ],
+      "bitrate_mode": "high",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.5/reference-to-video",
+  },
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "bitrate_mode": "high",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.5/text-to-video",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "bitrate_mode": "high",
+      "duration": 5,
+      "generate_audio": true,
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.5/reference-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "bitrate_mode": "high",
+      "duration": 5,
+      "end_image_url": "https://in.test/end0",
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.5/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "bitrate_mode": "high",
+      "duration": 5,
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.5/image-to-video",
+  },
+  "video reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "bitrate_mode": "high",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_urls": [
+        "https://in.test/video0",
+      ],
+    },
+    "path": "bytedance/seedance-2.5/reference-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > seedance-2.5-edit 1`] = `
+{
+  "audio reference": {
+    "error": "Add a source video to use Seedance 2.5 Edit.",
+  },
+  "prompt only": {
+    "error": "Add a source video to use Seedance 2.5 Edit.",
+  },
+  "references": {
+    "error": "Add a source video to use Seedance 2.5 Edit.",
+  },
+  "source video": {
+    "body": {
+      "bitrate_mode": "high",
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_url": "https://in.test/source0",
+    },
+    "path": "bytedance/seedance-2.5/video-edit",
+  },
+  "video reference": {
+    "error": "Add a source video to use Seedance 2.5 Edit.",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > seedance-2.5-extend 1`] = `
+{
+  "audio reference": {
+    "error": "Add a source video to use Seedance 2.5 Extend.",
+  },
+  "prompt only": {
+    "error": "Add a source video to use Seedance 2.5 Extend.",
+  },
+  "references": {
+    "error": "Add a source video to use Seedance 2.5 Extend.",
+  },
+  "source video": {
+    "body": {
+      "bitrate_mode": "high",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_url": "https://in.test/source0",
+    },
+    "path": "bytedance/seedance-2.5/video-extend",
+  },
+  "video reference": {
+    "error": "Add a source video to use Seedance 2.5 Extend.",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > seedance-2-fast 1`] = `
+{
+  "audio reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "audio_urls": [
+        "https://in.test/audio0",
+      ],
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/fast/reference-to-video",
+  },
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/fast/text-to-video",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/fast/reference-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "duration": 5,
+      "end_image_url": "https://in.test/end0",
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/fast/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "duration": 5,
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/fast/image-to-video",
+  },
+  "video reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_urls": [
+        "https://in.test/video0",
+      ],
+    },
+    "path": "bytedance/seedance-2.0/fast/reference-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > seedance-2-mini 1`] = `
+{
+  "audio reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "audio_urls": [
+        "https://in.test/audio0",
+      ],
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/mini/reference-to-video",
+  },
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/mini/text-to-video",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/mini/reference-to-video",
+  },
+  "start + end frames": {
+    "body": {
+      "duration": 5,
+      "end_image_url": "https://in.test/end0",
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/mini/image-to-video",
+  },
+  "start frame": {
+    "body": {
+      "duration": 5,
+      "generate_audio": true,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "bytedance/seedance-2.0/mini/image-to-video",
+  },
+  "video reference": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "generate_audio": true,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+      "video_urls": [
+        "https://in.test/video0",
+      ],
+    },
+    "path": "bytedance/seedance-2.0/mini/reference-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > soul-2 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "enhance_prompt": false,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "higgsfield-ai/soul/v2/standard",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > soul-cinema 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "enhance_prompt": false,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "higgsfield-ai/soul/cinema",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > wan-2.6 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "wan/v2.6/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "wan/v2.6/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > wan-2.7 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "wan/v2.7/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "wan/v2.7/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > wan-3 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/wan-3.0/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/wan-3.0/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > wan-3-prime 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/wan-3.0-prime/text-to-video",
+  },
+  "start frame": {
+    "body": {
+      "aspect_ratio": "16:9",
+      "duration": 5,
+      "image_url": "https://in.test/start0",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "720p",
+    },
+    "path": "alibaba/wan-3.0-prime/image-to-video",
+  },
+}
+`;
+
+exports[`toPlatform snapshots > z-image-turbo 1`] = `
+{
+  "prompt only": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "z-image/turbo",
+  },
+  "references": {
+    "body": {
+      "aspect_ratio": "1:1",
+      "image_urls": [
+        "https://in.test/reference0",
+        "https://in.test/reference1",
+      ],
+      "prompt": "a lighthouse at dusk",
+      "resolution": "1k",
+    },
+    "path": "z-image/turbo",
+  },
+}
+`;

@@ -204,3 +204,28 @@ The spec says to retry 429 and 5xx. Submit retries **only 429, 503, and connecti
 - 49 unit tests, including lifecycle tests on an in-memory Mongo (`mingo`): idempotent submit, refund exactly once, concurrent finalize, cancel, timeouts, ownership.
 - Routes smoke-tested: webhook and cron return 404 without credentials; status and upload return 401 signed out.
 - **Not verified (needs operator keys):** a real image and video generation end to end, survival across refresh, serving from R2, and a real cancel. These need `HF_CREDENTIALS`, Atlas, R2, and either `HF_WEBHOOK_BASE_URL` plus a tunnel or the dev poller.
+
+## 2026-10-15 — Phase 4 (partial: docs still unreachable)
+
+### D-034 Template mapping fixes
+A snapshot test (`tests/mappers.test.ts`) now records the exact request for every model and every input combination it advertises. Fixed from the template's own declarations, without inventing endpoints:
+- **`kling-o1`, `kling-o3`** (only a `firstLast` path) and **`kling-2.5`, `dop`** (only an image path) now require a start frame (`requiredRoles: ["start"]`). Before, a prompt-only run went to a frame or image endpoint with no frame and would fail at the platform. Generate is now disabled with "Add a start frame to use …".
+- **`ltx-2.5-fast`, `ltx-2.5-pro`**: removed the `start` slot. Their only path is text-to-video, and `t2v()` can't derive an image path from `.../text-to-video/fast`, so attached frames were silently dropped. The slot comes back once an LTX image-to-video path is verified.
+- An invariant test now fails if any model accepts a start frame without sending it.
+
+### D-035 Picker metadata
+`generation/catalog/metadata.ts` holds provider, description, best-for and badges for all 38 models, written in our own words from `docs/model-catalog.md` §4. Model files stay template-shaped.
+- Badges appear only where a setting, path or the skills guidance supports them. A test checks that AUDIO and 4K badges match settings.
+- "NEW" badges based on version numbers are left out until confirmed.
+- The picker UI that shows them is Phase 6.
+
+### D-036 Audio surface plumbing
+- `Surface` now includes `"audio"`. The gallery has an audio tile, the lightbox has an audio player, and the mode rail has an Audio tab.
+- The rail shows a surface only when it has at least one model. **No audio model is verified yet** (all 7 are "Unverified – REST path needed"), so the Audio tab stays hidden and none of this audio UI is visible yet.
+- Adding an audio model file makes it appear. The response shape `audio.url` is still the assumption from D-026.
+
+### D-037 What Phase 4 could not do (needs docs.higgsfield.ai)
+- Add the 68 unverified models: Nano Banana, GPT Image, Seedream, Veo, upscale, background removal, 3D and all audio models.
+- Correct the 24 models that use generic default settings, and the CLI-versus-template parameter conflicts (D-010).
+- Verify the 11 `t2v()`-derived image-to-video paths.
+- Run "at least one real generation per family". That also needs `HF_CREDENTIALS`.

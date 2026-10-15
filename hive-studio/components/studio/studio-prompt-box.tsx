@@ -536,9 +536,21 @@ export function StudioPromptBox({
             key={value}
             active={surface === value}
             onClick={() => onSurfaceChange(value)}
-            start={value === "video" ? <Clapperboard /> : <ImageIcon />}
+            start={
+              value === "video" ? (
+                <Clapperboard />
+              ) : value === "audio" ? (
+                <AudioLines />
+              ) : (
+                <ImageIcon />
+              )
+            }
           >
-            {value === "video" ? "Video" : "Image"}
+            {value === "video"
+              ? "Video"
+              : value === "audio"
+                ? "Audio"
+                : "Image"}
           </PromptBox.Mode>
         ))}
       </PromptBox.ModeRail>

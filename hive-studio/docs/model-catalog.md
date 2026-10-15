@@ -1,5 +1,8 @@
 # Model Catalog (Higgsfield REST wrapper)
 
+> **Phase 4 update (2026-10-15):** fixed per decisions D-034. Kling O1/O3, Kling 2.5 and DoP now require a start frame; the start slot was removed from LTX 2.5 Fast/Pro. Picker copy now lives in `generation/catalog/metadata.ts` (tentative badges dropped). Open questions 5 and 6 below are resolved for the UI; the underlying endpoints still need checking against the docs.
+
+
 Date: 2026-10-15
 
 ## 1. Intro

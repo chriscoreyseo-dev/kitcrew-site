@@ -3,7 +3,7 @@
 
 import { memo, useEffect, useRef, useState } from "react"
 import type { CSSProperties } from "react"
-import { Copy, Download, Share2, Trash2 } from "lucide-react"
+import { Copy, Download, Share2, Trash2, AudioLines } from "lucide-react"
 
 import {
   GenerationTile,
@@ -156,7 +156,19 @@ function GalleryTileComponent({
   }
 
   const isVideo = item.kind === "video"
-  const media = isVideo ? (
+  const isAudio = item.kind === "audio"
+  const media = isAudio ? (
+    <div className="flex size-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4">
+      <AudioLines aria-hidden className="size-10 text-primary" />
+      <audio
+        src={item.src}
+        controls
+        preload="none"
+        className="w-full max-w-[260px]"
+        onClick={(event) => event.stopPropagation()}
+      />
+    </div>
+  ) : isVideo ? (
     <HoverVideo
       item={item}
       tier={tier}
@@ -211,7 +223,7 @@ function GalleryTileComponent({
         generation={{
           src: isVideo ? (item.videoSrc ?? item.src) : item.src,
           poster: isVideo ? item.src || undefined : undefined,
-          mediaType: isVideo ? "video" : "image",
+          mediaType: isAudio ? "audio" : isVideo ? "video" : "image",
           aspectRatio: item.width / item.height,
           prompt: item.prompt,
           model: item.modelLabel,
