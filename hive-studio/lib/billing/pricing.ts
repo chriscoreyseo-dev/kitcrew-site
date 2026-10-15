@@ -89,3 +89,9 @@ export async function clientPricing(): Promise<
     ])
   )
 }
+
+/** Drop the cached overrides so the next read sees an admin edit at once
+    (other server instances pick it up within the TTL). */
+export function resetPricingCache(): void {
+  cache = undefined
+}

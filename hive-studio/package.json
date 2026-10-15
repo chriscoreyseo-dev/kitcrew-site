@@ -15,7 +15,8 @@
     "test": "vitest run",
     "models": "node scripts/sync-models.mjs",
     "postbuild": "node scripts/check-bundle-secrets.mjs",
-    "db:init": "tsx --env-file-if-exists=.env.local scripts/db-init.ts"
+    "db:init": "tsx --env-file-if-exists=.env.local scripts/db-init.ts",
+    "presets:seed": "tsx --env-file-if-exists=.env.local scripts/seed-presets.ts"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "3.11.3",

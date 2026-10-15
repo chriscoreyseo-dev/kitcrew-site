@@ -15,6 +15,8 @@ export function runToGalleryItems(run: RunRecord): GalleryItem[] {
     alt: run.prompt || run.modelLabel,
     modelLabel: run.modelLabel,
     settings: run.settings,
+    modelId: run.modelId,
+    isPublic: run.isPublic,
     groupId: "all",
     groupLabel: "",
   }

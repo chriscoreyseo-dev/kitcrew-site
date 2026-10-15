@@ -133,6 +133,31 @@ export const INDEXES: readonly IndexDef[] = [
     options: { name: "stripe_subscription", sparse: true },
   },
   {
+    collection: "generations",
+    key: { status: 1, createdAt: -1 },
+    options: { name: "admin_status_recent" },
+  },
+  {
+    collection: "generations",
+    key: { modelId: 1, createdAt: -1 },
+    options: { name: "admin_model_recent" },
+  },
+  {
+    collection: "generations",
+    key: { createdAt: -1 },
+    options: { name: "admin_recent" },
+  },
+  {
+    collection: "reports",
+    key: { status: 1, createdAt: -1 },
+    options: { name: "queue" },
+  },
+  {
+    collection: "users",
+    key: { createdAt: -1 },
+    options: { name: "admin_recent" },
+  },
+  {
     collection: "presets",
     key: { slug: 1 },
     options: { name: "slug_unique", unique: true },
@@ -151,6 +176,20 @@ export const INDEXES: readonly IndexDef[] = [
     collection: "rate_limits",
     key: { expiresAt: 1 },
     options: { name: "expires_ttl", expireAfterSeconds: 0 },
+  },
+  {
+    collection: "reports",
+    key: { reporterId: 1, generationId: 1 },
+    options: {
+      name: "open_report_unique",
+      unique: true,
+      partialFilterExpression: { status: "open" },
+    },
+  },
+  {
+    collection: "generations",
+    key: { isPublic: 1, status: 1, publishedAt: -1, _id: -1 },
+    options: { name: "community_feed" },
   },
   {
     collection: "reports",

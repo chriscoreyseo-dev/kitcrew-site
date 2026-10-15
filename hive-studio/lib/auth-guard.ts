@@ -16,3 +16,17 @@ export async function requireUser(): Promise<{ userId: string }> {
   if (!user) throw new SignInRequiredError()
   return { userId: user.id }
 }
+
+export class AdminRequiredError extends Error {
+  constructor() {
+    super("Not found.")
+    this.name = "AdminRequiredError"
+  }
+}
+
+/** Admin-only actions and pages. Non-admins get the same answer as a missing page. */
+export async function requireAdmin(): Promise<{ userId: string }> {
+  const user = await currentUser()
+  if (!user || user.role !== "admin") throw new AdminRequiredError()
+  return { userId: user.id }
+}

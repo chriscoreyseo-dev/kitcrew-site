@@ -1,4 +1,5 @@
-/** Model-picker copy and badges, in our own words (drafted from the
+/** Model-picker copy and badges, in our own words. Providers are named by
+    model family; the platform vendor's own name and logo never appear (spec §1d). (drafted from the
     higgsfield-ai/skills model catalog and the template settings; see
     docs/model-catalog.md §4). Badges are only set where a setting, path or the
     skills guidance supports them; version-number guesses ("NEW") are left out
@@ -15,14 +16,13 @@ export type ModelMeta = {
 
 export const MODEL_META: Record<string, ModelMeta> = {
   "soul-2": {
-    provider: "Higgsfield",
-    description:
-      "In-house still-image model tuned for people and styled portraits.",
+    provider: "Soul",
+    description: "Still-image model tuned for people and styled portraits.",
     bestFor: "Editorial, lifestyle and fashion images of people.",
     badges: ["TOP"],
   },
   "soul-cinema": {
-    provider: "Higgsfield",
+    provider: "Soul",
     description: "Soul with a filmic look and dramatic lighting.",
     bestFor: "Movie-still frames and moody concept art.",
   },
@@ -208,7 +208,7 @@ export const MODEL_META: Record<string, ModelMeta> = {
     description: "PixVerse 6 text- and image-to-video.",
   },
   dop: {
-    provider: "Higgsfield",
+    provider: "DoP",
     description: "DoP (lite): animates one still image with camera motion.",
     bestFor: "Animating a single image.",
   },

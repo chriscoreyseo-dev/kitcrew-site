@@ -3,7 +3,16 @@
 
 import { memo, useEffect, useRef, useState } from "react"
 import type { CSSProperties } from "react"
-import { Copy, Download, Share2, Trash2, AudioLines } from "lucide-react"
+import {
+  AudioLines,
+  Clapperboard,
+  Copy,
+  Download,
+  Globe,
+  RotateCcw,
+  Share2,
+  Trash2,
+} from "lucide-react"
 
 import {
   GenerationTile,
@@ -11,7 +20,7 @@ import {
 } from "@/components/studio/generation-card"
 
 import type { TileRect } from "./justified-engine"
-import type { GalleryItem, LoadTier } from "./gallery-types"
+import type { GalleryItem, LoadTier, TileActions } from "./gallery-types"
 
 /**
  * One gallery tile, absolutely positioned at the engine-computed rect.
@@ -25,6 +34,7 @@ export interface GalleryTileProps {
   tier: LoadTier
   reducedMotion: boolean
   onDelete?: (item: GalleryItem) => void
+  extraActions?: TileActions
 }
 
 function rectStyle(rect: TileRect, top: number): CSSProperties {
@@ -122,6 +132,7 @@ function GalleryTileComponent({
   tier,
   reducedMotion,
   onDelete,
+  extraActions,
 }: GalleryTileProps) {
   const [hovered, setHovered] = useState(false)
   const style = rectStyle(rect, top)
@@ -201,6 +212,38 @@ function GalleryTileComponent({
         else void copyText(`${item.prompt}\n${url}`)
       },
     },
+    ...(extraActions?.onReuse
+      ? [
+          {
+            id: "reuse",
+            label: "Reuse prompt & settings",
+            icon: RotateCcw,
+            onSelect: () => extraActions.onReuse?.(item),
+          },
+        ]
+      : []),
+    ...(extraActions?.onAnimate && item.kind === "image"
+      ? [
+          {
+            id: "animate",
+            label: "Animate",
+            icon: Clapperboard,
+            onSelect: () => extraActions.onAnimate?.(item),
+          },
+        ]
+      : []),
+    ...(extraActions?.onPublish
+      ? [
+          {
+            id: "publish",
+            label: item.isPublic
+              ? "Unpublish from Community"
+              : "Publish to Community",
+            icon: Globe,
+            onSelect: () => extraActions.onPublish?.(item, !item.isPublic),
+          },
+        ]
+      : []),
     ...(onDelete
       ? [
           {

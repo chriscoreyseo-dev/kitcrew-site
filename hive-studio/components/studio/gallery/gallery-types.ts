@@ -20,8 +20,20 @@ export interface GalleryItem {
   alt: string
   modelLabel: string
   settings: Record<string, unknown>
+  /** Catalog id, for Reuse / Animate. */
+  modelId?: string
+  /** Published to Community. */
+  isPublic?: boolean
   groupId: string
   groupLabel: string
+}
+
+/** Optional per-tile actions beyond Download/Copy/Share/Delete. Each one
+    appears only when its handler is passed (no inert buttons). */
+export interface TileActions {
+  onReuse?: (item: GalleryItem) => void
+  onAnimate?: (item: GalleryItem) => void
+  onPublish?: (item: GalleryItem, publish: boolean) => void
 }
 
 /** How near a tile is to the viewport — drives eager vs lazy loading. */

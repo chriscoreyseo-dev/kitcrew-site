@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { ComponentProps } from "react"
 import { Compass, Folder } from "lucide-react"
@@ -23,7 +24,11 @@ import {
 } from "@/components/studio/my-projects"
 import { StudioSidebar, type StudioView } from "@/components/studio/sidebar"
 import { UserGenerations } from "@/components/studio/user-generations"
-import type { GalleryItem } from "@/components/studio/gallery/gallery-types"
+import type {
+  GalleryItem,
+  TileActions,
+} from "@/components/studio/gallery/gallery-types"
+import { publishGenerationAction } from "@/generation/community-actions"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MODELS, getModel, parseSettings } from "@/generation/catalog"
 import type {
@@ -204,12 +209,14 @@ function FeedState({
   title,
   dock,
   onDelete,
+  extraActions,
 }: {
   items: GalleryItem[]
   previewItems: GalleryItem[]
   title: string
   dock: DockProps
   onDelete: (item: GalleryItem) => void
+  extraActions?: TileActions
 }) {
   const images = useMemo(() => heroImages(previewItems), [previewItems])
   const dockRef = useRef<HTMLDivElement>(null)
@@ -233,6 +240,7 @@ function FeedState({
           items={items}
           title={title}
           onDelete={onDelete}
+          extraActions={extraActions}
           emptyState={{
             images,
             title:
@@ -270,14 +278,24 @@ export interface StudioTemplateProps {
   headline?: string
   /** Signed-in user from the server, or null. Generate/upload need one. */
   user?: { email: string } | null
+  /** Which view opens first (/assets → all, /projects/[id] → that project). */
+  initialView?: StudioView
 }
 
 export function StudioTemplate({
   title = "Studio",
   headline = "Turn any idea into images and video",
   user = null,
+  initialView = { kind: "home" },
 }: StudioTemplateProps) {
-  const [view, setView] = useState<StudioView>({ kind: "home" })
+  const [view, setView] = useState<StudioView>(initialView)
+  // Keep the address bar shareable as the user moves between views.
+  useEffect(() => {
+    const path =
+      view.kind === "project" ? `/projects/${view.projectId}` : "/assets"
+    if (window.location.pathname !== path)
+      window.history.replaceState(null, "", path)
+  }, [view])
   const [collapsed, setCollapsed] = useState(false)
   const [prompt, setPrompt] = useState("")
   const [media, setMedia] = useState<MediaItem[]>([])
@@ -309,6 +327,7 @@ export function StudioTemplate({
       if (r.ok) setPricing(r.data)
     })
   }, [])
+  const router = useRouter()
   const runs = useRuns(Boolean(user), {
     onInsufficientCredits: (message) => setUpgradeReason(message),
     onSettled: refreshBalance,
@@ -583,7 +602,7 @@ export function StudioTemplate({
   }
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
+    <div className="flex h-[calc(100dvh-var(--header-h))] overflow-hidden bg-background">
       <StudioSidebar
         footer={(isCollapsed) => (
           <AccountRow
@@ -638,6 +657,22 @@ export function StudioTemplate({
             title={selectedProject?.name ?? "All Generations"}
             dock={dock}
             onDelete={(item) => runs.remove(item.runId)}
+            extraActions={{
+              onReuse: (item) =>
+                router.push(
+                  `/${item.kind}?model=${encodeURIComponent(item.modelId ?? "")}&prompt=${encodeURIComponent(item.prompt)}`
+                ),
+              onAnimate: (item) =>
+                router.push(
+                  `/video?start=${encodeURIComponent(item.src)}&prompt=${encodeURIComponent(item.prompt)}`
+                ),
+              onPublish: (item, value) =>
+                void publishGenerationAction(item.runId, value).then((r) => {
+                  if (r.ok)
+                    runs.patch(item.runId, { isPublic: r.data.isPublic })
+                  else setLocalError(r.message)
+                }),
+            }}
           />
         )}
       </main>

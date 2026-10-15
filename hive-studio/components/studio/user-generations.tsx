@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 
 import { JustifiedGallery } from "./gallery/justified-gallery"
-import type { GalleryItem } from "./gallery/gallery-types"
+import type { GalleryItem, TileActions } from "./gallery/gallery-types"
 import type { ScreenEmptyStateContent } from "./screen-empty-state"
 
 /**
@@ -20,6 +20,8 @@ export interface UserGenerationsProps {
   loadingMore?: boolean
   onLoadMore?: () => void | Promise<unknown>
   onDelete?: (item: GalleryItem) => void
+  /** Reuse / Animate / Publish on each tile, when handlers are given. */
+  extraActions?: TileActions
 }
 
 export function UserGenerations(props: UserGenerationsProps) {

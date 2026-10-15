@@ -10,7 +10,7 @@ import {
 
 import { DensityControl } from "./density-control"
 import { GalleryTile } from "./gallery-tile"
-import type { GalleryItem, LoadTier } from "./gallery-types"
+import type { GalleryItem, LoadTier, TileActions } from "./gallery-types"
 import { useJustifiedGallery } from "./use-justified-gallery"
 import { useReducedMotion } from "./use-reduced-motion"
 
@@ -28,6 +28,7 @@ export interface JustifiedGalleryProps {
   onLoadMore?: () => void | Promise<unknown>
   emptyState: ScreenEmptyStateContent
   onDelete?: (item: GalleryItem) => void
+  extraActions?: TileActions
 }
 
 export function JustifiedGallery({
@@ -39,6 +40,7 @@ export function JustifiedGallery({
   onLoadMore,
   emptyState,
   onDelete,
+  extraActions,
 }: JustifiedGalleryProps) {
   const reducedMotion = useReducedMotion()
   const { viewportRef, ...gallery } = useJustifiedGallery(items, grouped, {
@@ -103,6 +105,7 @@ export function JustifiedGallery({
                   tier={tier}
                   reducedMotion={reducedMotion}
                   onDelete={onDelete}
+                  extraActions={extraActions}
                 />
               ))
             })}

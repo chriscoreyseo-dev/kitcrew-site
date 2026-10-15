@@ -282,3 +282,70 @@ A snapshot test (`tests/mappers.test.ts`) now records the exact request for ever
 - 117 tests. Covered: debit and refund idempotency, two simultaneous submits with credits for one (exactly one runs), double-click charged once, refunds to the original buckets, subscription reset idempotency, clawback never below zero, every Stripe event branch, webhook signature/dedupe/retry, and client-versus-server price equality.
 - **Not verified (needs operator):** a Stripe **test-mode** subscription and top-up crediting the right buckets end to end. That needs a Stripe test account, products and prices with their IDs in env, `stripe listen` and Atlas.
 - `GENERATION_ACCESS` stays `admins` by default until prices are set (D-031).
+
+## 2026-10-15 — Phase 6 (built without access to higgsfield.ai)
+
+### D-045 How the UI was built
+higgsfield.ai is still blocked from the container (D-004), so no live screenshots or side-by-side comparisons exist. Pages follow spec §9 and the template's components and tokens. The comparison is still owed: once the site is reachable, capture `docs/screens/` and adjust spacing and typography to match.
+
+### D-046 Routes and global chrome
+- **Global chrome:** the site header lives in the root layout on every page. It holds the logo, Explore, Image, Video, Audio, Effects, Community and Pricing, a credit pill, an Upgrade button and the account menu; signed out, it shows Login and Sign up, which open the magic-link modal. On mobile the nav becomes a sheet.
+- **Surface tabs** show only when that surface has a verified model, so Audio is hidden and `/audio` returns 404 until an audio model is added.
+- **Promo bar:** dismissible, set in `lib/site-config.ts` (off by default).
+- **Cookie consent:** Accept all / Reject non-essential / Preferences. There are no analytics yet; anything added later must check `hasAnalyticsConsent()` first.
+- **Home page:** `/` is now **Explore**. The template's sidebar-and-dock studio moved to **`/assets`** (library) and **`/projects/[id]`**, with the URL kept in sync as views change.
+
+### D-047 Generator pages
+`/image`, `/video` and `/audio` use `layouts/generator.tsx` with `hooks/use-composer.ts`.
+
+**Left panel (400px):**
+- **Mode tabs:** shown only when they change the model list. Video has Create, Edit (models with a source slot) and Motion Control. Image has a single mode, so no tabs.
+- **Model card:** a category label derived from badges and name, plus a searchable picker grouped by provider, with badges and "from ✦N" or "Price pending".
+- **Media slots:** frame and source slots appear only when the model takes them, plus one mixed reference drop zone through `AssetLibraryModal`.
+- **Prompt** with a character count, and a **settings row** (headline pill, resolution pill, More → `SettingsDialog`).
+- **Generate button:** sticky, showing "Generate ✦ cost". On mobile it's a fixed bottom bar.
+- **Cancel:** "Cancel queued (n)" sits next to Generate instead of replacing it. With per-plan parallel runs, Generate stays available while others run, and only queued runs can be canceled.
+- **Not built:** "Enhance prompt", because no API capability is verified. Per spec, no inert controls.
+
+**Right canvas:**
+- History / How it works switch.
+- An empty state with three step cards.
+- The feed, filtered to the surface. Tiles gain Reuse prompt & settings, Animate (image → `/video?start=`), and Publish/Unpublish.
+- **Upscale** isn't offered: no verified upscale endpoint.
+
+**Link parameters:**
+- `?model=` and `?prompt=` (Recreate).
+- `?preset=` (Effects: model, prompt template and settings).
+- `?start=` (Animate). The server only accepts it on submit if the URL is the user's own media.
+
+### D-048 Community, Effects, Admin (built by subagents within fixed file ownership)
+- **Community:**
+  - Publish/unpublish is owner-only, and only for completed runs.
+  - The public DTO never exposes userId, email, hfRequestId, r2Key or the input media; authors are shown as a masked email.
+  - Paging uses a `publishedAt` + `_id` cursor.
+  - `/g/[id]` has Recreate and Report. Reports are deduped per reporter (backed by a unique partial index), limited to 10 per hour, and the owner sees Unpublish instead of Report.
+- **Effects:**
+  - The `presets` collection is seeded with 12 starter presets (`pnpm presets:seed`, idempotent; admin edits and covers survive a re-seed).
+  - `/effects` has category chips; `/effects/[slug]` has "Use effect".
+  - Covers are empty until Phase 7.
+- **Admin** (`role: "admin"` only; everyone else gets a 404):
+  - Users: search, credit adjustments through the ledger (`admin_adjust`, with a per-form token for idempotency), and clearing `billingFlag`.
+  - Generations: filtered list.
+  - Models: enable/disable and pricing-override JSON, validated against `PriceRule`.
+  - Presets: full CRUD.
+  - Moderation: dismiss, or unpublish and action the reports.
+  - Indexes for these lists were added to `lib/db/indexes.ts`.
+
+### D-049 Brand cleanup
+- Higgsfield's own models (Soul, DoP) are now labeled by family ("Soul", "DoP"). Their copy no longer says "in-house", which wrongly implied they're ours.
+- The Higgsfield logo file (`public/model-icons/higgsfield.svg`) is removed, so those models show a neutral icon.
+- An upload error message that named the vendor is reworded.
+- Other providers' icons (Kling, Seedance, etc.) stay, as the spec allows.
+
+### D-050 Phase 6 checkpoint status
+- **Pages checked** at 1440px and 390px in Chromium: no page errors and no horizontal overflow on `/`, `/video`, `/image`, `/effects`, `/community`, `/pricing`, `/login`, `/legal/terms`, and the redirects for `/account`, `/assets` and `/admin`.
+- **Tests and build:** 149 tests; typecheck, lint, format and build pass; the secret scan is clean.
+- **Not verified:**
+  - The side-by-side comparison with higgsfield.ai (blocked).
+  - Signed-in, admin, populated-feed and effects-with-data views (they need Atlas).
+  - The final color palette (Markethive hex codes still pending, D-002).

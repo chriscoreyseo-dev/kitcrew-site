@@ -89,6 +89,8 @@ export type RunDTO = {
   phase: GenerationStatus
   urls: string[]
   error?: string
+  /** Published to Community. */
+  isPublic: boolean
   createdAt: number
 }
 
@@ -111,6 +113,7 @@ export function toRunDTO(doc: GenerationDoc): RunDTO {
     phase: doc.status,
     urls: doc.status === "completed" ? doc.outputs.map((o) => o.url) : [],
     ...(doc.error ? { error: doc.error } : {}),
+    isPublic: doc.isPublic === true,
     createdAt: doc.createdAt.getTime(),
   }
 }

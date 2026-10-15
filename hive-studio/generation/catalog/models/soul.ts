@@ -27,7 +27,6 @@ export const soul2: ModelEntry = {
   label: "Soul 2",
   roles: {},
   settings: soulSettings,
-  icon: "higgsfield",
   order: 0,
   toPlatform: (plane) => mapSoul(plane, "higgsfield-ai/soul/v2/standard"),
 }
@@ -38,7 +37,6 @@ export const soulCinema: ModelEntry = {
   label: "Soul Cinema",
   roles: {},
   settings: soulSettings,
-  icon: "higgsfield",
   order: 1,
   toPlatform: (plane) => mapSoul(plane, "higgsfield-ai/soul/cinema"),
 }

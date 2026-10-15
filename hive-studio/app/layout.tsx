@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Mono, Inter, Space_Grotesk } from "next/font/google"
 
+import { CookieConsent } from "@/components/site/cookie-consent"
+import { SiteHeader } from "@/components/site/site-header"
 import { cn } from "@/lib/utils"
 
 import "./globals.css"
@@ -23,7 +25,6 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 })
 
-// Replace with the product's own identity when adapting the scaffold.
 export const metadata: Metadata = {
   title: "Hive Studio",
   description: "Generate AI images, video and audio.",
@@ -45,8 +46,10 @@ export default function RootLayout({
         plexMono.variable
       )}
     >
-      <body className="min-h-svh bg-background text-foreground">
+      <body className="min-h-svh bg-background text-foreground [--header-h:56px]">
+        <SiteHeader />
         {children}
+        <CookieConsent />
       </body>
     </html>
   )

@@ -1,6 +1,6 @@
 # UI inventory
 
-Status 2026-10-15: **Part A is done; Part B is blocked.** higgsfield.ai can't be reached from the build container (see decisions D-004). No screenshots exist in `docs/screens/` yet, and nothing in Part B has been observed or guessed.
+Status 2026-10-15: **Part A is done and Phase 6 was built from it plus spec §9 (decisions D-045–D-050). Part B (the live-site comparison) is still blocked.** higgsfield.ai can't be reached from the build container (see decisions D-004). No screenshots exist in `docs/screens/` yet, and nothing in Part B has been observed or guessed.
 
 ---
 

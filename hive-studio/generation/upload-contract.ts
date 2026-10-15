@@ -37,8 +37,7 @@ export function parseUploadTicket(
   value: unknown,
   contentType: string
 ): UploadTicket {
-  const invalid = () =>
-    new Error("Invalid upload response from Higgsfield. Try again.")
+  const invalid = () => new Error("Invalid upload response. Try again.")
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw invalid()
   const data = value as Record<string, unknown>

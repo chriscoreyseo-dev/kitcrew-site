@@ -130,7 +130,7 @@ export function StudioSidebar({
   return (
     <aside
       className={cn(
-        "m-2.5 flex h-[calc(100dvh-20px)] shrink-0 flex-col rounded-xl border border-sidebar-border bg-sidebar p-2 text-sidebar-foreground transition-[width] duration-200",
+        "m-2.5 flex h-[calc(100dvh-var(--header-h)-20px)] shrink-0 flex-col rounded-xl border border-sidebar-border bg-sidebar p-2 text-sidebar-foreground transition-[width] duration-200",
         collapsed ? "w-14" : "w-64"
       )}
     >

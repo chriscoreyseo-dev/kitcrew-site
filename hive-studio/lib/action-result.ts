@@ -1,7 +1,7 @@
 import "server-only"
 
 import { GenerationForbiddenError } from "@/lib/access"
-import { SignInRequiredError } from "@/lib/auth-guard"
+import { AdminRequiredError, SignInRequiredError } from "@/lib/auth-guard"
 import {
   ConcurrencyLimitError,
   InsufficientCreditsError,
@@ -43,6 +43,8 @@ export async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
       return { ok: false, code: "SIGN_IN", message: error.message }
     if (error instanceof GenerationForbiddenError)
       return { ok: false, code: "FORBIDDEN", message: error.message }
+    if (error instanceof AdminRequiredError)
+      return { ok: false, code: "NOT_FOUND", message: error.message }
     if (error instanceof GenerationNotFoundError)
       return { ok: false, code: "NOT_FOUND", message: error.message }
     if (error instanceof GenerationInputError)

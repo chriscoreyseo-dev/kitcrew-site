@@ -13,7 +13,6 @@ export default {
     { start: 1 },
     { image: "higgsfield-ai/dop/lite" },
     {
-      icon: "higgsfield",
       order: 67,
     }
   ),

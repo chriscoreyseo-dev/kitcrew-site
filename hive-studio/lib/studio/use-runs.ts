@@ -150,7 +150,23 @@ export function useRuns(
     }
   }, [])
 
+  const patch = useCallback((id: string, change: Partial<RunRecord>) => {
+    setRecords((current) =>
+      current.map((r) => (r.id === id ? { ...r, ...change } : r))
+    )
+  }, [])
+
   const running = records.filter((r) => r.status === "running")
 
-  return { records, running, loaded, error, submit, cancel, remove, setError }
+  return {
+    records,
+    running,
+    loaded,
+    error,
+    submit,
+    cancel,
+    remove,
+    patch,
+    setError,
+  }
 }
