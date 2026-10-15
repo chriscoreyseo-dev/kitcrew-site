@@ -8,7 +8,7 @@ when adapting; replace their content, not their presence:
 2. **Atmosphere**: `HERO_GLOW` radial glow and `HERO_DOTS` dot-field masked by
    `HERO_DOTS_MASK` behind the hero. Tune colours, keep the depth.
 3. **`HeroComposition`**: three latest ready outputs, falling back to
-   `/presets/placeholder-*.svg` until the product has real media.
+   the brand art in `BRAND_TRIPTYCH` (`lib/brand-art.ts`) until the user has three.
 4. **`StudioPromptBox` dock**: mode rail (surfaces), one headline setting pill,
    the settings dialog pill, one mixed reference picker, compact media chips,
    model-appropriate frame/source slots, and the lime Generate CTA that turns
