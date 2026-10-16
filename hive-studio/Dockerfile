@@ -18,7 +18,11 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm build
+# Build with a clean environment. Hosts like Coolify pass every runtime
+# variable as a build arg; none of them may reach `next build` (a malformed
+# value breaks prerendering, and a secret could end up in the bundle). The
+# deployment's mode and keys are read at runtime only.
+RUN env -i PATH="$PATH" HOME=/root NEXT_TELEMETRY_DISABLED=1     COREPACK_ENABLE_DOWNLOAD_PROMPT=0 pnpm build
 
 FROM node:24-bookworm-slim AS run
 WORKDIR /app

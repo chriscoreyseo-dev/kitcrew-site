@@ -27,6 +27,10 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 })
 
+// Every page reads the deployment mode and session at request time (D-055):
+// nothing may be prerendered with build-time values.
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Hive Studio",
   description: "Generate AI images, video and audio.",
