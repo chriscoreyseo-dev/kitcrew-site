@@ -10,8 +10,8 @@ services:
     restart: unless-stopped
     environment:
       STUDIO_MODE: markethive
-      # The studio's own public https URL (the domain Coolify gives this service).
-      APP_URL: ${APP_URL:?set APP_URL to the studio's https domain}
+      # The studio's own public https URL (the domain set on this service in Coolify).
+      APP_URL: ${APP_URL:-https://hive-studio.91.99.211.175.sslip.io}
       # MongoDB below: single-node replica set (transactions need one).
       MONGODB_URI: mongodb://mongo:27017/?replicaSet=rs0&directConnection=true
       MONGODB_DB: hive-studio
@@ -21,8 +21,9 @@ services:
       LOCAL_STORAGE_DIR: /data/media
       # No Vercel Cron on Docker: reconcile in-process every minute.
       INTERNAL_CRON_SECONDS: "60"
-      # dev3 stays up while keys are still being added; features refuse until set.
-      BOOT_REQUIRED_GROUPS: db,markethive
+      # dev3 boots on the database alone while the operator adds keys; sign-in,
+      # wallet and generation each refuse (requireEnv) until their keys are set.
+      BOOT_REQUIRED_GROUPS: ${BOOT_REQUIRED_GROUPS:-db}
       MARKETHIVE_BASE_URL: ${MARKETHIVE_BASE_URL:-https://dev3.markethive.com}
       MARKETHIVE_FRAME_ANCESTORS: ${MARKETHIVE_FRAME_ANCESTORS:-https://dev3.markethive.com}
       MARKETHIVE_CREDITS_URL: ${MARKETHIVE_CREDITS_URL:-}
