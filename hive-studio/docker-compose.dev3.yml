@@ -10,8 +10,9 @@ services:
     restart: unless-stopped
     environment:
       STUDIO_MODE: markethive
-      # The studio's own public https URL (the domain set on this service in Coolify).
-      APP_URL: ${APP_URL:-https://hive-studio.91.99.211.175.sslip.io}
+      # The studio's own public https URL: Coolify's SERVICE_URL_<service> is
+      # the domain set on this service (Domains tab), so it can never drift.
+      APP_URL: ${SERVICE_URL_STUDIO:-https://hive-studio.91.99.211.175.sslip.io}
       # MongoDB below: single-node replica set (transactions need one).
       MONGODB_URI: mongodb://mongo:27017/?replicaSet=rs0&directConnection=true
       MONGODB_DB: hive-studio
