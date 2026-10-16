@@ -3,6 +3,8 @@ import { IBM_Plex_Mono, Inter, Space_Grotesk } from "next/font/google"
 
 import { CookieConsent } from "@/components/site/cookie-consent"
 import { SiteHeader } from "@/components/site/site-header"
+import { StudioModeProvider } from "@/components/site/studio-mode"
+import { studioModeInfo } from "@/lib/mode-info"
 import { cn } from "@/lib/utils"
 
 import "./globals.css"
@@ -47,9 +49,11 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-svh bg-background text-foreground [--header-h:56px]">
-        <SiteHeader />
-        {children}
-        <CookieConsent />
+        <StudioModeProvider value={studioModeInfo()}>
+          <SiteHeader />
+          {children}
+          <CookieConsent />
+        </StudioModeProvider>
       </body>
     </html>
   )

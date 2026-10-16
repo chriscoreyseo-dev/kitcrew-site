@@ -16,6 +16,11 @@ const credentials = nonEmpty.regex(
 )
 
 const schema = z.object({
+  /** Deploy-time switch (D-055). "standalone" = studio.kitcrew.ai: magic-link
+      sign-in + Stripe credits. "markethive" = inside MarketHive: sign-in by a
+      signed MarketHive handoff, paid in Hive credits held by MarketHive. */
+  STUDIO_MODE: z.enum(["standalone", "markethive"]).default("standalone"),
+
   APP_URL: url.default("http://localhost:3000"),
   NEXT_PUBLIC_BRAND_NAME: nonEmpty.default("Hive Studio"),
 
@@ -55,6 +60,26 @@ const schema = z.object({
   R2_PUBLIC_BASE_URL: url.optional(),
 
   CRON_SECRET: z.string().min(16).optional(),
+  /** Run the reconciler inside the server process every N seconds (Docker
+      hosts without Vercel Cron). 0 = off. */
+  INTERNAL_CRON_SECONDS: z.coerce.number().int().min(0).default(0),
+
+  /** Where finished outputs are kept: Cloudflare R2, or a local volume served
+      by /media (single-host Docker, e.g. MarketHive dev3). */
+  STORAGE_DRIVER: z.enum(["r2", "local"]).default("r2"),
+  LOCAL_STORAGE_DIR: nonEmpty.default("/data/media"),
+
+  /** MarketHive mode. The base URL of the MarketHive site whose wallet and
+      sign-in this studio uses, and the secret both sides share (set by the
+      operator on both servers, never committed). */
+  MARKETHIVE_BASE_URL: url.optional(),
+  MARKETHIVE_SHARED_SECRET: z.string().min(32).optional(),
+  /** Space-separated origins allowed to frame the studio (CSP frame-ancestors). */
+  MARKETHIVE_FRAME_ANCESTORS: nonEmpty.default(
+    "https://markethive.com https://www.markethive.com https://dev3.markethive.com"
+  ),
+  /** Where "Add credits" sends a member (MarketHive's own wallet page). */
+  MARKETHIVE_CREDITS_URL: url.optional(),
 
   /** Who may spend the platform key in production. "admins" until billing
       ships (Phase 5); then "everyone". Development is always open to
@@ -80,6 +105,7 @@ export const ENV_GROUPS = {
     "R2_PUBLIC_BASE_URL",
   ],
   cron: ["CRON_SECRET"],
+  markethive: ["MARKETHIVE_BASE_URL", "MARKETHIVE_SHARED_SECRET"],
 } as const satisfies Record<string, readonly Key[]>
 
 export type EnvGroup = keyof typeof ENV_GROUPS
@@ -135,18 +161,41 @@ export function requireEnv<G extends EnvGroup>(
 /** Called from instrumentation on server start. Malformed values always fail.
     Missing groups fail in production and are listed as warnings in development,
     so the studio still boots while integrations are added phase by phase. */
+/** The groups a deployment needs. Each mode drops the other's sign-in and
+    wallet; local storage drops R2; an in-process reconciler drops the cron secret. */
+export function groupsFor(e: Env): EnvGroup[] {
+  const skip = new Set<EnvGroup>(
+    e.STUDIO_MODE === "markethive" ? ["auth", "stripe"] : ["markethive"]
+  )
+  if (e.STORAGE_DRIVER === "local") skip.add("r2")
+  if (e.INTERNAL_CRON_SECONDS > 0) skip.add("cron")
+  return (Object.keys(ENV_GROUPS) as EnvGroup[]).filter((g) => !skip.has(g))
+}
+
 export function checkEnvAtBoot(
   source: Record<string, string | undefined> = process.env,
   production = source.NODE_ENV === "production"
 ): string[] {
   const parsed = parseEnv(source)
-  const gaps = (Object.keys(ENV_GROUPS) as EnvGroup[])
+  const missing = groupsFor(parsed)
     .map((group) => ({ group, missing: missingFor(parsed, group) }))
     .filter(({ missing }) => missing.length > 0)
+  const gaps = missing.map(
+    ({ group, missing }) => `${group}: ${missing.join(", ")}`
+  )
+  // BOOT_REQUIRED_GROUPS narrows what stops a production boot (D-061), e.g.
+  // "db,markethive" while an operator is still adding keys on a Docker host.
+  // Every feature still refuses at use through requireEnv, so nothing runs
+  // half-configured; the server just stays up to say what is missing.
+  const required = source.BOOT_REQUIRED_GROUPS?.trim()
+    ? new Set(source.BOOT_REQUIRED_GROUPS.split(",").map((g) => g.trim()))
+    : null
+  const fatal = missing
+    .filter(({ group }) => !required || required.has(group))
     .map(({ group, missing }) => `${group}: ${missing.join(", ")}`)
-  if (gaps.length && production)
+  if (fatal.length && production)
     throw new EnvError(
-      `Missing environment variables:\n  - ${gaps.join("\n  - ")}`
+      `Missing environment variables:\n  - ${fatal.join("\n  - ")}`
     )
   return gaps
 }

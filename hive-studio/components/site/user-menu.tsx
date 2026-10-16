@@ -12,8 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { useStudioMode } from "./studio-mode"
+
 export function UserMenu({ email, admin }: { email: string; admin: boolean }) {
   const initial = email.slice(0, 1).toUpperCase()
+  const { mode } = useStudioMode()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -32,9 +35,11 @@ export function UserMenu({ email, admin }: { email: string; admin: boolean }) {
         <DropdownMenuItem render={<Link href="/account" />}>
           Account
         </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/account/billing" />}>
-          Billing
-        </DropdownMenuItem>
+        {mode === "standalone" ? (
+          <DropdownMenuItem render={<Link href="/account/billing" />}>
+            Billing
+          </DropdownMenuItem>
+        ) : null}
         {admin ? (
           <DropdownMenuItem render={<Link href="/admin" />}>
             Admin

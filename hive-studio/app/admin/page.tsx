@@ -23,6 +23,7 @@ import type { AdminUserRow } from "@/lib/admin"
 import { cn } from "@/lib/utils"
 
 import { adminOr404 } from "./_lib/guard"
+import { isMarketHive } from "@/lib/mode"
 
 const one = (v: string | string[] | undefined) =>
   (Array.isArray(v) ? v[0] : v) ?? ""
@@ -207,14 +208,16 @@ function UserDetail({
         </div>
       </section>
 
-      <section>
-        <SectionTitle>Adjust credits</SectionTitle>
-        <CreditAdjustForm
-          key={user.id}
-          userId={user.id}
-          initialToken={randomUUID()}
-        />
-      </section>
+      {isMarketHive() ? null : (
+        <section>
+          <SectionTitle>Adjust credits</SectionTitle>
+          <CreditAdjustForm
+            key={user.id}
+            userId={user.id}
+            initialToken={randomUUID()}
+          />
+        </section>
+      )}
 
       <section className="min-w-0">
         <SectionTitle>Last 20 ledger entries</SectionTitle>

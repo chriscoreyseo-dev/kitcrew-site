@@ -196,6 +196,34 @@ export const INDEXES: readonly IndexDef[] = [
     key: { generationId: 1 },
     options: { name: "generation" },
   },
+  // markethive mode (D-056): members are keyed by MarketHive USER_ID; studio
+  // sessions and single-use handoff nonces expire on their own.
+  {
+    collection: "users",
+    key: { "markethive.memberId": 1 },
+    options: { name: "markethive_member_unique", unique: true, sparse: true },
+  },
+  {
+    collection: "mh_sessions",
+    key: { tokenHash: 1 },
+    options: { name: "token_unique", unique: true },
+  },
+  {
+    collection: "mh_sessions",
+    key: { expires: 1 },
+    options: { name: "expires_ttl", expireAfterSeconds: 0 },
+  },
+  {
+    collection: "handoff_nonces",
+    key: { usedAt: 1 },
+    options: { name: "used_ttl", expireAfterSeconds: 24 * 60 * 60 },
+  },
+  // Undelivered MarketHive refunds, retried by the reconciler (D-057).
+  {
+    collection: "generations",
+    key: { walletRefundPending: 1 },
+    options: { name: "wallet_refund_pending", sparse: true },
+  },
 ]
 
 export async function ensureIndexes(

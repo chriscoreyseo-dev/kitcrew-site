@@ -51,9 +51,10 @@ type UserBilling = {
 export class InsufficientCreditsError extends Error {
   constructor(
     readonly needed: number,
-    readonly available: number
+    readonly available: number,
+    message?: string
   ) {
-    super(`This needs ${needed} credits and you have ${available}.`)
+    super(message ?? `This needs ${needed} credits and you have ${available}.`)
     this.name = "InsufficientCreditsError"
   }
 }

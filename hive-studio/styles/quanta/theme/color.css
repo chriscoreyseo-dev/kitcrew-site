@@ -22,7 +22,7 @@
 
     --hf-color-border-default: var(--hf-color-transparent-dark-10);
     --hf-color-border-error: var(--hf-color-red-700);
-    --hf-color-border-focus: var(--hf-color-lime-500);
+    --hf-color-border-focus: var(--hf-color-hive-500);
     --hf-color-border-inverse: var(--hf-color-grey-550);
     --hf-color-border-strong: var(--hf-color-transparent-dark-20);
     --hf-color-border-subtle: var(--hf-color-transparent-dark-05);
@@ -34,12 +34,12 @@
     --hf-color-brand-green: var(--hf-color-green-500);
     --hf-color-brand-orange: var(--hf-color-orange-400);
     --hf-color-brand-pink: var(--hf-color-pink-500);
-    --hf-color-brand-primary: var(--hf-color-lime-500);
+    --hf-color-brand-primary: var(--hf-color-hive-500);
     --hf-color-brand-red: var(--hf-color-red-700);
     --hf-color-brand-yellow: var(--hf-color-yellow-500);
     --hf-color-brand-yellow-light: var(--hf-color-yellow-300);
 
-    --hf-color-button-brand: var(--hf-color-lime-500);
+    --hf-color-button-brand: var(--hf-color-hive-500);
     --hf-color-button-destructive: var(--hf-color-red-700);
     --hf-color-button-label-brand: var(--hf-color-grey-550);
     --hf-color-button-label-destructive: var(--hf-color-grey-050);
@@ -47,8 +47,8 @@
     --hf-color-button-secondary: var(--hf-color-neutral-100);
     --hf-color-button-tertiary: var(--hf-color-neutral-150);
 
-    --hf-color-icon-accent: var(--hf-color-lime-500);
-    --hf-color-icon-brand: var(--hf-color-lime-500);
+    --hf-color-icon-accent: var(--hf-color-hive-500);
+    --hf-color-icon-brand: var(--hf-color-hive-500);
     --hf-color-icon-disabled: var(--hf-color-grey-150);
     --hf-color-icon-error: var(--hf-color-red-700);
     --hf-color-icon-info: var(--hf-color-blue-500);
@@ -103,12 +103,12 @@
     --hf-color-state-warning-fg-soft: var(--hf-color-yellow-600);
     --hf-color-state-warning-glow: var(--hf-color-yellow-glow);
 
-    --hf-color-text-brand: var(--hf-color-lime-500);
+    --hf-color-text-brand: var(--hf-color-hive-500);
     --hf-color-text-danger: var(--hf-color-red-700);
     --hf-color-text-disabled: var(--hf-color-grey-150);
     --hf-color-text-info: var(--hf-color-blue-600);
     --hf-color-text-inverse: var(--hf-color-grey-050);
-    --hf-color-text-link: var(--hf-color-lime-500);
+    --hf-color-text-link: var(--hf-color-hive-500);
     --hf-color-text-on-overlay-secondary: var(--hf-color-transparent-dark-50);
     --hf-color-text-on-overlay-tertiary: var(--hf-color-transparent-dark-30);
     --hf-color-text-primary: var(--hf-color-grey-550);
@@ -117,18 +117,18 @@
     --hf-color-text-tertiary: var(--hf-color-grey-200);
     --hf-color-text-warning: var(--hf-color-orange-600);
 
-    --hf-color-transparent-lime-05: var(--hf-color-lime-alpha-05);
-    --hf-color-transparent-lime-10: var(--hf-color-lime-alpha-10);
-    --hf-color-transparent-lime-100: var(--hf-color-lime-alpha-100);
-    --hf-color-transparent-lime-15: var(--hf-color-lime-alpha-15);
-    --hf-color-transparent-lime-20: var(--hf-color-lime-alpha-20);
-    --hf-color-transparent-lime-30: var(--hf-color-lime-alpha-30);
-    --hf-color-transparent-lime-40: var(--hf-color-lime-alpha-40);
-    --hf-color-transparent-lime-50: var(--hf-color-lime-alpha-50);
-    --hf-color-transparent-lime-60: var(--hf-color-lime-alpha-60);
-    --hf-color-transparent-lime-70: var(--hf-color-lime-alpha-70);
-    --hf-color-transparent-lime-80: var(--hf-color-lime-alpha-80);
-    --hf-color-transparent-lime-90: var(--hf-color-lime-alpha-90);
+    --hf-color-transparent-lime-05: var(--hf-color-hive-alpha-05);
+    --hf-color-transparent-lime-10: var(--hf-color-hive-alpha-10);
+    --hf-color-transparent-lime-100: var(--hf-color-hive-alpha-100);
+    --hf-color-transparent-lime-15: var(--hf-color-hive-alpha-15);
+    --hf-color-transparent-lime-20: var(--hf-color-hive-alpha-20);
+    --hf-color-transparent-lime-30: var(--hf-color-hive-alpha-30);
+    --hf-color-transparent-lime-40: var(--hf-color-hive-alpha-40);
+    --hf-color-transparent-lime-50: var(--hf-color-hive-alpha-50);
+    --hf-color-transparent-lime-60: var(--hf-color-hive-alpha-60);
+    --hf-color-transparent-lime-70: var(--hf-color-hive-alpha-70);
+    --hf-color-transparent-lime-80: var(--hf-color-hive-alpha-80);
+    --hf-color-transparent-lime-90: var(--hf-color-hive-alpha-90);
     --hf-color-transparent-pink-05: var(--hf-color-pink-alpha-05);
     --hf-color-transparent-pink-10: var(--hf-color-pink-alpha-10);
     --hf-color-transparent-pink-100: var(--hf-color-pink-alpha-100);
@@ -157,7 +157,7 @@
 
     --hf-color-border-default: var(--hf-color-transparent-light-10);
     --hf-color-border-error: var(--hf-color-red-600);
-    --hf-color-border-focus: var(--hf-color-lime-500);
+    --hf-color-border-focus: var(--hf-color-hive-500);
     --hf-color-border-inverse: var(--hf-color-grey-050);
     --hf-color-border-strong: var(--hf-color-transparent-light-20);
     --hf-color-border-subtle: var(--hf-color-transparent-light-05);
@@ -169,12 +169,12 @@
     --hf-color-brand-green: var(--hf-color-green-500);
     --hf-color-brand-orange: var(--hf-color-orange-600);
     --hf-color-brand-pink: var(--hf-color-pink-500);
-    --hf-color-brand-primary: var(--hf-color-lime-500);
+    --hf-color-brand-primary: var(--hf-color-hive-500);
     --hf-color-brand-red: var(--hf-color-red-600);
     --hf-color-brand-yellow: var(--hf-color-yellow-500);
     --hf-color-brand-yellow-light: var(--hf-color-yellow-300);
 
-    --hf-color-button-brand: var(--hf-color-lime-500);
+    --hf-color-button-brand: var(--hf-color-hive-500);
     --hf-color-button-destructive: var(--hf-color-red-600);
     --hf-color-button-label-brand: var(--hf-color-grey-550);
     --hf-color-button-label-destructive: var(--hf-color-grey-050);
@@ -182,8 +182,8 @@
     --hf-color-button-secondary: var(--hf-color-cool-250);
     --hf-color-button-tertiary: var(--hf-color-cool-050);
 
-    --hf-color-icon-accent: var(--hf-color-lime-500);
-    --hf-color-icon-brand: var(--hf-color-lime-500);
+    --hf-color-icon-accent: var(--hf-color-hive-500);
+    --hf-color-icon-brand: var(--hf-color-hive-500);
     --hf-color-icon-disabled: var(--hf-color-cool-100);
     --hf-color-icon-error: var(--hf-color-red-600);
     --hf-color-icon-info: var(--hf-color-blue-500);
@@ -238,12 +238,12 @@
     --hf-color-state-warning-fg-soft: var(--hf-color-yellow-500);
     --hf-color-state-warning-glow: var(--hf-color-yellow-glow);
 
-    --hf-color-text-brand: var(--hf-color-lime-500);
+    --hf-color-text-brand: var(--hf-color-hive-500);
     --hf-color-text-danger: var(--hf-color-red-600);
     --hf-color-text-disabled: var(--hf-color-cool-100);
     --hf-color-text-info: var(--hf-color-blue-400);
     --hf-color-text-inverse: var(--hf-color-grey-550);
-    --hf-color-text-link: var(--hf-color-lime-500);
+    --hf-color-text-link: var(--hf-color-hive-500);
     --hf-color-text-on-overlay-secondary: var(--hf-color-transparent-light-50);
     --hf-color-text-on-overlay-tertiary: var(--hf-color-transparent-light-30);
     --hf-color-text-primary: var(--hf-color-grey-050);
@@ -252,18 +252,18 @@
     --hf-color-text-tertiary: var(--hf-color-grey-325);
     --hf-color-text-warning: var(--hf-color-yellow-700);
 
-    --hf-color-transparent-lime-05: var(--hf-color-lime-alpha-05);
-    --hf-color-transparent-lime-10: var(--hf-color-lime-alpha-10);
-    --hf-color-transparent-lime-100: var(--hf-color-lime-alpha-100);
-    --hf-color-transparent-lime-15: var(--hf-color-lime-alpha-15);
-    --hf-color-transparent-lime-20: var(--hf-color-lime-alpha-20);
-    --hf-color-transparent-lime-30: var(--hf-color-lime-alpha-30);
-    --hf-color-transparent-lime-40: var(--hf-color-lime-alpha-40);
-    --hf-color-transparent-lime-50: var(--hf-color-lime-alpha-50);
-    --hf-color-transparent-lime-60: var(--hf-color-lime-alpha-60);
-    --hf-color-transparent-lime-70: var(--hf-color-lime-alpha-70);
-    --hf-color-transparent-lime-80: var(--hf-color-lime-alpha-80);
-    --hf-color-transparent-lime-90: var(--hf-color-lime-alpha-90);
+    --hf-color-transparent-lime-05: var(--hf-color-hive-alpha-05);
+    --hf-color-transparent-lime-10: var(--hf-color-hive-alpha-10);
+    --hf-color-transparent-lime-100: var(--hf-color-hive-alpha-100);
+    --hf-color-transparent-lime-15: var(--hf-color-hive-alpha-15);
+    --hf-color-transparent-lime-20: var(--hf-color-hive-alpha-20);
+    --hf-color-transparent-lime-30: var(--hf-color-hive-alpha-30);
+    --hf-color-transparent-lime-40: var(--hf-color-hive-alpha-40);
+    --hf-color-transparent-lime-50: var(--hf-color-hive-alpha-50);
+    --hf-color-transparent-lime-60: var(--hf-color-hive-alpha-60);
+    --hf-color-transparent-lime-70: var(--hf-color-hive-alpha-70);
+    --hf-color-transparent-lime-80: var(--hf-color-hive-alpha-80);
+    --hf-color-transparent-lime-90: var(--hf-color-hive-alpha-90);
     --hf-color-transparent-pink-05: var(--hf-color-pink-alpha-05);
     --hf-color-transparent-pink-10: var(--hf-color-pink-alpha-10);
     --hf-color-transparent-pink-100: var(--hf-color-pink-alpha-100);

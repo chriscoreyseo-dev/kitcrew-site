@@ -58,6 +58,15 @@ export type GenerationDoc = {
   cost: number
   /** Which buckets the debit came from; refunds go back the same way. */
   costSplit?: { subscription: number; topup: number }
+  /** markethive mode: the charge lives in MarketHive's wallet, keyed by this
+      generation's id (D-057). `cost` is then in Hive-credit cents. */
+  wallet?: {
+    kind: "markethive"
+    memberId: number
+    state: "debiting" | "debited"
+  }
+  /** A MarketHive refund that couldn't be delivered yet; the reconciler retries. */
+  walletRefundPending?: boolean
   outputs: GenerationOutput[]
   error?: string
   /** Width / height for the feed before media loads. */

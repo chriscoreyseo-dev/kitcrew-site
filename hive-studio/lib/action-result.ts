@@ -8,6 +8,10 @@ import {
 } from "@/lib/billing/ledger"
 import { EnvError } from "@/lib/env"
 import {
+  WalletDeclinedError,
+  WalletUnavailableError,
+} from "@/lib/markethive/wallet"
+import {
   GenerationInputError,
   GenerationNotFoundError,
 } from "@/lib/generations/lifecycle"
@@ -55,6 +59,10 @@ export async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
       return { ok: false, code: "PARALLEL_LIMIT", message: error.message }
     if (error instanceof RateLimitedError)
       return { ok: false, code: "RATE_LIMITED", message: error.message }
+    if (error instanceof WalletDeclinedError)
+      return { ok: false, code: "INVALID", message: error.message }
+    if (error instanceof WalletUnavailableError)
+      return { ok: false, code: "UNAVAILABLE", message: error.message }
     if (error instanceof EnvError) {
       console.error(`[action] ${error.message}`)
       return {

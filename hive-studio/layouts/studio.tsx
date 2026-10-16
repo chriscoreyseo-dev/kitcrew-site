@@ -1,5 +1,6 @@
 "use client"
 
+import { useFormatCredits } from "@/components/site/studio-mode"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { ComponentProps } from "react"
@@ -387,6 +388,7 @@ export function StudioTemplate({
   )
   const inputMode = inferInputMode(model, media)
   // Same pure function the server charges with; rules arrive in credit units.
+  const fmt = useFormatCredits()
   const quote = priceFor(pricing[model.id]?.rule, settings, {
     markup: 1,
     creditUsdValue: 1,
@@ -588,7 +590,7 @@ export function StudioTemplate({
     generating,
     canceling,
     generateDisabled: !canGenerate,
-    cost: quote ? quote.credits.toLocaleString("en-US") : undefined,
+    cost: quote ? fmt(quote.credits) : undefined,
     disabledReason: prepared.error ?? undefined,
     error:
       localError ??

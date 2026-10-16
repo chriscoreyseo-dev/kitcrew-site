@@ -1,5 +1,6 @@
 import type { GenerationStatus as PlatformStatusPayload } from "@/lib/higgsfield/types"
 import { outputsOf } from "@/lib/higgsfield/types"
+import { isAllowedOutputUrl } from "@/lib/storage/keys"
 
 import { FAILURE_MESSAGES, platformErrorText } from "./model"
 import type { GenerationStatus } from "./model"
@@ -24,7 +25,7 @@ export function outcomeOf(payload: PlatformStatusPayload): Outcome {
       return { kind: "pending", status: payload.status }
     case "completed": {
       const outputs = outputsOf(payload).filter((o) =>
-        o.url.startsWith("https://")
+        isAllowedOutputUrl(o.url)
       )
       return outputs.length
         ? { kind: "completed", outputs }

@@ -1,5 +1,6 @@
 "use client"
 
+import { useFormatCredits } from "@/components/site/studio-mode"
 import { Clock, Info, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
@@ -105,6 +106,7 @@ export function GeneratorLayout({
   const [modeId, setModeId] = useState(initialMode.id)
   const mode = modes.find((m) => m.id === modeId) ?? modes[0]!
   const c = useComposer({ surface, models: mode.models, user, init })
+  const fmt = useFormatCredits()
   const router = useRouter()
   const [canvas, setCanvas] = useState<"history" | "how">("history")
   const copy = COPY[surface]
@@ -136,7 +138,7 @@ export function GeneratorLayout({
   }
 
   const generateLabel = c.quote
-    ? `Generate ✦ ${c.quote.credits.toLocaleString("en-US")}`
+    ? `Generate ✦ ${fmt(c.quote.credits)}`
     : "Generate"
 
   return (

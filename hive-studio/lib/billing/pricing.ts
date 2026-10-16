@@ -1,7 +1,10 @@
 import "server-only"
 
+import { MODELS } from "@/generation/catalog"
 import { db } from "@/lib/db/mongo"
 import { env } from "@/lib/env"
+import { walletPrices } from "@/lib/markethive/wallet"
+import { isMarketHive } from "@/lib/mode"
 
 import { priceFor } from "./price"
 import type { PriceRule, Quote } from "./price"
@@ -58,10 +61,43 @@ export function priceConfig() {
   return { markup: e.CREDIT_MARKUP, creditUsdValue: e.CREDIT_USD_VALUE }
 }
 
+/** markethive mode: a flat Hive-credit price per surface, set by MarketHive
+    (ADMIN_PARAMS), in cents. Same rule shape, so the client math is unchanged. */
+async function marketHiveRules(): Promise<
+  Record<string, { rule: PriceRule | null; enabled: boolean }>
+> {
+  const [prices, base] = await Promise.all([walletPrices(), effectivePricing()])
+  return Object.fromEntries(
+    MODELS.map((m) => {
+      const cents = prices[m.surface]
+      return [
+        m.id,
+        {
+          enabled: base[m.id]?.enabled ?? true,
+          rule:
+            cents === null
+              ? null
+              : ({ base: { kind: "per_run", usd: cents } } as PriceRule),
+        },
+      ]
+    })
+  )
+}
+
 export async function quoteFor(
   modelId: string,
   settings: Record<string, unknown>
 ): Promise<{ enabled: boolean; quote: Quote | null }> {
+  if (isMarketHive()) {
+    const entry = (await marketHiveRules())[modelId]
+    return {
+      enabled: entry?.enabled ?? true,
+      quote: priceFor(entry?.rule ?? null, settings, {
+        markup: 1,
+        creditUsdValue: 1,
+      }),
+    }
+  }
   const entry = (await effectivePricing())[modelId]
   return {
     enabled: entry?.enabled ?? true,
@@ -75,6 +111,7 @@ export async function quoteFor(
 export async function clientPricing(): Promise<
   Record<string, { rule: PriceRule | null; enabled: boolean }>
 > {
+  if (isMarketHive()) return marketHiveRules()
   const { markup, creditUsdValue } = priceConfig()
   const factor = markup / creditUsdValue
   return Object.fromEntries(

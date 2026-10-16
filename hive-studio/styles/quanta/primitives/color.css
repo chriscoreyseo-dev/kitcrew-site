@@ -72,6 +72,20 @@
   --hf-color-grey-550: #1a1a1a;
   --hf-color-grey-600: #000000;
 
+  /* Hive gold: MarketHive palette #D39725 (+ #FFFFFF), S566-DRL-01 / D-002. */
+  --hf-color-hive-500: #d39725;
+  --hf-color-hive-alpha-100: #d39725;
+  --hf-color-hive-alpha-05: #d397250d;
+  --hf-color-hive-alpha-10: #d397251a;
+  --hf-color-hive-alpha-15: #d3972526;
+  --hf-color-hive-alpha-20: #d3972533;
+  --hf-color-hive-alpha-30: #d397254d;
+  --hf-color-hive-alpha-40: #d3972566;
+  --hf-color-hive-alpha-50: #d3972580;
+  --hf-color-hive-alpha-60: #d3972599;
+  --hf-color-hive-alpha-70: #d39725b2;
+  --hf-color-hive-alpha-80: #d39725cc;
+  --hf-color-hive-alpha-90: #d39725e5;
   --hf-color-lime-100: #fbffec;
   --hf-color-lime-1000: #344006;
   --hf-color-lime-1100: #1f2603;

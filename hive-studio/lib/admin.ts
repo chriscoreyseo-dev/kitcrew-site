@@ -30,6 +30,7 @@ import type {
 import { presets, reports } from "@/lib/presets"
 import type { PresetDoc, ReportDoc } from "@/lib/presets"
 import type { Role } from "@/types/next-auth"
+import { isMarketHive } from "@/lib/mode"
 
 /** Admin queries and writes. Every caller has already passed requireAdmin();
     this module never checks roles itself. Nothing here returns hfRequestId. */
@@ -171,6 +172,11 @@ export async function adjustCredits(input: {
   note: string
   token: string
 }): Promise<{ applied: boolean; credits: Credits }> {
+  // markethive mode: balances live in MarketHive's wallet, not this ledger.
+  if (isMarketHive())
+    throw new GenerationInputError(
+      "Credits are managed in MarketHive for this studio."
+    )
   const userId = oid(input.userId, "User")
   const exists = await users().findOne({ _id: userId })
   if (!exists) throw new GenerationInputError("User not found.")

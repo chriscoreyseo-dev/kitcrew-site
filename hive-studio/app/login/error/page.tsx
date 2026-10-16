@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { AuthCard } from "@/components/auth/auth-card"
+import { MarketHiveSignIn } from "@/components/auth/markethive-signin"
 import { BRAND } from "@/lib/brand"
 
 export const metadata: Metadata = { title: "Sign-in problem · Hive Studio" }
@@ -19,7 +20,20 @@ export default async function LoginErrorPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const { error } = await searchParams
+  const { error, detail } = await searchParams
+  if (error === "MarketHive")
+    return (
+      <AuthCard
+        title="Couldn't sign you in"
+        description={
+          typeof detail === "string" && detail.length < 200
+            ? detail
+            : "This sign-in link isn't valid."
+        }
+      >
+        <MarketHiveSignIn />
+      </AuthCard>
+    )
   const message =
     (typeof error === "string" && MESSAGES[error]) ||
     "Something went wrong signing you in."

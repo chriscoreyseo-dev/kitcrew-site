@@ -3,8 +3,9 @@ import Link from "next/link"
 
 import { MODELS } from "@/generation/catalog"
 import { BRAND } from "@/lib/brand"
-import { balanceOf } from "@/lib/billing/ledger"
+import { balanceFor } from "@/lib/billing/wallet"
 import { NAV } from "@/lib/site-config"
+import { studioModeInfo } from "@/lib/mode-info"
 import { currentUser } from "@/lib/session"
 
 import { AuthButtons } from "./auth-buttons"
@@ -17,10 +18,16 @@ import { UserMenu } from "./user-menu"
     shows only when that surface has at least one verified model. */
 export async function SiteHeader() {
   const user = await currentUser()
+  const info = studioModeInfo()
+  // markethive mode: credits are bought on MarketHive, in the top window.
+  const upgrade =
+    info.mode === "markethive"
+      ? { href: info.creditsUrl ?? "/account", label: "Add credits", top: true }
+      : { href: "/pricing", label: "Upgrade", top: false }
   let balance: number | null = null
   if (user) {
     try {
-      const b = await balanceOf(user.id)
+      const b = await balanceFor(user.id)
       balance = b.subscription + b.topup
     } catch {
       balance = null
@@ -33,12 +40,13 @@ export async function SiteHeader() {
   const actions = user ? (
     <>
       {balance !== null ? <BalancePill initial={balance} /> : null}
-      <Link
-        href="/pricing"
+      <a
+        href={upgrade.href}
+        {...(upgrade.top ? { target: "_top" } : {})}
         className="hidden h-8 items-center rounded-full bg-primary px-3.5 text-sm font-semibold text-primary-foreground hover:bg-primary/85 sm:flex"
       >
-        Upgrade
-      </Link>
+        {upgrade.label}
+      </a>
       <UserMenu email={user.email} admin={user.role === "admin"} />
     </>
   ) : (
@@ -72,12 +80,13 @@ export async function SiteHeader() {
           items={items}
           footer={
             user ? (
-              <Link
-                href="/pricing"
+              <a
+                href={upgrade.href}
+                {...(upgrade.top ? { target: "_top" } : {})}
                 className="block rounded-xl bg-primary py-3 text-center font-semibold text-primary-foreground"
               >
-                Upgrade
-              </Link>
+                {upgrade.label}
+              </a>
             ) : null
           }
         />

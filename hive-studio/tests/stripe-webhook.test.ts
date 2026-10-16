@@ -14,6 +14,7 @@ vi.mock("@/lib/db/mongo", () => ({
   mongoClient: () => h.db.client,
 }))
 vi.mock("@/lib/env", () => ({
+  env: () => ({ STUDIO_MODE: "standalone" }),
   requireEnv: () => ({
     STRIPE_SECRET_KEY: "sk_test_dummy",
     STRIPE_WEBHOOK_SECRET: SECRET,

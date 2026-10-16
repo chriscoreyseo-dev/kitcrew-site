@@ -16,6 +16,7 @@ const SECRET_VARS = [
   "R2_ACCESS_KEY_ID",
   "R2_SECRET_ACCESS_KEY",
   "CRON_SECRET",
+  "MARKETHIVE_SHARED_SECRET",
 ]
 const PREFIXES = [
   /sk_(live|test)_[A-Za-z0-9]{10,}/,

@@ -7,31 +7,16 @@ import type { ReadableStream as WebReadableStream } from "node:stream/web"
 
 import { requireEnv } from "@/lib/env"
 
+import {
+  assertOutputSource,
+  MAX_OUTPUT_BYTES as MAX_BYTES,
+  outputKey,
+} from "./keys"
+
 /** Cloudflare R2 (S3 API). Higgsfield keeps outputs for ~7 days, so every
     finished output is streamed here and served from R2_PUBLIC_BASE_URL. */
 
-const MAX_BYTES = 2 * 1024 ** 3
-
-const EXT: Record<string, string> = {
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/webp": "webp",
-  "image/gif": "gif",
-  "video/mp4": "mp4",
-  "video/webm": "webm",
-  "video/quicktime": "mov",
-  "audio/mpeg": "mp3",
-  "audio/wav": "wav",
-  "audio/x-wav": "wav",
-  "audio/mp4": "m4a",
-  "audio/ogg": "ogg",
-}
-
-const FALLBACK: Record<"image" | "video" | "audio", [string, string]> = {
-  image: ["image/png", "png"],
-  video: ["video/mp4", "mp4"],
-  audio: ["audio/mpeg", "mp3"],
-}
+export { outputKey }
 
 let client: S3Client | undefined
 
@@ -46,23 +31,6 @@ function s3() {
     },
   })
   return { client, env }
-}
-
-/** `u/{userId}/{generationId}/{n}.{ext}`; ext from the real content type. */
-export function outputKey(
-  userId: string,
-  generationId: string,
-  index: number,
-  contentType: string,
-  kind: "image" | "video" | "audio"
-): { key: string; contentType: string } {
-  const type = contentType.split(";")[0]!.trim().toLowerCase()
-  const ext = EXT[type]
-  const [fallbackType, fallbackExt] = FALLBACK[kind]
-  return {
-    key: `u/${userId}/${generationId}/${index}.${ext ?? fallbackExt}`,
-    contentType: ext ? type : fallbackType,
-  }
 }
 
 export function publicUrl(key: string): string {
@@ -86,8 +54,7 @@ export async function copyToR2(input: {
   index: number
   kind: "image" | "video" | "audio"
 }): Promise<{ key: string; url: string; contentType: string; bytes: number }> {
-  const source = new URL(input.sourceUrl)
-  if (source.protocol !== "https:") throw new Error("Output URL is not https")
+  const source = assertOutputSource(input.sourceUrl)
   const response = await fetch(source, { signal: AbortSignal.timeout(120_000) })
   if (!response.ok || !response.body)
     throw new Error(`Output download failed (${response.status})`)

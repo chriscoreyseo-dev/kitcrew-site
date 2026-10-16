@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 
 import { AuthCard } from "@/components/auth/auth-card"
 import { LoginForm } from "@/components/auth/login-form"
+import { MarketHiveSignIn } from "@/components/auth/markethive-signin"
+import { isMarketHive } from "@/lib/mode"
 import { safeRedirect } from "@/lib/auth-email"
 import { currentUser } from "@/lib/session"
 
@@ -16,6 +18,12 @@ export default async function LoginPage({
   const params = await searchParams
   const next = safeRedirect(params.callbackUrl ?? params.next)
   if (await currentUser()) redirect(next)
+  if (isMarketHive())
+    return (
+      <AuthCard title="Sign in" description="Signed in through MarketHive.">
+        <MarketHiveSignIn />
+      </AuthCard>
+    )
   return (
     <AuthCard
       title="Sign in"

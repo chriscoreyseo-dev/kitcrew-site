@@ -5,6 +5,7 @@ import { handleStripeEvent } from "@/lib/billing/stripe-events"
 import { stripeEffects } from "@/lib/billing/stripe-effects"
 import { db } from "@/lib/db/mongo"
 import { requireEnv } from "@/lib/env"
+import { isMarketHive } from "@/lib/mode"
 import { stripe } from "@/lib/stripe"
 
 export const runtime = "nodejs"
@@ -20,6 +21,8 @@ type EventDoc = {
 /** Raw body → signature check → dedupe on event.id → handle. A failure
     removes the dedupe record and answers 500 so Stripe retries. */
 export async function POST(request: Request) {
+  // No Stripe in markethive mode (S566-DRL-01).
+  if (isMarketHive()) return new NextResponse("Not found", { status: 404 })
   const signature = request.headers.get("stripe-signature")
   const raw = await request.text()
   let event: Stripe.Event

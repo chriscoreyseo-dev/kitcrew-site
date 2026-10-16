@@ -390,3 +390,55 @@ higgsfield.ai is still blocked from the container (D-004), so no live screenshot
   - `{subject}` is filled from a fixed per-effect subject list in the script.
 - Hero media stays as brand art plus the user's own outputs (D-051), so no separate hero generation is needed.
 - **Not run here:** no keys in this sandbox. It was verified only to load and to fail fast on missing env.
+
+## 2026-10-15 — Two deployments (S566-DRL-01, S566-DRL-02) and Phase 8
+
+### D-055 One codebase, two deployments: `STUDIO_MODE`
+Chris ruled (S566): Hive Studio runs **inside MarketHive** behind a dashboard badge, paid in Hive credits, **and** as a public studio at studio.kitcrew.ai with its own sign-in and Stripe.
+- `STUDIO_MODE=standalone|markethive` is read **at runtime** (`lib/mode.ts`), so one Docker image serves either deployment. The browser learns the mode from the root layout (`StudioModeProvider`, `lib/mode-info.ts`; no secrets cross).
+- Shared in both: brand, models, generator UI, library, community, effects, admin.
+- Differs: sign-in (D-056), wallet and prices (D-057), framing (D-058).
+- `checkEnvAtBoot` only demands the groups the mode needs (`groupsFor`): markethive drops `auth` and `stripe`; standalone drops `markethive`.
+
+### D-056 markethive sign-in: signed handoff, our own session
+- The MarketHive badge asks MarketHive (logged-in member, CSRF-checked POST) for a fresh token and loads `/auth/markethive?token=…&next=/image` in the overlay iframe.
+- Token = `base64url(JSON claims) . base64url(HMAC-SHA256(secret, "hive-studio-handoff.v1." + payload))`. Claims: `v, mid` (MEMBERS.USER_ID), `email, name, admin` (MEMBERS.IS_ADMIN), `iat, exp, nonce`. Refused if older than 120 s, expired, tampered, or its nonce was already spent (`handoff_nonces`, unique `_id`, 24 h TTL).
+- A valid token upserts the user by `markethive.memberId` (unique sparse index), sets `role` from `admin` **on every sign-in** (MarketHive stays the source of truth), and opens an opaque studio session: 32 random bytes in cookie `hive_mh_session`, stored as a SHA-256 hash in `mh_sessions` (12 h TTL).
+- Cookie: `HttpOnly; Secure; SameSite=None; Partitioned; Path=/`. Partitioned (CHIPS) keeps it working in the third-party iframe without being a cross-site tracker. Verified in Chromium by the E2E dashboard test (studio on `localhost`, dashboard on `127.0.0.1` = cross-site).
+- No Auth.js in this mode: `/api/auth/*` and the Stripe webhook answer 404; login pages send members back to MarketHive (`target="_top"`).
+- Why not Auth.js database sessions: there is no email step or provider account, and the cookie needs `Partitioned`, which Auth.js's cookie config doesn't expose.
+
+### D-057 markethive wallet: MarketHive is the ledger of record
+- Hive credits are MarketHive's `MEMBER_DETAILS.VAULT_BALANCE` (dollars). The studio keeps them as **integer cents** and shows them with two decimals ("Hive credits").
+- MarketHive owns the price: `ADMIN_PARAMS` `HIVE_STUDIO_PRICE_IMAGE|VIDEO|AUDIO` (one flat price per generation per surface, **placeholders, staged for Chris**; empty = not priced = refused).
+- API: `POST {MARKETHIVE_BASE_URL}/hive_studio_api.php`, JSON `{action, member_id, ref?, surface?, model?}`, headers `x-hive-studio-ts` + `x-hive-studio-sig` = hex HMAC-SHA256(secret, `"hive-studio-wallet.v1\n" + ts + "\n" + body`), ±300 s. Actions: `prices`, `balance`, `debit` (idempotent on `ref`), `refund` (refunds a debited `ref` once; an unknown ref is a no-op).
+- Submit in this mode: the insert transaction still enforces the parallel limit (cost 0 in our ledger, `wallet.state = "debiting"`), then MarketHive debits by `ref` = generation id. A definite decline deletes the run (nothing ran, nothing charged). An unclear answer fails the run with `walletRefundPending` and refunds by ref; the reconciler retries undelivered refunds (step 4).
+- "Reserve" and "debit" are one step: MarketHive debits at submit and refunds on failure, so there is no separate capture call to lose.
+- Refunds go to whichever wallet the **run** records (`doc.wallet`), not the current mode.
+- Parallel limits for members: image 4, video 2, audio 2 (Starter's), since members have no studio plan.
+- A non-JSON reply is never read as success (dev3 answers 200 with HTML for unknown paths).
+- Why flat per-surface: the ruling asked for a per-generation price in ADMIN_PARAMS. Risk for Chris: a 10 s 1080p video costs Higgsfield far more than a 5 s 480p one at the same flat price; a per-second or per-model price is the follow-up if he wants it.
+
+### D-058 Framing and security headers, chosen at runtime
+`proxy.ts` now runs on every route (not just the private ones) and sets: CSP `frame-ancestors` (`'none'` standalone; the `MARKETHIVE_FRAME_ANCESTORS` origins in markethive mode, malformed entries dropped), `base-uri 'self'`, `object-src 'none'`, `form-action 'self'`; `X-Frame-Options: DENY` when unframeable; `Referrer-Policy`, `X-Content-Type-Options`, `Permissions-Policy`; HSTS when `APP_URL` is https. A full script CSP is not set: Next's inline bootstrap scripts would need nonces on every page (follow-up if wanted).
+
+### D-059 Docker deploy: standalone output, local storage, in-process reconciler
+- `next.config.ts` → `output: "standalone"`; `Dockerfile` (node 24 slim, pnpm via corepack, non-root, `/api/health` healthcheck that checks the JSON, not just a 200).
+- `STORAGE_DRIVER=local` writes outputs to `LOCAL_STORAGE_DIR` (a volume) and serves them at `/media/u/{user}/{generation}/{n}.{ext}` (exact key shape only, Range support). R2 stays the default and the choice for anything that scales out.
+- `INTERNAL_CRON_SECONDS` runs the reconciler in-process (no Vercel Cron on Docker). `DB_INIT_AT_BOOT=1` applies indexes on start.
+- `docker-compose.dev3.yml`: studio + `mongo:7.0` as a one-member replica set (transactions need it) + two named volumes. `docker-compose.standalone.yml`: studio.kitcrew.ai on a Docker host with Atlas + R2. `vercel.json` stays for the Vercel option. **studio.kitcrew.ai is not deployed**: the host is Chris's pick (new spend).
+- `packageManager: pnpm@12.11.2` pins the image's pnpm. `mingo` (tests only) is pinned to 7.2.4: 7.2.5 was under a day old and pnpm's release-age policy refused the lockfile.
+
+### D-060 Brand: MarketHive hive gold (resolves D-002)
+`#D39725` (hive gold) + `#FFFFFF`, from Tom's CLEANED.MH.LOGO group (S562, confirmed S566). Added `--hf-color-hive-500` and `--hf-color-hive-alpha-*` primitives; every semantic token that pointed at lime now points at hive gold. Button labels stay `#1a1a1a` on gold (6.9:1; white on gold would be 2.5:1 and fail AA). `pnpm brand:art` re-run.
+
+### D-061 `BOOT_REQUIRED_GROUPS`
+A Docker host gets its keys one at a time. `BOOT_REQUIRED_GROUPS=db,markethive` lets dev3 boot and report what is missing; every feature still refuses at use through `requireEnv`, so nothing runs half-configured. Empty (the default) keeps D-015's strict boot.
+
+### D-062 Phase 8 checkpoint
+- **Unit:** 182 tests (33 new): handoff and wallet signatures (including a fixed test vector the PHP side reproduces), the wallet client (cents, declines, HTML-200 guard, price cache), the markethive charge path on the in-memory Mongo (debit once, double click, insufficient, unpriced, platform failure and nsfw refunds, MarketHive down at debit and at refund then reconciler retry, parallel limit), env groups per mode, headers per mode, local storage (path safety, download, http guard).
+- **E2E (Playwright, `pnpm build && pnpm e2e`):** 11 tests, both modes, against the production build. `e2e/mocks/server.mjs` mocks Higgsfield, MarketHive (the wallet API with the same HMAC and idempotency rules as the PHP, plus a dashboard page that frames the studio) and Resend, and runs MongoDB as an in-memory replica set. Covered: framed handoff sign-in; frame-ancestors per mode; debit → completed output served from `/media`; failed run refunded once; insufficient credits → "Add credits on MarketHive"; admins-only gate; single-use and forged tokens; no Auth.js or Stripe in markethive mode; magic-link sign-in → spend 15 → failure refund → ledger rows (standalone).
+- On Windows the E2E runner uses `next start` (pnpm's symlinks inside `.next/standalone` can't be followed without Developer Mode); Linux and the Docker image run `server.js`.
+- `E2E_ALLOW_HTTP_OUTPUTS=1` lets the mock's plain-http localhost outputs through the https-only rule. Test-only; never set on a deployment.
+- `pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build` pass.
+- **Not verified here:** the Docker image build itself (no Docker on this machine; Coolify builds it), Safari's handling of the Partitioned cookie, and anything that needs Chris's keys.

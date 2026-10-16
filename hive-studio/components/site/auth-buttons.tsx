@@ -5,9 +5,22 @@ import { useState } from "react"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 import { Button } from "@/components/ui/button"
 
+import { useStudioMode } from "./studio-mode"
+
 /** Signed-out header actions; both open the magic-link modal (one flow signs up and in). */
 export function AuthButtons() {
   const [mode, setMode] = useState<"login" | "signup" | null>(null)
+  const studio = useStudioMode()
+  if (studio.mode === "markethive")
+    return studio.homeUrl ? (
+      <a
+        href={studio.homeUrl}
+        target="_top"
+        className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+      >
+        Sign in with MarketHive
+      </a>
+    ) : null
   return (
     <>
       <Button variant="ghost" size="sm" onClick={() => setMode("login")}>

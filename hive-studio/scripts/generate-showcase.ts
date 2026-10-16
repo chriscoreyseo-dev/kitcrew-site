@@ -24,7 +24,7 @@ import {
 } from "@/lib/generations/lifecycle"
 import { presets } from "@/lib/presets"
 import type { PresetDoc } from "@/lib/presets"
-import { isR2Configured } from "@/lib/storage/r2"
+import { isStorageConfigured } from "@/lib/storage"
 
 /** What fills `{subject}` in each starter effect's cover. */
 const SUBJECTS: Record<string, string> = {
@@ -98,7 +98,7 @@ async function main() {
   if (!values.email) throw new Error("Pass --email of an existing account.")
   requireEnv("db")
   requireEnv("higgsfield")
-  if (!isR2Configured())
+  if (!isStorageConfigured())
     throw new Error("Set the R2 vars first: covers must be stored durably.")
 
   const user = await db()

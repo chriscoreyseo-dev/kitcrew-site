@@ -4,7 +4,15 @@ import { AuthError } from "next-auth"
 
 import { MagicLinkRateLimitError, signIn, signOut } from "@/auth"
 import { AuthEmailError, normalizeEmail, safeRedirect } from "@/lib/auth-email"
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+
 import { EnvError } from "@/lib/env"
+import {
+  endMarketHiveSession,
+  MH_SESSION_COOKIE,
+} from "@/lib/markethive/session"
+import { isMarketHive } from "@/lib/mode"
 
 export type MagicLinkState =
   | { status: "idle" }
@@ -32,6 +40,11 @@ export async function requestMagicLink(
   _previous: MagicLinkState,
   form: FormData
 ): Promise<MagicLinkState> {
+  if (isMarketHive())
+    return {
+      status: "error",
+      message: "Sign in from your MarketHive dashboard.",
+    }
   let email: string
   try {
     email = normalizeEmail(String(form.get("email") ?? ""))
@@ -72,5 +85,18 @@ export async function requestMagicLink(
 }
 
 export async function signOutAction() {
+  if (isMarketHive()) {
+    const jar = await cookies()
+    await endMarketHiveSession(jar.get(MH_SESSION_COOKIE)?.value)
+    jar.set(MH_SESSION_COOKIE, "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      partitioned: true,
+      path: "/",
+      maxAge: 0,
+    })
+    redirect("/")
+  }
   await signOut({ redirectTo: "/" })
 }

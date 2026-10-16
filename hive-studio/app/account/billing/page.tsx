@@ -5,10 +5,11 @@ import { redirect } from "next/navigation"
 
 import { PortalButton } from "@/components/billing/portal-button"
 import { UpgradeOptions } from "@/components/billing/upgrade-options"
-import { balanceOf } from "@/lib/billing/ledger"
+import { balanceFor } from "@/lib/billing/wallet"
 import type { LedgerEntry } from "@/lib/billing/ledger"
 import { planOf } from "@/lib/billing/plans"
 import { db } from "@/lib/db/mongo"
+import { isMarketHive } from "@/lib/mode"
 import { currentUser } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Billing · Hive Studio" }
@@ -30,11 +31,13 @@ export default async function BillingPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
+  // markethive mode: MarketHive's wallet is the billing page (D-057).
+  if (isMarketHive()) redirect("/account")
   const user = await currentUser()
   if (!user) redirect("/login?next=/account/billing")
   const { checkout } = await searchParams
   const [balance, ledger, doc] = await Promise.all([
-    balanceOf(user.id),
+    balanceFor(user.id),
     db()
       .collection<LedgerEntry>("credit_ledger")
       .find({ userId: new ObjectId(user.id) })

@@ -33,3 +33,8 @@ next-env.d.ts
 _reference/
 .vercel/
 !.env.example
+
+# end-to-end runs
+/test-results
+/playwright-report
+/e2e/.data

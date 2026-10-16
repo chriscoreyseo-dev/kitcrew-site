@@ -10,7 +10,7 @@ import {
   createSubscriptionCheckout,
   createTopupCheckout,
 } from "@/lib/billing/checkout"
-import { balanceOf } from "@/lib/billing/ledger"
+import { balanceFor } from "@/lib/billing/wallet"
 import type { PriceRule } from "@/lib/billing/price"
 import { clientPricing } from "@/lib/billing/pricing"
 import { PLANS, TOPUPS, planOf, topupCredits } from "@/lib/billing/plans"
@@ -76,7 +76,7 @@ export async function portalAction(): Promise<ActionResult<{ url: string }>> {
 export async function balanceAction(): Promise<
   ActionResult<{ subscription: number; topup: number; plan: string }>
 > {
-  return run(async () => balanceOf((await signedIn()).id))
+  return run(async () => balanceFor((await signedIn()).id))
 }
 
 /** Public: price rules in credit units (no markup or upstream cost revealed),
@@ -106,7 +106,7 @@ export async function billingOptionsAction(): Promise<
   return run(async () => {
     const e = env() as unknown as Record<string, string | undefined>
     const user = await currentUser()
-    const plan = planOf(user ? (await balanceOf(user.id)).plan : "free")
+    const plan = planOf(user ? (await balanceFor(user.id)).plan : "free")
     const plans: BillingOption[] = (["starter", "plus", "ultra"] as const).map(
       (id) => {
         const p = PLANS[id]

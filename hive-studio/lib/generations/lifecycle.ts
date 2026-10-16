@@ -6,8 +6,11 @@ import { getModel, parseSettings } from "@/generation/catalog"
 import type { GenerationPlane } from "@/generation/catalog/types"
 import { toPlatform } from "@/generation/to-platform"
 import { refundGeneration } from "@/lib/billing/charges"
-import { insertChargedGeneration } from "@/lib/billing/ledger"
-import { planOf } from "@/lib/billing/plans"
+import {
+  chargeAndInsert,
+  parallelLimitFor,
+  retryWalletRefund,
+} from "@/lib/billing/wallet"
 import { quoteFor } from "@/lib/billing/pricing"
 import { db } from "@/lib/db/mongo"
 import { env } from "@/lib/env"
@@ -15,7 +18,7 @@ import { platform, PlatformError } from "@/lib/higgsfield"
 import { projectBelongsTo, uploads } from "@/lib/library"
 import { PlatformUnreachableError } from "@/lib/higgsfield/platform"
 import { webhookUrlFor } from "@/lib/higgsfield/webhook"
-import { copyToR2, deleteFromR2, isR2Configured } from "@/lib/storage/r2"
+import { deleteOutputs, isStorageConfigured, storeOutput } from "@/lib/storage"
 
 import {
   aspectFromSettings,
@@ -157,7 +160,7 @@ export async function submitGeneration(
   const owner = await db()
     .collection<{ _id: ObjectId; plan?: string }>("users")
     .findOne({ _id: userId }, { projection: { plan: 1 } })
-  const parallelLimit = planOf(owner?.plan).concurrency[model.surface]
+  const parallelLimit = parallelLimitFor(owner?.plan, model.surface)
 
   const now = new Date()
   const doc: GenerationDoc = {
@@ -188,7 +191,7 @@ export async function submitGeneration(
   }
   try {
     // Debit + per-plan parallel limit + insert, in one transaction.
-    Object.assign(doc, await insertChargedGeneration(doc, cost, parallelLimit))
+    Object.assign(doc, await chargeAndInsert(doc, cost, parallelLimit))
   } catch (error) {
     // Lost a double-click race on {userId, clientRequestId}: return the winner.
     // The loser's transaction rolled back, so it was never charged.
@@ -339,17 +342,17 @@ async function storeOutputs(
   doc: GenerationDoc,
   outputs: Array<{ kind: "image" | "video" | "audio"; url: string }>
 ): Promise<GenerationOutput[]> {
-  if (!isR2Configured()) {
+  if (!isStorageConfigured()) {
     if (process.env.NODE_ENV === "production")
-      throw new Error("R2 is not configured")
+      throw new Error("Output storage is not configured")
     console.warn(
-      "[generation] R2 not configured; keeping platform URLs (dev only, expire in ~7 days)"
+      "[generation] storage not configured; keeping platform URLs (dev only, expire in ~7 days)"
     )
     return outputs.map((o) => ({ kind: o.kind, url: o.url }))
   }
   const stored: GenerationOutput[] = []
   for (const [index, output] of outputs.entries()) {
-    const copy = await copyToR2({
+    const copy = await storeOutput({
       sourceUrl: output.url,
       userId: doc.userId.toHexString(),
       generationId: doc._id.toHexString(),
@@ -425,8 +428,8 @@ export async function deleteGeneration(
   await generations().deleteOne({ _id: doc._id, userId: doc.userId })
   const keys = doc.outputs.flatMap((o) => (o.r2Key ? [o.r2Key] : []))
   if (keys.length)
-    await deleteFromR2(keys).catch((error: unknown) =>
-      console.error("[generation] R2 delete failed", {
+    await deleteOutputs(keys).catch((error: unknown) =>
+      console.error("[generation] output delete failed", {
         id,
         error: String(error),
       })
@@ -438,6 +441,7 @@ export type ReconcileReport = {
   checked: number
   timedOut: number
   errors: number
+  refundsRetried: number
 }
 
 /** Cron (every minute) and the dev poller. Bounded per run. */
@@ -447,6 +451,7 @@ export async function reconcile(now = Date.now()): Promise<ReconcileReport> {
     checked: 0,
     timedOut: 0,
     errors: 0,
+    refundsRetried: 0,
   }
   const col = generations()
 
@@ -503,5 +508,12 @@ export async function reconcile(now = Date.now()): Promise<ReconcileReport> {
     await settleRefund(doc, "failed", FAILURE_MESSAGES.timedOut)
     report.timedOut += 1
   }
+
+  // 4. MarketHive refunds that couldn't be delivered (MarketHive was down).
+  for (const doc of await col
+    .find({ walletRefundPending: true })
+    .limit(50)
+    .toArray())
+    if (await retryWalletRefund(doc)) report.refundsRetried += 1
   return report
 }

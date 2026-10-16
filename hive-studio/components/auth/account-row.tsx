@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useFormatCredits } from "@/components/site/studio-mode"
 import { cn } from "@/lib/utils"
 
 /** Sidebar footer: who is signed in + sign out, or a Sign in button. */
@@ -25,6 +26,7 @@ export function AccountRow({
   balance?: number | null
   onBuyCredits?: () => void
 }) {
+  const fmt = useFormatCredits()
   if (!email)
     return (
       <Button
@@ -49,11 +51,11 @@ export function AccountRow({
             collapsed && "justify-center px-0"
           )}
           onClick={onBuyCredits}
-          aria-label={`${balance.toLocaleString("en-US")} credits. Get more credits`}
+          aria-label={`${fmt(balance)} credits. Get more credits`}
           title="Get more credits"
         >
           <Sparkles aria-hidden className="text-primary" />
-          {collapsed ? null : balance.toLocaleString("en-US")}
+          {collapsed ? null : fmt(balance)}
         </Button>
       ) : null}
       <form

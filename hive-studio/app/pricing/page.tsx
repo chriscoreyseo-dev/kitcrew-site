@@ -1,13 +1,15 @@
 import type { Metadata } from "next"
 
 import { UpgradeOptions } from "@/components/billing/upgrade-options"
+import { MarketHivePricing } from "@/components/pricing/markethive-pricing"
 import { PlanCards } from "@/components/pricing/plan-cards"
 import type { PlanCard } from "@/components/pricing/plan-cards"
 import { Page, SectionTitle } from "@/components/site/page"
 import { billingOptionsAction } from "@/generation/billing-actions"
-import { balanceOf } from "@/lib/billing/ledger"
+import { balanceFor } from "@/lib/billing/wallet"
 import { PLANS } from "@/lib/billing/plans"
 import type { PlanId } from "@/lib/billing/plans"
+import { isMarketHive } from "@/lib/mode"
 import { currentUser } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Pricing · Hive Studio" }
@@ -36,11 +38,12 @@ const FAQ: [string, string][] = [
 ]
 
 export default async function PricingPage() {
+  if (isMarketHive()) return <MarketHivePricing />
   const user = await currentUser()
   const [options, current] = await Promise.all([
     billingOptionsAction(),
     user
-      ? balanceOf(user.id)
+      ? balanceFor(user.id)
           .then((b) => b.plan)
           .catch(() => "free")
       : Promise.resolve("free"),

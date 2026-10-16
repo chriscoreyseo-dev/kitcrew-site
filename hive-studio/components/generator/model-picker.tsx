@@ -1,5 +1,6 @@
 "use client"
 
+import { useFormatCredits, useStudioMode } from "@/components/site/studio-mode"
 /* eslint-disable @next/next/no-img-element */
 import { Search } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -137,6 +138,8 @@ export function ModelPickerDialog({
   onSelect: (id: string) => void
   quoteOf: (model: ModelEntry) => Quote | null
 }) {
+  const fmt = useFormatCredits()
+  const { unit } = useStudioMode()
   const [query, setQuery] = useState("")
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -163,7 +166,8 @@ export function ModelPickerDialog({
         <DialogHeader>
           <DialogTitle>Choose a model</DialogTitle>
           <DialogDescription>
-            Every model below runs on the same credits.
+            Every model below runs on the same{" "}
+            {unit === "hive" ? "Hive credits" : "credits"}.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -207,7 +211,9 @@ export function ModelPickerDialog({
                             {m.label}
                           </span>
                           <span className="font-mono text-xs text-muted-foreground">
-                            {quote ? `from ✦${quote.credits}` : "Price pending"}
+                            {quote
+                              ? `from ✦${fmt(quote.credits)}`
+                              : "Price pending"}
                           </span>
                         </span>
                         {meta ? (
