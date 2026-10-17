@@ -12,7 +12,15 @@ import type { PriceRule } from "./price"
         multipliers: { resolution: { "1080p": 1.5 } } }
 */
 export const PRICING_TABLE: Record<string, PriceRule | null> = {
-  "soul-2": null,
+  // Higgsfield API list price, read from open.higgsfield.ai 2026-10-17 (S577):
+  // $0.0032/image at 720p, $0.0057 at 1080p; batch of 4 = 4 images.
+  "soul-2": {
+    base: { kind: "per_image", usd: 0.0032 },
+    multipliers: {
+      resolution: { "1080p": 0.0057 / 0.0032 },
+      batchSize: { "4": 4 },
+    },
+  },
   "soul-cinema": null,
   "seedance-2.5": null,
   "seedance-2.5-edit": null,
