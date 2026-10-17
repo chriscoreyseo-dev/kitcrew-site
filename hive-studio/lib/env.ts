@@ -80,6 +80,10 @@ const schema = z.object({
   ),
   /** Where "Add credits" sends a member (MarketHive's own wallet page). */
   MARKETHIVE_CREDITS_URL: url.optional(),
+  /** MarketHive mode prices every run from Higgsfield's real cost (S577-DRL-02):
+      MarketHive credits (dollars) = Higgsfield USD x this markup. 1 = at cost
+      (dev3, Chris's own account); production sets its markup (Chris's ruling). */
+  MARKETHIVE_MARKUP: z.coerce.number().min(1).default(1),
 
   /** Who may spend the platform key in production. "admins" until billing
       ships (Phase 5); then "everyone". Development is always open to

@@ -142,12 +142,15 @@ export async function walletDebit(input: {
   ref: string
   surface: Surface
   model: string
+  /** The run's price in MarketHive cents: Higgsfield cost x markup (S577-DRL-02). */
+  amountCents: number
 }): Promise<{ charged: number; balance: number }> {
   const data = await call("debit", {
     member_id: input.memberId,
     ref: input.ref,
     surface: input.surface,
     model: input.model,
+    amount: (Math.max(0, Math.round(input.amountCents)) / 100).toFixed(2),
   })
   const charged = toCents(data.charged)
   if (charged === null || charged < 0)

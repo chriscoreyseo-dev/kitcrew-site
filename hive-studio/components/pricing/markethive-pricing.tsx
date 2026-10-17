@@ -1,8 +1,5 @@
 import { Page, SectionTitle } from "@/components/site/page"
 import { MARKETHIVE_CONCURRENCY } from "@/lib/billing/wallet"
-import { formatCredits } from "@/lib/credits-format"
-import { walletPrices } from "@/lib/markethive/wallet"
-import type { WalletPrices } from "@/lib/markethive/wallet"
 import { studioModeInfo } from "@/lib/mode-info"
 
 const SURFACES = [
@@ -11,11 +8,11 @@ const SURFACES = [
   ["audio", "Audio"],
 ] as const
 
-/** markethive mode pricing: one Hive-credit price per generation, set by
-    MarketHive (ADMIN_PARAMS). No plans, no checkout here (D-057). */
+/** markethive mode pricing (S577-DRL-02): each run is priced from what it
+    really costs to make, so longer or higher-resolution runs cost more. No
+    plans, no checkout here (D-057). */
 export async function MarketHivePricing() {
   const info = studioModeInfo()
-  const prices: WalletPrices | null = await walletPrices().catch(() => null)
   return (
     <Page
       title="Pricing"
@@ -24,16 +21,13 @@ export async function MarketHivePricing() {
     >
       <section className="grid gap-3 sm:grid-cols-3">
         {SURFACES.map(([id, label]) => {
-          const cents = prices?.[id] ?? null
           return (
             <div key={id} className="rounded-2xl border border-white/10 p-4">
               <p className="text-xs text-muted-foreground uppercase">
                 {label} generation
               </p>
-              <p className="mt-1 font-mono text-2xl font-semibold">
-                {cents === null
-                  ? "Coming soon"
-                  : `✦ ${formatCredits(cents, "hive")}`}
+              <p className="mt-1 text-sm font-semibold">
+                Priced per run by model, length and size
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Up to {MARKETHIVE_CONCURRENCY[id]} at once

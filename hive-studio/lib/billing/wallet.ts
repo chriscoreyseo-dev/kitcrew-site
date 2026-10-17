@@ -86,6 +86,7 @@ export async function chargeAndInsert(
       ref,
       surface: doc.surface,
       model: doc.modelId,
+      amountCents: cost,
     })
     await runs.updateOne(
       { _id: pending._id },

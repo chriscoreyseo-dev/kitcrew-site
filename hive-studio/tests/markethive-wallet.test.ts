@@ -69,12 +69,31 @@ describe("MarketHive wallet client", () => {
         ref: "a".repeat(24),
         surface: "image",
         model: "m",
+        amountCents: 125,
       })
       .catch((e: unknown) => e)
     expect(error).toBeInstanceOf(wallet.WalletDeclinedError)
     expect(
       (error as InstanceType<typeof wallet.WalletDeclinedError>).balance
     ).toBe(20)
+  })
+
+  it("sends the run's cost-based amount in dollars (S577-DRL-02)", async () => {
+    reply = () => json({ ok: true, charged: "1.25", balance: "8.75" })
+    const out = await wallet.walletDebit({
+      memberId: 7,
+      ref: "c".repeat(24),
+      surface: "video",
+      model: "m",
+      amountCents: 125,
+    })
+    const body = JSON.parse(seen[seen.length - 1]!.body)
+    expect(body).toMatchObject({
+      action: "debit",
+      member_id: 7,
+      amount: "1.25",
+    })
+    expect(out).toEqual({ charged: 125, balance: 875 })
   })
 
   it("never reads an HTML 200 (dev3's catch-all) as success", async () => {
