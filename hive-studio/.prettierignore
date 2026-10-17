@@ -1,0 +1,11 @@
+dist/
+node_modules/
+.next/
+.turbo/
+coverage/
+pnpm-lock.yaml
+.pnpm-store/
+next-env.d.ts
+generation/catalog/models.generated.ts
+_reference/
+scripts/sync-models.mjs
