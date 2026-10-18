@@ -32,8 +32,9 @@ services:
       HF_CREDENTIALS: ${HF_CREDENTIALS}                       # SECRET (Higgsfield key_id:key_secret)
       HF_WEBHOOK_SECRET: ${HF_WEBHOOK_SECRET}                 # SECRET (32+ random chars)
       HF_WEBHOOK_BASE_URL: ${HF_WEBHOOK_BASE_URL:-}
-      # "admins" = only MarketHive admins can generate; "everyone" opens it to members.
-      GENERATION_ACCESS: ${GENERATION_ACCESS:-admins}
+      # "everyone" = every member with Vault credits (S580-DRL-03: open at launch);
+      # "admins" limits generation to MarketHive admins.
+      GENERATION_ACCESS: ${GENERATION_ACCESS:-everyone}
     volumes:
       - studio-media:/data/media
     depends_on:
