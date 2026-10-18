@@ -71,16 +71,19 @@ function DialogContent({
   children,
   size = "md",
   initialFocus,
+  overlayClassName,
   ...props
 }: DialogPrimitive.Popup.Props & {
   /** Card width preset: xs 349, sm 469, md 640, lg 708, xl 946, 2xl 1392px. */
   size?: DialogSize
+  /** Extra classes for the backdrop, e.g. to stack above another overlay. */
+  overlayClassName?: string
 }) {
   // Focus the card itself so opening doesn't ring the close button.
   const popupRef = React.useRef<HTMLDivElement>(null)
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Popup
         ref={popupRef}
         initialFocus={initialFocus ?? popupRef}

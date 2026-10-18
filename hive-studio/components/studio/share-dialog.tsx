@@ -122,7 +122,9 @@ export function ShareDialog({
 
   return (
     <Dialog open={target != null} onOpenChange={onOpenChange}>
-      <DialogContent size="sm">
+      {/* Opened from the full-screen generation view (z-50) as well as the
+          gallery, so it stacks above that view, not under it (S581). */}
+      <DialogContent size="sm" className="z-[60]!" overlayClassName="z-[60]!">
         <DialogHeader>
           <DialogTitle>Share your link</DialogTitle>
           <DialogDescription>
