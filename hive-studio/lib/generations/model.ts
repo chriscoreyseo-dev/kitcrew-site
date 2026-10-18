@@ -73,6 +73,9 @@ export type GenerationDoc = {
   aspect: number
   isPublic: boolean
   publishedAt?: Date
+  /** Set when the owner clicks Share (S581): the run's files become public and
+      it gets a MarketHive share page (lib/sharing.ts). */
+  sharedAt?: Date
   presetId?: string
   createdAt: Date
   updatedAt: Date

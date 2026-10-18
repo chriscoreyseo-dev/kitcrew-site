@@ -121,8 +121,9 @@ export async function mediaAccess(
       {
         _id: new ObjectId(generationId),
         userId: new ObjectId(ownerId),
-        isPublic: true,
         status: "completed",
+        // Published to Community, or shared by its owner (S581).
+        $or: [{ isPublic: true }, { sharedAt: { $exists: true } }],
       },
       { projection: { _id: 1 } }
     )

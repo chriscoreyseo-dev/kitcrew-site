@@ -18,6 +18,7 @@ import {
   GenerationTile,
   type CardAction,
 } from "@/components/studio/generation-card"
+import { ShareDialog, type ShareTarget } from "@/components/studio/share-dialog"
 
 import type { TileRect } from "./justified-engine"
 import type { GalleryItem, LoadTier, TileActions } from "./gallery-types"
@@ -43,6 +44,18 @@ function rectStyle(rect: TileRect, top: number): CSSProperties {
 
 async function copyText(text: string) {
   await navigator.clipboard?.writeText(text)
+}
+
+/** Item ids are the run id, or "<run id>:<n>" for image n of a multi-image run. */
+export function shareTargetFor(item: GalleryItem): ShareTarget {
+  const n = item.id.startsWith(`${item.runId}:`)
+    ? Number(item.id.slice(item.runId.length + 1))
+    : 0
+  return {
+    runId: item.runId,
+    index: Number.isInteger(n) && n > 0 ? n : 0,
+    mediaUrl: item.videoSrc ?? item.src,
+  }
 }
 
 function Placeholder() {
@@ -135,6 +148,7 @@ function GalleryTileComponent({
   extraActions,
 }: GalleryTileProps) {
   const [hovered, setHovered] = useState(false)
+  const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null)
   const style = rectStyle(rect, top)
 
   if (item.status === "generating") {
@@ -202,15 +216,8 @@ function GalleryTileComponent({
       id: "share",
       label: "Share",
       icon: Share2,
-      onSelect: () => {
-        const url = new URL(item.videoSrc ?? item.src, window.location.href)
-          .href
-        if (navigator.share)
-          void navigator
-            .share({ text: item.prompt, url })
-            .catch(() => undefined)
-        else void copyText(`${item.prompt}\n${url}`)
-      },
+      // S581: the member's own MarketHive link (the raw /media URL is private).
+      onSelect: () => setShareTarget(shareTargetFor(item)),
     },
     ...(extraActions?.onReuse
       ? [
@@ -272,12 +279,19 @@ function GalleryTileComponent({
           model: item.modelLabel,
           createdAt: item.createdAt,
           settings: item.settings,
+          onShare: () => setShareTarget(shareTargetFor(item)),
         }}
         openLabel={`Open generation: ${item.prompt}`}
         onMouseEnter={isVideo ? () => setHovered(true) : undefined}
         onMouseLeave={isVideo ? () => setHovered(false) : undefined}
         onFocus={isVideo ? () => setHovered(true) : undefined}
         onBlur={isVideo ? () => setHovered(false) : undefined}
+      />
+      <ShareDialog
+        target={shareTarget}
+        onOpenChange={(open) => {
+          if (!open) setShareTarget(null)
+        }}
       />
     </div>
   )

@@ -25,6 +25,8 @@ export interface GenerationDetail {
   model?: string
   createdAt?: number
   settings?: Record<string, unknown>
+  /** Opens the member's Share panel (S581); without it Share shares the file URL. */
+  onShare?: () => void
 }
 
 export interface GenerationDetailRow {
@@ -202,6 +204,7 @@ export function GenerationDetailModal({
                     size="icon"
                     aria-label="Share"
                     onClick={() => {
+                      if (generation.onShare) return generation.onShare()
                       const url = new URL(generation.src, window.location.href)
                         .href
                       if (navigator.share)
