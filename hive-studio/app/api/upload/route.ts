@@ -6,17 +6,17 @@ import {
   requireUploadContentType,
 } from "@/generation/upload-contract"
 import { assertCanGenerate, GenerationForbiddenError } from "@/lib/access"
-import { EnvError } from "@/lib/env"
+import { env, EnvError } from "@/lib/env"
 import { platform, PlatformError } from "@/lib/higgsfield"
 import { UPLOAD_MAX_BYTES, uploads } from "@/lib/library"
 import { hit } from "@/lib/rate-limit"
+import { isSameOrigin } from "@/lib/same-origin"
 import { currentUser } from "@/lib/session"
 
 /** Issues a signed upload URL and records its public URL server-side, so the
     browser can only ever reference files it really uploaded. */
 export async function POST(request: Request): Promise<NextResponse> {
-  const origin = request.headers.get("origin")
-  if (origin && origin !== new URL(request.url).origin)
+  if (!isSameOrigin(request.headers.get("origin"), request.url, env().APP_URL))
     return failure(403, "Cross-origin upload requests are not allowed.")
 
   const user = await currentUser()
