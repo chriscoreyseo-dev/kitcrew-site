@@ -1,0 +1,65 @@
+# MarketHive PRODUCTION: Hive Studio in markethive mode on MarketHive's
+# production Coolify (docker-compose build pack, base directory /hive-studio).
+# Same shape as docker-compose.dev3.yml; only the MarketHive URLs, the domain
+# fallback and who may generate differ. See docs/runbook.md "Production".
+#
+# Values marked SECRET are set by the operator in Coolify's Environment
+# Variables screen, never here and never by KitFire.
+services:
+  studio:
+    build: .
+    restart: unless-stopped
+    environment:
+      STUDIO_MODE: markethive
+      # The domain set on this service in Coolify (Domains tab).
+      APP_URL: ${SERVICE_URL_STUDIO:-https://hive-studio.49.13.93.22.sslip.io}
+      MONGODB_URI: mongodb://mongo:27017/?replicaSet=rs0&directConnection=true
+      MONGODB_DB: hive-studio
+      DB_INIT_AT_BOOT: "1"
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /data/media
+      INTERNAL_CRON_SECONDS: "60"
+      # Boots on the database alone while keys are added; each feature refuses
+      # until its keys exist. Tighten to db,markethive,higgsfield,webhooks once set.
+      BOOT_REQUIRED_GROUPS: ${BOOT_REQUIRED_GROUPS:-db}
+      MARKETHIVE_BASE_URL: ${MARKETHIVE_BASE_URL:-https://markethive.com}
+      MARKETHIVE_FRAME_ANCESTORS: ${MARKETHIVE_FRAME_ANCESTORS:-https://markethive.com https://www.markethive.com}
+      MARKETHIVE_CREDITS_URL: ${MARKETHIVE_CREDITS_URL:-}
+      # Member price = Higgsfield list cost x this (S580-DRL-02: 50% for MarketHive).
+      MARKETHIVE_MARKUP: ${MARKETHIVE_MARKUP:-1.5}
+      MARKETHIVE_SHARED_SECRET: ${MARKETHIVE_SHARED_SECRET}   # SECRET (same value as production MarketHive's MH_HIVE_STUDIO_SECRET; NOT dev3's)
+      HF_API_BASE_URL: ${HF_API_BASE_URL:-https://api.higgsfield.ai}
+      HF_CREDENTIALS: ${HF_CREDENTIALS}                       # SECRET (Higgsfield key_id:key_secret)
+      HF_WEBHOOK_SECRET: ${HF_WEBHOOK_SECRET}                 # SECRET (32+ random chars)
+      HF_WEBHOOK_BASE_URL: ${HF_WEBHOOK_BASE_URL:-}
+      # "admins" = only MarketHive admins can generate; "everyone" opens it to members.
+      GENERATION_ACCESS: ${GENERATION_ACCESS:-admins}
+    volumes:
+      - studio-media:/data/media
+    depends_on:
+      mongo:
+        condition: service_healthy
+    expose:
+      - "3000"
+
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - studio-mongo:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok }"
+      interval: 10s
+      timeout: 10s
+      start_period: 20s
+      retries: 12
+
+volumes:
+  studio-media:
+  studio-mongo:
