@@ -19,6 +19,7 @@ import { projectBelongsTo, uploads } from "@/lib/library"
 import { PlatformUnreachableError } from "@/lib/higgsfield/platform"
 import { webhookUrlFor } from "@/lib/higgsfield/webhook"
 import { deleteOutputs, isStorageConfigured, storeOutput } from "@/lib/storage"
+import { signLocalMediaUrls } from "@/lib/storage/media-access"
 
 import {
   aspectFromSettings,
@@ -209,7 +210,8 @@ export async function submitGeneration(
   try {
     const queued = await platform().submit(
       request.path,
-      request.body,
+      // The platform fetches /media inputs with no cookie (D-063).
+      signLocalMediaUrls(request.body),
       webhookUrlFor(id, webhookEnv())
     )
     const at = new Date()

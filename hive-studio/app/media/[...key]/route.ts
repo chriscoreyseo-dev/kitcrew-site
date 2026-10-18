@@ -2,17 +2,34 @@ import { createReadStream } from "node:fs"
 import { Readable } from "node:stream"
 
 import { env } from "@/lib/env"
+import { currentUser } from "@/lib/session"
 import { CONTENT_TYPE_BY_EXT } from "@/lib/storage/keys"
 import { LOCAL_KEY, localFileSize, localPath } from "@/lib/storage/local"
+import { mediaAccess, verifyMediaSignature } from "@/lib/storage/media-access"
+import type { MediaAccess } from "@/lib/storage/media-access"
 
 /** Serves outputs kept on the local volume (STORAGE_DRIVER=local, D-059).
-    Same exposure as R2 public URLs: keys are two ObjectIds deep and only the
-    exact key shape is served. Range requests let videos seek. */
+    Only the exact key shape is served, and only to someone allowed to see it
+    (D-063, lib/storage/media-access.ts): the owner, an admin, anyone for a
+    published or cover item, or a signed link. Everything else, including a
+    file that doesn't exist, is the same 404. Range requests let videos seek. */
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const notFound = () => new Response("Not found", { status: 404 })
+const notFound = () =>
+  new Response("Not found", {
+    status: 404,
+    // A 404 before sign-in must not stick once the member signs in.
+    headers: { "Cache-Control": "no-store" },
+  })
+
+async function accessFor(request: Request, key: string): Promise<MediaAccess> {
+  const query = new URL(request.url).searchParams
+  if (verifyMediaSignature(key, query.get("exp"), query.get("sig")))
+    return "private"
+  return mediaAccess(key, await currentUser())
+}
 
 export async function GET(
   request: Request,
@@ -21,13 +38,20 @@ export async function GET(
   if (env().STORAGE_DRIVER !== "local") return notFound()
   const key = (await params).key.join("/")
   if (!LOCAL_KEY.test(key)) return notFound()
+  const access = await accessFor(request, key)
+  if (!access) return notFound()
   const size = await localFileSize(key)
   if (size === null) return notFound()
 
   const ext = key.slice(key.lastIndexOf(".") + 1)
   const headers = new Headers({
     "Content-Type": CONTENT_TYPE_BY_EXT[ext] ?? "application/octet-stream",
-    "Cache-Control": "public, max-age=31536000, immutable",
+    // Private media stays in the viewer's own browser cache, never a shared
+    // one; published media is short-lived so unpublishing takes effect.
+    "Cache-Control":
+      access === "public"
+        ? "public, max-age=300"
+        : "private, max-age=86400, immutable",
     "Accept-Ranges": "bytes",
     "X-Content-Type-Options": "nosniff",
     // Media may be shown inside MarketHive's overlay or downloaded elsewhere.

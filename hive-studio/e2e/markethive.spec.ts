@@ -45,6 +45,31 @@ test("the dashboard overlay frames the studio and the handoff signs the member i
   ).toBeVisible()
 })
 
+test("inside the MarketHive frame the member's own output loads; a bare request is refused", async ({
+  page,
+  request,
+}) => {
+  await page.goto(`${MOCK}/dashboard?mid=101`)
+  const studio = page.frameLocator("#studio")
+  await studio.locator("textarea").fill("a hive inside the overlay")
+  // Price-agnostic: MarketHive prices each model (S577-DRL-02).
+  await studio.getByRole("button", { name: /^Generate ✦/i }).click()
+  const image = studio.locator('img[src*="/media/u/"]').first()
+  await expect(image).toBeVisible({ timeout: 45_000 })
+  // Decoded, not a broken image: the Partitioned cookie rode along (D-063).
+  await expect
+    .poll(() =>
+      image.evaluate((el: HTMLImageElement) =>
+        el.complete ? el.naturalWidth : 0
+      )
+    )
+    .toBeGreaterThan(0)
+  const src = (await image.getAttribute("src"))!
+  // `request` carries no cookie: a guessed URL gets the same 404 as a missing file.
+  const bare = await request.get(new URL(src, "http://localhost:3101").href)
+  expect(bare.status()).toBe(404)
+})
+
 test("only MarketHive may frame the studio", async ({ request }) => {
   const response = await request.get("/image")
   const csp = response.headers()["content-security-policy"] ?? ""

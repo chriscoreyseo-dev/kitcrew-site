@@ -56,6 +56,9 @@ vi.mock("@/lib/storage/r2", () => ({
   },
 }))
 
+// Signs /media inputs for the platform (D-063). Read lazily by env().
+vi.stubEnv("HF_WEBHOOK_SECRET", "s".repeat(40))
+
 const { PlatformError, PlatformUnreachableError } =
   await import("@/lib/higgsfield/platform")
 const life = await import("@/lib/generations/lifecycle")
@@ -179,6 +182,32 @@ describe("submit", () => {
       })
     )
     expect(doc.status).toBe("queued")
+  })
+
+  it("hands the platform a signed link to the user's own /media output", async () => {
+    const gen = new ObjectId().toHexString()
+    const url = `http://localhost:3000/media/u/${USER}/${gen}/0.png`
+    await gens().insertOne({
+      _id: new ObjectId(gen),
+      userId: new ObjectId(USER),
+      status: "completed",
+      outputs: [{ kind: "image", url }],
+    })
+    const doc = await submit(
+      undefined,
+      plane({
+        media: {
+          reference: [{ id: "x", url, role: "reference", kind: "image" }],
+        },
+      })
+    )
+    expect(doc.status).toBe("queued")
+    const [, body] = h.platform.submit.mock.calls[0]!
+    const sent = JSON.stringify(body)
+    expect(sent).toContain(`${url}?exp=`)
+    expect(sent).not.toContain(`${url}"`)
+    // The run keeps the plain URL, which ownership checks match on.
+    expect((await stored(doc._id))?.media[0]?.url).toBe(url)
   })
 
   it("a definite 4xx fails the run and refunds once", async () => {
