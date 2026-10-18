@@ -9,7 +9,7 @@ One codebase, two deployments (D-055). `STUDIO_MODE` picks the sign-in, the wall
 | Opened from | the Hive Studio badge on the member dashboard (overlay iframe) | its own URL |
 | Sign-in | signed MarketHive handoff (D-056) | magic link (Auth.js + Resend) |
 | Pays with | Hive credits = MarketHive `VAULT_BALANCE` (D-057) | studio credits via Stripe |
-| Prices set in | MarketHive `ADMIN_PARAMS` `HIVE_STUDIO_PRICE_*` | `lib/billing/pricing-table.ts` + `model_pricing`, plans in `lib/billing/plans.ts` |
+| Prices set in | `lib/billing/pricing-table.ts` (Higgsfield list cost) x `MARKETHIVE_MARKUP` (default 1.5, S580-DRL-02); MarketHive caps one charge with `ADMIN_PARAMS` `HIVE_STUDIO_MAX_CHARGE` | `lib/billing/pricing-table.ts` + `model_pricing` x `CREDIT_MARKUP`, plans in `lib/billing/plans.ts` |
 | Framing | only MarketHive's origins | nobody |
 | Storage | local volume (`STORAGE_DRIVER=local`) on dev3 | Cloudflare R2 |
 | Database | MongoDB container (replica set) on dev3 | MongoDB Atlas |

@@ -24,6 +24,7 @@ describe("parseEnv", () => {
     const env = parseEnv({})
     expect(env.HF_API_BASE_URL).toBe("https://api.higgsfield.ai")
     expect(env.CREDIT_MARKUP).toBe(1.5)
+    expect(env.MARKETHIVE_MARKUP).toBe(1.5)
     expect(env.CREDIT_USD_VALUE).toBe(0.01)
     expect(env.MONGODB_DB).toBe("hive-studio")
   })
