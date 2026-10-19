@@ -139,7 +139,7 @@ export function GenerationDetailModal({
               />
             )}
           </div>
-          <aside className="relative flex w-full shrink-0 flex-col gap-4 border-t border-ink/10 bg-background/70 p-4 backdrop-blur-xl md:m-4 md:w-[360px] md:rounded-2xl md:border">
+          <aside className="studio-detail-panel relative flex w-full shrink-0 flex-col gap-4 border-t border-ink/10 bg-background/70 p-4 backdrop-blur-xl md:m-4 md:w-[360px] md:rounded-2xl md:border">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold">Generation</span>
               <DialogPrimitive.Close

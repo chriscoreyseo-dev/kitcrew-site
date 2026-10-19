@@ -63,10 +63,21 @@
   /* Hairlines and tints that were white-on-black are navy-on-white here. */
   --color-ink: #121c31;
 
+  /* Quanta's own text, icon and glass tokens, for components that read them
+     directly (q-* utilities): dark copy, solid white instead of glass. */
+  --hf-color-text-primary: #1a1a2e;
+  --hf-color-text-secondary: #383c43;
+  --hf-color-text-tertiary: #383c43;
+  --hf-color-icon-primary: #1a1a2e;
+  --hf-color-icon-secondary: #383c43;
+  --hf-color-background-glass: #ffffff;
+
   --background: #ffffff;
-  --foreground: #383c43;
+  /* S584 (Chris: "font not grey"): copy is MarketHive's dark #1a1a2e (the Blog
+     Feed controls); secondary copy is the sheet's #383c43, not a grey. */
+  --foreground: #1a1a2e;
   --card: #ffffff;
-  --card-foreground: #383c43;
+  --card-foreground: #1a1a2e;
   --popover: #ffffff;
   --popover-foreground: #1a1a2e;
   --primary: #6d83b4;
@@ -74,7 +85,7 @@
   --secondary: #e9eaf3;
   --secondary-foreground: #1a1a2e;
   --muted: #e9eaf3;
-  --muted-foreground: #5c6690;
+  --muted-foreground: #383c43;
   --accent: #e9eaf3;
   --accent-foreground: #1a1a2e;
   --destructive: #c62828;
@@ -88,7 +99,7 @@
   --chart-5: #d39725;
   --radius: 4px;
   --sidebar: #ffffff;
-  --sidebar-foreground: #383c43;
+  --sidebar-foreground: #1a1a2e;
   --sidebar-primary: #6d83b4;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e9eaf3;

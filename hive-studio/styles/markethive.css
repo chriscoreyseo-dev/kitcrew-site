@@ -208,3 +208,46 @@ html[data-mh-chrome="page"] .studio-site-header {
 html[data-mh-chrome="page"] body {
   --header-h: 0px;
 }
+
+/* ── Panels: white, not frosted glass (S584, Chris: "this should be white and
+      consistent with markethive white and font not grey"). The model picker and
+      every dialog (q-modal) and the full-screen view's Generation panel were
+      Quanta glass: a translucent fill plus a 40px blur, which reads grey over
+      MarketHive's white. ───────────────────────────────────────────────────── */
+:root[data-theme="markethive-light"] .q-modal {
+  border: 1px solid #121c31;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #1a1a2e;
+  backdrop-filter: none;
+}
+:root[data-theme="markethive-light"] .q-modal-workspace {
+  background-color: #ffffff;
+  color: #1a1a2e;
+}
+:root[data-theme="markethive-light"] .q-modal-description,
+:root[data-theme="markethive-light"] .q-modal-caption {
+  color: #383c43;
+}
+:root[data-theme="markethive-light"] .q-modal-search {
+  border: 1px solid #a1b1d1;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #1a1a2e;
+}
+:root[data-theme="markethive-light"] .q-modal-search:focus-within {
+  border-color: #6d83b4;
+  box-shadow: 0 0 0 2px rgba(109, 131, 180, 0.35);
+}
+:root[data-theme="markethive-light"] .q-modal-search input,
+:root[data-theme="markethive-light"] .q-modal-search input:focus-visible {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+:root[data-theme="markethive-light"] .studio-detail-panel {
+  border-color: #a1b1d1;
+  background-color: #ffffff;
+  color: #1a1a2e;
+  backdrop-filter: none;
+}
