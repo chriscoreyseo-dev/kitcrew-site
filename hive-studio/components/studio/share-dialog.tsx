@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { downloadMedia } from "@/lib/studio/download-media"
 
+import { NewsFeedShare } from "./newsfeed-share"
+
 /** What the Share button shares: one output of a finished run. */
 export interface ShareTarget {
   runId: string
@@ -31,12 +33,6 @@ type Phase =
   | { state: "error"; message: string }
 
 type Result = { key: string; url?: string; error?: string }
-
-/** Post to my News Feed (S584), kept with the target it belongs to. */
-type FeedState =
-  | { key: string; state: "posting" }
-  | { key: string; state: "posted"; postUrl: string; existing: boolean }
-  | { key: string; state: "error"; message: string }
 
 const keyOf = (t: ShareTarget) => `${t.runId}:${t.index}`
 
@@ -78,47 +74,6 @@ export function ShareDialog({
   const copied = copiedKey === key
   const [savingCommunity, setSavingCommunity] = useState(false)
   const { mode } = useStudioMode()
-  const [caption, setCaption] = useState("")
-  const [feedResult, setFeedResult] = useState<FeedState | null>(null)
-  const feed = feedResult && feedResult.key === key ? feedResult : null
-
-  const postToFeed = () => {
-    if (!target || feed?.state === "posting") return
-    const k = key
-    setFeedResult({ key: k, state: "posting" })
-    fetch(`/api/generations/${target.runId}/feed`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ index: target.index, caption: caption.trim() }),
-    })
-      .then(async (res) => {
-        const body = (await res.json().catch(() => ({}))) as {
-          postUrl?: string
-          existing?: boolean
-          error?: string
-        }
-        if (res.ok && body.postUrl)
-          setFeedResult({
-            key: k,
-            state: "posted",
-            postUrl: body.postUrl,
-            existing: body.existing === true,
-          })
-        else
-          setFeedResult({
-            key: k,
-            state: "error",
-            message: body.error ?? "Posting didn't work. Try again.",
-          })
-      })
-      .catch(() =>
-        setFeedResult({
-          key: k,
-          state: "error",
-          message: "Posting didn't work. Try again.",
-        })
-      )
-  }
 
   useEffect(() => {
     if (!target) return
@@ -244,68 +199,8 @@ export function ShareDialog({
               </p>
             </>
           )}
-          {mode === "markethive" ? (
-            <div className="flex flex-col gap-2 border-t border-ink/10 pt-3">
-              <div>
-                <p className="text-sm font-semibold">My News Feed</p>
-                <p className="text-xs text-muted-foreground">
-                  Your friends see it. Boost it on MarketHive to show it to
-                  everyone.
-                </p>
-              </div>
-              {feed?.state === "posted" ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm" role="status">
-                    {feed.existing
-                      ? "Already on your News Feed."
-                      : "Posted to your News Feed."}
-                  </p>
-                  <a
-                    href={feed.postUrl}
-                    target="_top"
-                    className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
-                  >
-                    View post
-                  </a>
-                  <a
-                    href={feed.postUrl}
-                    target="_top"
-                    data-mh="large-button"
-                    className="inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground"
-                  >
-                    Boost to everyone
-                  </a>
-                </div>
-              ) : (
-                <>
-                  <textarea
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value.slice(0, 500))}
-                    rows={2}
-                    placeholder="Say something about it (optional)"
-                    aria-label="Caption for your News Feed post"
-                    className="w-full resize-none rounded-lg border border-ink/15 bg-transparent px-3 py-2 text-sm"
-                  />
-                  <div className="flex items-center justify-between gap-2">
-                    {feed?.state === "error" ? (
-                      <p role="alert" className="text-xs text-destructive">
-                        {feed.message}
-                      </p>
-                    ) : (
-                      <span />
-                    )}
-                    <Button
-                      onClick={postToFeed}
-                      disabled={feed?.state === "posting"}
-                    >
-                      {feed?.state === "posting"
-                        ? "Posting…"
-                        : "Post to my News Feed"}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
+          {mode === "markethive" && target ? (
+            <NewsFeedShare key={key} target={target} />
           ) : null}
           {community ? (
             <div className="flex items-center justify-between gap-3 border-t border-ink/10 pt-3">

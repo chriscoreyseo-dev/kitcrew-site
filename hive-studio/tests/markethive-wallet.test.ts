@@ -141,6 +141,7 @@ describe("MarketHive wallet client", () => {
     expect(r).toEqual({
       postUrl: "https://dev3.markethive.test/newsfeed/abc",
       existing: false,
+      boost: null,
     })
     const call = seen[0]!
     const body = JSON.parse(call.body) as Record<string, unknown>
@@ -174,6 +175,86 @@ describe("MarketHive wallet client", () => {
     await expect(
       wallet.postToNewsfeed({ memberId: 7, slug: "a".repeat(24) })
     ).rejects.toBeInstanceOf(wallet.WalletUnavailableError)
+  })
+
+  it("quotes a Boost from MarketHive's live price (S584)", async () => {
+    reply = () =>
+      json({ ok: true, boosts: 2, price: "10.00", balance: "30.00" })
+    expect(await wallet.boostQuote(7)).toEqual({
+      boosts: 2,
+      price: "10.00",
+      balance: "30.00",
+    })
+    expect(JSON.parse(seen[0]!.body)).toEqual({
+      action: "boost_quote",
+      member_id: 7,
+    })
+  })
+
+  it("a quote without a price is unavailable, never a guess", async () => {
+    reply = () => json({ ok: true, boosts: 0, balance: "30.00" })
+    await expect(wallet.boostQuote(7)).rejects.toBeInstanceOf(
+      wallet.WalletUnavailableError
+    )
+  })
+
+  it("Post + Boost sends buy only with a confirmed price", async () => {
+    reply = () =>
+      json({
+        ok: true,
+        post_url: "https://dev3.markethive.test/newsfeed/abc",
+        boost: {
+          status: "boosted",
+          message: "Post boosted to all MarketHive members.",
+          price: "10.00",
+          balance: "20.00",
+        },
+      })
+    const r = await wallet.postToNewsfeed({
+      memberId: 7,
+      slug: "a".repeat(24),
+      boost: true,
+      buy: true,
+      expectedPrice: "10.00",
+    })
+    expect(r.boost).toEqual({
+      status: "boosted",
+      message: "Post boosted to all MarketHive members.",
+      price: "10.00",
+      balance: "20.00",
+    })
+    expect(JSON.parse(seen[0]!.body)).toMatchObject({
+      boost: true,
+      buy: true,
+      expected_price: "10.00",
+    })
+
+    await wallet.postToNewsfeed({
+      memberId: 7,
+      slug: "a".repeat(24),
+      boost: true,
+      buy: true,
+      expectedPrice: "ten",
+    })
+    const second = JSON.parse(seen[1]!.body) as Record<string, unknown>
+    expect(second.boost).toBe(true)
+    expect(second.buy).toBeUndefined()
+    expect(second.expected_price).toBeUndefined()
+  })
+
+  it("an unknown boost status reads as failed", async () => {
+    reply = () =>
+      json({
+        ok: true,
+        post_url: "https://dev3.markethive.test/newsfeed/abc",
+        boost: { status: "weird" },
+      })
+    const r = await wallet.postToNewsfeed({
+      memberId: 7,
+      slug: "a".repeat(24),
+      boost: true,
+    })
+    expect(r.boost?.status).toBe("failed")
   })
 
   it("toCents rounds float noise and rejects junk", () => {

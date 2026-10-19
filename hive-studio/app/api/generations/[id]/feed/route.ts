@@ -48,10 +48,16 @@ export async function POST(request: Request, { params }: Params) {
   const { id } = await params
   let index = 0
   let caption = ""
+  let boost = false
+  let buy = false
+  let expectedPrice: string | undefined
   try {
     const body = (await request.json()) as {
       index?: unknown
       caption?: unknown
+      boost?: unknown
+      buy?: unknown
+      expectedPrice?: unknown
     } | null
     if (body?.index !== undefined) {
       const raw = body.index
@@ -72,6 +78,21 @@ export async function POST(request: Request, { params }: Params) {
         )
       caption = body.caption
     }
+    // S584 Post + Boost: MarketHive's own Boost. A purchase needs the exact price
+    // the member was shown ("10.00"); MarketHive refuses any other.
+    boost = body?.boost === true
+    buy = boost && body?.buy === true
+    if (buy) {
+      if (
+        typeof body?.expectedPrice !== "string" ||
+        !/^\d{1,6}\.\d{2}$/.test(body.expectedPrice)
+      )
+        return NextResponse.json(
+          { error: "Confirm the Boost price first." },
+          { status: 400 }
+        )
+      expectedPrice = body.expectedPrice
+    }
   } catch {
     // No body: the run's first output, no caption.
   }
@@ -80,15 +101,17 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Nothing to post." }, { status: 404 })
   try {
     const memberId = await memberIdOf(new ObjectId(user.id))
-    const { postUrl, existing } = await postToNewsfeed({
+    const result = await postToNewsfeed({
       memberId,
       slug: shareSlug(id, index),
       caption,
+      boost,
+      buy,
+      expectedPrice,
     })
-    return NextResponse.json(
-      { postUrl, existing },
-      { headers: { "Cache-Control": "no-store" } }
-    )
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": "no-store" },
+    })
   } catch (error) {
     if (error instanceof WalletDeclinedError)
       return NextResponse.json({ error: error.message }, { status: 409 })
