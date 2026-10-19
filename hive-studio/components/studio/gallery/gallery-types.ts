@@ -33,7 +33,8 @@ export interface GalleryItem {
 export interface TileActions {
   onReuse?: (item: GalleryItem) => void
   onAnimate?: (item: GalleryItem) => void
-  onPublish?: (item: GalleryItem, publish: boolean) => void
+  /** Resolves once the run's Community state is saved (the Share panel waits on it). */
+  onPublish?: (item: GalleryItem, publish: boolean) => void | Promise<void>
 }
 
 /** How near a tile is to the viewport — drives eager vs lazy loading. */

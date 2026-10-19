@@ -466,3 +466,9 @@ Chris asked whether a creation can go to Community automatically (it could not: 
 - **Server:** `submitGenerationAction` takes `autoPublish?: boolean`; the run stores `autoPublish: true`. `finalizeGeneration` sets `isPublic` + `publishedAt` in the same update that marks it `completed`, only when there are outputs. Failed, blocked and canceled runs stay private. Unpublish works as before.
 - **Author:** `lib/community.ts` `authorLabel` shows `users.markethive.name` (MEMBERS.NAME, the same name `/watch/studio` prints as "Shared by", refreshed on every handoff), trimmed to 60 characters. Members with no MarketHive name (standalone mode) still get `maskAuthor`. The email itself still never leaves the server.
 - Tests: 223 (auto-publish on complete, never on nsfw, name with masked fallback).
+
+### D-066 Add to Community from the Share panel (S584, Chris)
+Chris: "I want a option in the share option to add to community" - look at an image already made and send it to Community from Share.
+- `ShareDialog` takes an optional `community` prop (`published`, `onChange`); the gallery tile passes it wherever `onPublish` exists (generator pages and the studio library), so it shows both from the tile menu's Share and from the full-screen view's Share icon.
+- A row under the share links: "Hive Studio Community", with **Add to Community** / **Remove from Community** (the same publish action as the tile menu; shows "Saving…" until it returns). It publishes the whole run, like the tile menu.
+- `TileActions.onPublish` may now return a promise so the panel can wait on it.

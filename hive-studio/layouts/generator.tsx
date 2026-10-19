@@ -317,7 +317,7 @@ export function GeneratorLayout({
               onDelete={(item) => void c.runs.remove(item.runId)}
               extraActions={{
                 onReuse: (item) => c.reuse(item),
-                onPublish: (item, value) => void c.publish(item.runId, value),
+                onPublish: (item, value) => c.publish(item.runId, value),
                 ...(surface === "image"
                   ? {
                       onAnimate: (item) =>

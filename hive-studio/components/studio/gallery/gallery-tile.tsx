@@ -247,7 +247,7 @@ function GalleryTileComponent({
               ? "Unpublish from Community"
               : "Publish to Community",
             icon: Globe,
-            onSelect: () => extraActions.onPublish?.(item, !item.isPublic),
+            onSelect: () => void extraActions.onPublish?.(item, !item.isPublic),
           },
         ]
       : []),
@@ -292,6 +292,14 @@ function GalleryTileComponent({
         onOpenChange={(open) => {
           if (!open) setShareTarget(null)
         }}
+        community={
+          extraActions?.onPublish
+            ? {
+                published: item.isPublic === true,
+                onChange: (publish) => extraActions.onPublish?.(item, publish),
+              }
+            : undefined
+        }
       />
     </div>
   )

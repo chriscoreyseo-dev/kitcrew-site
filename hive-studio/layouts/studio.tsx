@@ -666,7 +666,7 @@ export function StudioTemplate({
                   `/video?start=${encodeURIComponent(item.src)}&prompt=${encodeURIComponent(item.prompt)}`
                 ),
               onPublish: (item, value) =>
-                void publishGenerationAction(item.runId, value).then((r) => {
+                publishGenerationAction(item.runId, value).then((r) => {
                   if (r.ok)
                     runs.patch(item.runId, { isPublic: r.data.isPublic })
                   else setLocalError(r.message)

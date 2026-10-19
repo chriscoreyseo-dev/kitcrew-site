@@ -43,9 +43,16 @@ const keyOf = (t: ShareTarget) => `${t.runId}:${t.index}`
 export function ShareDialog({
   target,
   onOpenChange,
+  community,
 }: {
   target: ShareTarget | null
   onOpenChange: (open: boolean) => void
+  /** Add to / remove from Hive Studio Community from the same panel (S584,
+      Chris). Omitted where publishing isn't offered. */
+  community?: {
+    published: boolean
+    onChange: (publish: boolean) => void | Promise<void>
+  }
 }) {
   // The result is kept with the target it belongs to, so a new target reads as
   // "loading" until its own answer arrives (no state reset inside the effect).
@@ -62,6 +69,7 @@ export function ShareDialog({
             message: result.error ?? "Sharing didn't work. Try again.",
           }
   const copied = copiedKey === key
+  const [savingCommunity, setSavingCommunity] = useState(false)
 
   useEffect(() => {
     if (!target) return
@@ -187,6 +195,34 @@ export function ShareDialog({
               </p>
             </>
           )}
+          {community ? (
+            <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Hive Studio Community</p>
+                <p className="text-xs text-muted-foreground">
+                  {community.published
+                    ? "In Community under your name, with its prompt."
+                    : "Show it in Community under your name, with its prompt."}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                disabled={savingCommunity}
+                onClick={() => {
+                  setSavingCommunity(true)
+                  void Promise.resolve(
+                    community.onChange(!community.published)
+                  ).finally(() => setSavingCommunity(false))
+                }}
+              >
+                {savingCommunity
+                  ? "Saving…"
+                  : community.published
+                    ? "Remove from Community"
+                    : "Add to Community"}
+              </Button>
+            </div>
+          ) : null}
         </DialogBody>
       </DialogContent>
     </Dialog>
