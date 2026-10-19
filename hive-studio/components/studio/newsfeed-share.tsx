@@ -23,9 +23,10 @@ const FAILED = "That didn't work. Try again."
 
 /**
  * The Share panel's "My News Feed" row (S584, Chris; Studio D-068/D-069).
- * Composer-style, like MarketHive's own POST / BOOST buttons:
- *  - Post to friends: a News Feed post only the member's friends see.
- *  - Post + Boost to everyone: MarketHive's own Boost. It first shows what it
+ * Composer-style, like MarketHive's own POST / BOOST buttons - one or the other
+ * (Chris: "either post it or you boost it"):
+ *  - Post: a News Feed post only the member's friends see.
+ *  - Boost: posts it AND boosts it to everyone with MarketHive's own Boost. It first shows what it
  *    costs - a Boost the member already holds, or MarketHive's live Boost price
  *    from their Hive Vault - and spends nothing until they confirm. The studio
  *    never sets the price; MarketHive refuses a purchase at any price other than
@@ -133,8 +134,7 @@ export function NewsFeedShare({ target }: { target: ShareTarget }) {
       <div>
         <p className="text-sm font-semibold">My News Feed</p>
         <p className="text-xs text-muted-foreground">
-          Post it for your friends. Boost it to show it to everyone on
-          MarketHive.
+          Post: your friends see it. Boost: everyone on MarketHive sees it.
         </p>
       </div>
 
@@ -158,7 +158,7 @@ export function NewsFeedShare({ target }: { target: ShareTarget }) {
           </a>
           {!boosted && !confirm ? (
             <Button onClick={() => void askBoost()} disabled={busy !== null}>
-              {busy === "quoting" ? "Checking…" : "Boost to everyone"}
+              {busy === "quoting" ? "Checking…" : "Boost"}
             </Button>
           ) : null}
         </div>
@@ -179,10 +179,10 @@ export function NewsFeedShare({ target }: { target: ShareTarget }) {
                 onClick={() => void post()}
                 disabled={busy !== null}
               >
-                {busy === "posting" ? "Posting…" : "Post to friends"}
+                {busy === "posting" ? "Posting…" : "Post"}
               </Button>
               <Button onClick={() => void askBoost()} disabled={busy !== null}>
-                {busy === "quoting" ? "Checking…" : "Post + Boost to everyone"}
+                {busy === "quoting" ? "Checking…" : "Boost"}
               </Button>
             </div>
           ) : null}
