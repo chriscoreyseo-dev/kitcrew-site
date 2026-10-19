@@ -65,7 +65,13 @@ export function JustifiedGallery({
             </span>
           ) : null}
         </div>
-        <DensityControl value={gallery.density} onChange={gallery.setDensity} />
+        {/* S584 (Chris): no tile-size slider until there is something to size. */}
+        {gallery.itemCount > 0 ? (
+          <DensityControl
+            value={gallery.density}
+            onChange={gallery.setDensity}
+          />
+        ) : null}
       </header>
 
       <div
