@@ -3,7 +3,8 @@
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
-import { BALANCE_EVENT } from "@/lib/client-events"
+import { balanceAction } from "@/generation/billing-actions"
+import { announceBalance, BALANCE_EVENT } from "@/lib/client-events"
 
 /** Paths the host may send the studio to: same-origin, no scheme, no "//". */
 const SAFE_PATH = /^\/(?!\/)[A-Za-z0-9\-_/?=&.%]*$/
@@ -25,8 +26,20 @@ function originOf(url: string): string | null {
  * credit balance back so the toolbar can mark the current section and show the
  * balance. Only the MarketHive origin (MARKETHIVE_BASE_URL) is listened to or
  * written to, and only when the studio is actually framed.
+ *
+ * Balance (S584): the studio holds Hive credits in cents; the page shows dollars,
+ * so `credits` is posted in dollars. Topping up: in page mode the studio's own
+ * "Add credits" links (href = creditsUrl) post {type: "hive-studio:add-credits"}
+ * and the page opens MarketHive's Wallet on the Vault section in place; when it
+ * closes the page sends {type: "hive-studio:refresh-balance"}.
  */
-export function MarketHiveHost({ homeUrl }: { homeUrl: string }) {
+export function MarketHiveHost({
+  homeUrl,
+  creditsUrl,
+}: {
+  homeUrl: string
+  creditsUrl: string | null
+}) {
   const router = useRouter()
   const pathname = usePathname()
   const origin = originOf(homeUrl)
@@ -46,6 +59,10 @@ export function MarketHiveHost({ homeUrl }: { homeUrl: string }) {
       if (data?.type === "hive-studio:host" && data.chrome === "page") {
         document.documentElement.dataset.mhChrome = "page"
         post({ type: "hive-studio:route", path: window.location.pathname })
+      } else if (data?.type === "hive-studio:refresh-balance") {
+        void balanceAction().then((r) => {
+          if (r.ok) announceBalance(r.data.subscription + r.data.topup)
+        })
       } else if (
         data?.type === "hive-studio:navigate" &&
         typeof data.path === "string" &&
@@ -57,17 +74,28 @@ export function MarketHiveHost({ homeUrl }: { homeUrl: string }) {
     const onBalance = (event: Event) => {
       const credits = (event as CustomEvent<number>).detail
       if (typeof credits === "number" && Number.isFinite(credits))
-        post({ type: "hive-studio:balance", credits })
+        post({ type: "hive-studio:balance", credits: credits / 100 })
+    }
+    // Page mode: Add credits opens the Wallet on the page, not a new page load.
+    const onClick = (event: MouseEvent) => {
+      if (document.documentElement.dataset.mhChrome !== "page" || !creditsUrl)
+        return
+      const link = (event.target as Element | null)?.closest?.("a[href]")
+      if (!link || link.getAttribute("href") !== creditsUrl) return
+      event.preventDefault()
+      post({ type: "hive-studio:add-credits" })
     }
 
     window.addEventListener("message", onMessage)
     window.addEventListener(BALANCE_EVENT, onBalance)
+    document.addEventListener("click", onClick, true)
     post({ type: "hive-studio:ready" })
     return () => {
       window.removeEventListener("message", onMessage)
       window.removeEventListener(BALANCE_EVENT, onBalance)
+      document.removeEventListener("click", onClick, true)
     }
-  }, [origin, router])
+  }, [origin, router, creditsUrl])
 
   useEffect(() => {
     if (!origin || window.parent === window) return

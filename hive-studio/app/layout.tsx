@@ -59,7 +59,10 @@ export default function RootLayout({
       <body className="min-h-svh bg-background text-foreground [--header-h:56px]">
         <StudioModeProvider value={info}>
           {markethive && info.homeUrl ? (
-            <MarketHiveHost homeUrl={info.homeUrl} />
+            <MarketHiveHost
+              homeUrl={info.homeUrl}
+              creditsUrl={info.creditsUrl}
+            />
           ) : null}
           <SiteHeader />
           {children}
