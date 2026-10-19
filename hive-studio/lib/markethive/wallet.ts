@@ -42,6 +42,10 @@ type WireOk = {
   charged?: string | number
   refunded?: boolean
   prices?: Partial<Record<Surface, string | number | null>>
+  /** feed_post (S584) */
+  post_slug?: string
+  post_url?: string
+  existing?: boolean
 }
 type WireErr = {
   ok: false
@@ -62,7 +66,7 @@ export function toCents(
 const SURFACES: Surface[] = ["image", "video", "audio"]
 
 async function call(
-  action: "balance" | "prices" | "debit" | "refund",
+  action: "balance" | "prices" | "debit" | "refund" | "feed_post",
   fields: Record<string, string | number>
 ): Promise<WireOk> {
   const env = requireEnv("markethive")
@@ -98,7 +102,17 @@ async function call(
   if (data && data.ok === true) return data
   const err = (data ?? {}) as WireErr
   const code = err.error ?? `http_${response.status}`
-  if (["insufficient", "unpriced", "unknown_member", "disabled"].includes(code))
+  if (
+    [
+      "insufficient",
+      "unpriced",
+      "unknown_member",
+      "disabled",
+      "not_shared",
+      "not_owner",
+      "unsupported",
+    ].includes(code)
+  )
     throw new WalletDeclinedError(
       code,
       err.message ?? "MarketHive declined the charge.",
@@ -171,4 +185,23 @@ export async function walletRefund(input: {
     refunded: data.refunded === true,
     balance: toCents(data.balance) ?? 0,
   }
+}
+
+/** S584 (Chris): post the member's shared item to their MarketHive News Feed.
+    MarketHive reads the item back from /api/shared/<slug>, checks the member
+    owns it, and posts it once (a repeat returns the first post). Friends see
+    it; Boost - MarketHive's own, on the post page - makes it public. */
+export async function postToNewsfeed(input: {
+  memberId: number
+  slug: string
+  caption?: string
+}): Promise<{ postUrl: string; existing: boolean }> {
+  const data = await call("feed_post", {
+    member_id: input.memberId,
+    slug: input.slug,
+    caption: (input.caption ?? "").slice(0, 500),
+  })
+  if (!data.post_url || !/^https:\/\//.test(data.post_url))
+    throw new WalletUnavailableError("feed_post: no post URL")
+  return { postUrl: data.post_url, existing: data.existing === true }
 }

@@ -125,6 +125,57 @@ describe("MarketHive wallet client", () => {
     expect(seen).toHaveLength(2)
   })
 
+  it("posts a shared item to the News Feed, signed (S584)", async () => {
+    reply = () =>
+      json({
+        ok: true,
+        post_slug: "abc",
+        post_url: "https://dev3.markethive.test/newsfeed/abc",
+        existing: false,
+      })
+    const r = await wallet.postToNewsfeed({
+      memberId: 7,
+      slug: "a".repeat(24),
+      caption: "x".repeat(600),
+    })
+    expect(r).toEqual({
+      postUrl: "https://dev3.markethive.test/newsfeed/abc",
+      existing: false,
+    })
+    const call = seen[0]!
+    const body = JSON.parse(call.body) as Record<string, unknown>
+    expect(body).toMatchObject({
+      action: "feed_post",
+      member_id: 7,
+      slug: "a".repeat(24),
+    })
+    expect((body.caption as string).length).toBe(500)
+    expect(verifyWallet(SECRET, call.ts, call.body, call.sig)).toBe(true)
+  })
+
+  it("a News Feed refusal is a decline with MarketHive's words", async () => {
+    reply = () =>
+      json({
+        ok: false,
+        error: "not_owner",
+        message: "Only the member who made it can post it.",
+      })
+    await expect(
+      wallet.postToNewsfeed({ memberId: 8, slug: "a".repeat(24) })
+    ).rejects.toMatchObject({
+      name: "WalletDeclinedError",
+      code: "not_owner",
+      message: "Only the member who made it can post it.",
+    })
+  })
+
+  it("never follows a non-https post URL", async () => {
+    reply = () => json({ ok: true, post_url: "javascript:alert(1)" })
+    await expect(
+      wallet.postToNewsfeed({ memberId: 7, slug: "a".repeat(24) })
+    ).rejects.toBeInstanceOf(wallet.WalletUnavailableError)
+  })
+
   it("toCents rounds float noise and rejects junk", () => {
     expect(wallet.toCents("0.1")).toBe(10)
     expect(wallet.toCents(0.29)).toBe(29)
