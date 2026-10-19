@@ -18,7 +18,7 @@ export function AdminNav() {
   const pathname = usePathname()
   return (
     <nav aria-label="Admin sections" className="-mx-4 overflow-x-auto px-4">
-      <ul className="flex w-max gap-1 border-b border-white/10">
+      <ul className="flex w-max gap-1 border-b border-ink/10">
         {SECTIONS.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/admin" ? pathname === href : pathname.startsWith(href)

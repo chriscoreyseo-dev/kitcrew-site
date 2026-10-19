@@ -36,7 +36,7 @@ export default async function AccountPage() {
     <Page title="Account" width="narrow">
       <section className="grid gap-3 sm:grid-cols-3">
         {tiles.map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-white/10 p-4">
+          <div key={label} className="rounded-2xl border border-ink/10 p-4">
             <p className="text-xs text-muted-foreground uppercase">{label}</p>
             <p className="mt-1 font-mono text-2xl font-semibold">
               ✦ {formatCredits(value, info.unit)}
@@ -45,7 +45,7 @@ export default async function AccountPage() {
         ))}
       </section>
 
-      <section className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/10 p-5">
+      <section className="mt-8 flex flex-col gap-4 rounded-2xl border border-ink/10 p-5">
         <SectionTitle className="mb-0">Profile</SectionTitle>
         <dl className="grid grid-cols-[8rem_1fr] gap-y-2 text-sm">
           <dt className="text-muted-foreground">Email</dt>
@@ -69,7 +69,7 @@ export default async function AccountPage() {
               <a
                 href={info.creditsUrl}
                 target="_top"
-                className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+                className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
               >
                 Add credits on MarketHive
               </a>
@@ -77,14 +77,14 @@ export default async function AccountPage() {
           ) : (
             <Link
               href="/account/billing"
-              className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+              className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
             >
               Billing and credit history
             </Link>
           )}
           <Link
             href="/assets"
-            className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+            className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
           >
             My library
           </Link>

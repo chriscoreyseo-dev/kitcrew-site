@@ -21,7 +21,7 @@ export function CommunityTile({ item }: { item: PublicGenerationDTO }) {
   return (
     <Link
       href={`/g/${item.id}`}
-      className="group relative block min-w-0 overflow-hidden rounded-xl border border-white/10 bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className="group relative block min-w-0 overflow-hidden rounded-xl border border-ink/10 bg-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       style={
         {
           flexGrow: a,
@@ -42,7 +42,7 @@ export function CommunityTile({ item }: { item: PublicGenerationDTO }) {
           className="absolute inset-0 size-full object-cover"
         />
       ) : (
-        <span className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/10 to-white/[0.02]">
+        <span className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-ink/10 to-ink/[0.02]">
           <AudioLines className="size-8 text-muted-foreground" aria-hidden />
           <span className="sr-only">{label}</span>
         </span>

@@ -67,8 +67,8 @@ function Row({
       className={cn(
         "group relative flex h-9 items-center gap-2.5 rounded-lg px-1.5 text-sm transition-colors",
         selected
-          ? "bg-white/8 text-foreground"
-          : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
+          ? "bg-ink/8 text-foreground"
+          : "text-muted-foreground hover:bg-ink/5 hover:text-foreground",
         collapsed && "justify-center px-0"
       )}
     >
@@ -151,7 +151,7 @@ export function StudioSidebar({
         <button
           type="button"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-white/8 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-ink/8 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           onClick={() => onCollapsedChange(!collapsed)}
         >
           {collapsed ? (
@@ -200,7 +200,7 @@ export function StudioSidebar({
                 <button
                   type="button"
                   aria-label="New project"
-                  className="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-white/8 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  className="inline-flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-ink/8 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <Plus className="size-4" />
                 </button>
@@ -219,7 +219,7 @@ export function StudioSidebar({
               }
               ariaLabel={project.name}
               start={
-                <span className="flex size-6 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 text-[11px] font-semibold text-muted-foreground">
+                <span className="flex size-6 items-center justify-center overflow-hidden rounded-md border border-ink/10 bg-ink/5 text-[11px] font-semibold text-muted-foreground">
                   {project.cover ? (
                     <img
                       src={project.cover}

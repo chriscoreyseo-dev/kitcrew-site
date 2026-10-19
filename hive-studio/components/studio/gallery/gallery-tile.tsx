@@ -183,7 +183,7 @@ function GalleryTileComponent({
   const isVideo = item.kind === "video"
   const isAudio = item.kind === "audio"
   const media = isAudio ? (
-    <div className="flex size-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-4">
+    <div className="flex size-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-ink/[0.06] to-ink/[0.02] p-4">
       <AudioLines aria-hidden className="size-10 text-primary" />
       <audio
         src={item.src}

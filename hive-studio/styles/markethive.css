@@ -1,0 +1,210 @@
+/**
+ * MarketHive controls (S584, Chris: "all dropdowns, buttons and switches need to
+ * be consistent with the rest of MarketHive"). Every rule is copied from a live
+ * MarketHive control, not invented:
+ *   - filled buttons  = SM.BUTTON / LARGE.BUTTON (docs/design/MARKETHIVE_BUTTON_PROTOCOL.md,
+ *                       Tom's controls sheet S572; .mh-sm-btn in css/homepage.css)
+ *   - outline buttons = the sheet's Configure button
+ *   - dropdowns       = the Blog Feed toolbar's .bh-btn / .bh-dd-menu / .bh-dd-item
+ *                       (css/blogs.css)
+ *   - switch          = the dashboard's MEMB/CORP toggle (css/homepage.css, S572/S575)
+ *   - inputs          = white, light border, blue focus (controls sheet)
+ * Unlayered on purpose: these beat Tailwind's utility layer, so a component's own
+ * dark-theme classes cannot win inside MarketHive. Scoped to the markethive-light
+ * theme, except the switch, which is MarketHive's switch everywhere.
+ */
+
+/* ── Switch (both themes) ─────────────────────────────────────────────────── */
+.mh-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  min-width: 60px;
+  height: 22px;
+  padding: 2px 10px 2px 26px;
+  border: 1px solid #121c31;
+  border-radius: 14px;
+  background: #a1b1d1;
+  color: #ffffff;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  transition:
+    background-color 0.2s ease,
+    padding 0.2s ease;
+}
+.mh-switch[aria-checked="true"] {
+  justify-content: flex-start;
+  padding: 2px 26px 2px 10px;
+  background: #6d83b4;
+}
+.mh-switch:hover {
+  filter: brightness(1.08);
+}
+.mh-switch:focus-visible {
+  outline: 2px solid #e9bc47;
+  outline-offset: 2px;
+}
+.mh-switch-knob {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateY(-50%);
+  transition: left 0.2s ease;
+}
+.mh-switch[aria-checked="true"] .mh-switch-knob {
+  left: calc(100% - 19px);
+}
+.mh-switch-label {
+  text-shadow: 0 1px 1px rgba(18, 28, 49, 0.55);
+}
+
+/* ── Filled buttons: SM.BUTTON; the generator's Generate is LARGE.BUTTON ── */
+:root[data-theme="markethive-light"]
+  [data-slot="button"][data-variant="default"],
+:root[data-theme="markethive-light"] [data-mh="large-button"] {
+  border: 1px solid #121c31;
+  border-radius: 4px;
+  background: #6d83b4;
+  color: #ffffff;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+:root[data-theme="markethive-light"] [data-mh="large-button"] {
+  font-size: 13.33px;
+}
+:root[data-theme="markethive-light"]
+  [data-slot="button"][data-variant="default"]:hover,
+:root[data-theme="markethive-light"]
+  [data-mh="large-button"]:hover:not(:disabled) {
+  background: #6d83b4;
+  filter: brightness(1.1);
+}
+:root[data-theme="markethive-light"] [data-slot="button"]:focus-visible,
+:root[data-theme="markethive-light"] [data-mh="large-button"]:focus-visible {
+  outline: 2px solid #e9bc47;
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+/* ── Secondary buttons: the sheet's Configure button ─────────────────────── */
+:root[data-theme="markethive-light"]
+  [data-slot="button"][data-variant="outline"],
+:root[data-theme="markethive-light"]
+  [data-slot="button"][data-variant="secondary"] {
+  border: 1px solid #121c31;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+:root[data-theme="markethive-light"]
+  [data-slot="button"][data-variant="outline"]:hover,
+:root[data-theme="markethive-light"]
+  [data-slot="button"][data-variant="secondary"]:hover {
+  background: #e9eaf3;
+  color: #1a1a2e;
+}
+
+/* ── Dropdown triggers: the Blog Feed toolbar's .bh-btn ──────────────────── */
+:root[data-theme="markethive-light"] .q-select-trigger,
+:root[data-theme="markethive-light"] .q-dropdown-trigger {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  background: #e9eaf3;
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: none;
+}
+:root[data-theme="markethive-light"] .q-select-trigger:hover,
+:root[data-theme="markethive-light"] .q-dropdown-trigger:hover {
+  background: #dcdef0;
+}
+:root[data-theme="markethive-light"] .q-select-trigger .q-select-value {
+  font-weight: 700;
+}
+:root[data-theme="markethive-light"] .q-select-trigger .q-select-icon,
+:root[data-theme="markethive-light"]
+  .q-select-trigger[data-placeholder]
+  .q-select-value {
+  color: #1a1a2e;
+}
+
+/* ── Dropdown menus: .bh-dd-menu / .bh-dd-item ───────────────────────────── */
+:root[data-theme="markethive-light"] .q-dropdown-content {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #1a1a2e;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  backdrop-filter: none;
+}
+:root[data-theme="markethive-light"] .q-dropdown-content {
+  padding: 0;
+}
+:root[data-theme="markethive-light"] .q-menu-item {
+  min-height: 0;
+  padding: 6px 12px;
+  border-radius: 0;
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-size: 13px;
+}
+:root[data-theme="markethive-light"] .q-menu-item + .q-menu-item {
+  border-top: 1px solid #eef0f6;
+}
+:root[data-theme="markethive-light"] .q-menu-item:hover,
+:root[data-theme="markethive-light"] .q-menu-item[data-highlighted] {
+  background: #e9eaf3;
+}
+:root[data-theme="markethive-light"] .q-menu-item-danger {
+  color: #c62828;
+}
+
+/* ── Inputs: white, light border, blue focus ─────────────────────────────── */
+:root[data-theme="markethive-light"] textarea,
+:root[data-theme="markethive-light"] input[type="text"],
+:root[data-theme="markethive-light"] input[type="search"],
+:root[data-theme="markethive-light"] input[type="email"],
+:root[data-theme="markethive-light"] input[type="number"],
+:root[data-theme="markethive-light"] input:not([type]) {
+  border-color: #a1b1d1;
+  background-color: #ffffff;
+  color: #1a1a2e;
+}
+:root[data-theme="markethive-light"] textarea:focus-visible,
+:root[data-theme="markethive-light"] input:focus-visible {
+  border-color: #6d83b4;
+  box-shadow: 0 0 0 2px rgba(109, 131, 180, 0.35);
+}
+
+/* ── Page mode: inside MarketHive's /hivestudio page, MarketHive's toolbar is
+      the navigation, so the studio's own header steps aside (MarketHiveHost). */
+html[data-mh-chrome="page"] .studio-site-header {
+  display: none;
+}
+html[data-mh-chrome="page"] body {
+  --header-h: 0px;
+}

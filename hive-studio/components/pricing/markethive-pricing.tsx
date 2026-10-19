@@ -22,7 +22,7 @@ export async function MarketHivePricing() {
       <section className="grid gap-3 sm:grid-cols-3">
         {SURFACES.map(([id, label]) => {
           return (
-            <div key={id} className="rounded-2xl border border-white/10 p-4">
+            <div key={id} className="rounded-2xl border border-ink/10 p-4">
               <p className="text-xs text-muted-foreground uppercase">
                 {label} generation
               </p>

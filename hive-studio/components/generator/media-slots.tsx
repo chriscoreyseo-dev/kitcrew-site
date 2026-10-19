@@ -35,7 +35,7 @@ function Thumb({
   onRemove: (id: string) => void
 }) {
   return (
-    <div className="group relative size-16 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/5">
+    <div className="group relative size-16 shrink-0 overflow-hidden rounded-lg border border-ink/10 bg-ink/5">
       {item.kind === "audio" ? (
         <div className="flex size-full items-center justify-center">
           <AudioLines aria-hidden className="size-6 text-primary" />
@@ -115,7 +115,7 @@ export function MediaSlots({
         trigger={
           <button
             type="button"
-            className="flex size-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/15 text-[9px] font-semibold text-muted-foreground uppercase hover:border-white/30 hover:text-foreground"
+            className="flex size-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-ink/15 text-[9px] font-semibold text-muted-foreground uppercase hover:border-ink/30 hover:text-foreground"
             aria-label={`Add ${ROLE_TITLE[role].toLowerCase()}${model.requiredRoles?.includes(role) ? " (required)" : ""}`}
           >
             {accept === "video" ? (
@@ -163,10 +163,10 @@ export function MediaSlots({
                 <button
                   type="button"
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-xl border border-dashed border-white/15 px-4 py-4 text-left hover:border-white/30"
+                    "flex w-full items-center gap-3 rounded-xl border border-dashed border-ink/15 px-4 py-4 text-left hover:border-ink/30"
                   )}
                 >
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-white/5">
+                  <span className="flex size-9 items-center justify-center rounded-lg bg-ink/5">
                     <Plus className="size-4" />
                   </span>
                   <span>

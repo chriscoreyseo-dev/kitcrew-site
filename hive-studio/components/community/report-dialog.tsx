@@ -98,8 +98,8 @@ export function ReportDialog({ generationId }: { generationId: string }) {
                     <label
                       key={r.id}
                       className={cn(
-                        "flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 px-3 py-2.5 text-sm transition-colors hover:bg-white/5 has-focus-visible:ring-2 has-focus-visible:ring-ring",
-                        reason === r.id && "border-white/30 bg-white/5"
+                        "flex cursor-pointer items-center gap-3 rounded-lg border border-ink/10 px-3 py-2.5 text-sm transition-colors hover:bg-ink/5 has-focus-visible:ring-2 has-focus-visible:ring-ring",
+                        reason === r.id && "border-ink/30 bg-ink/5"
                       )}
                     >
                       <input
@@ -125,7 +125,7 @@ export function ReportDialog({ generationId }: { generationId: string }) {
                     onChange={(e) => setNote(e.target.value)}
                     maxLength={500}
                     rows={3}
-                    className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                    className="w-full resize-none rounded-lg border border-ink/10 bg-ink/5 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
                     placeholder="Anything that helps us review it"
                   />
                 </div>

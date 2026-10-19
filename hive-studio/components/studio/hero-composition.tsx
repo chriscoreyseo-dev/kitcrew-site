@@ -25,7 +25,7 @@ export function HeroComposition({ images, alt = "" }: HeroCompositionProps) {
         <img src={images[2]} alt="" className="size-full object-cover" />
         <span aria-hidden className="absolute inset-0 bg-black/20" />
       </div>
-      <div className="absolute top-0 left-1/2 z-[1] h-[106px] w-[50.25%] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 bg-card shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
+      <div className="absolute top-0 left-1/2 z-[1] h-[106px] w-[50.25%] -translate-x-1/2 overflow-hidden rounded-2xl border border-ink/10 bg-card shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
         <img src={images[1]} alt="" className="size-full object-cover" />
       </div>
     </div>

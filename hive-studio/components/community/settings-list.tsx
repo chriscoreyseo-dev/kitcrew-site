@@ -42,7 +42,7 @@ export function SettingsList({
       {entries.map(([key, value]) => (
         <div
           key={key}
-          className="min-w-0 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2"
+          className="min-w-0 rounded-lg border border-ink/10 bg-ink/[0.03] px-3 py-2"
         >
           <dt className="truncate text-[11px] tracking-wide text-muted-foreground uppercase">
             {labelFor(key)}

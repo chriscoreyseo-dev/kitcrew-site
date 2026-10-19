@@ -77,7 +77,7 @@ function Media({
 }) {
   if (kind === "audio")
     return (
-      <div className="flex flex-col items-center gap-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.02] p-8">
+      <div className="flex flex-col items-center gap-6 rounded-2xl border border-ink/10 bg-gradient-to-br from-ink/10 to-ink/[0.02] p-8">
         <AudioLines className="size-10 text-muted-foreground" aria-hidden />
         <audio src={url} controls className="w-full max-w-xl" />
       </div>
@@ -85,7 +85,7 @@ function Media({
   const a = aspect > 0 && Number.isFinite(aspect) ? aspect : 1
   return (
     <div
-      className="relative mx-auto w-full overflow-hidden rounded-2xl border border-white/10 bg-card"
+      className="relative mx-auto w-full overflow-hidden rounded-2xl border border-ink/10 bg-card"
       style={{
         aspectRatio: a,
         maxWidth: large ? `calc(72svh * ${a})` : undefined,
@@ -213,7 +213,7 @@ export default async function GenerationPage({ params }: Params) {
           {item.prompt ? (
             <section>
               <SectionTitle>Prompt</SectionTitle>
-              <p className="rounded-xl border border-white/10 bg-card p-4 text-sm leading-relaxed break-words whitespace-pre-wrap">
+              <p className="rounded-xl border border-ink/10 bg-card p-4 text-sm leading-relaxed break-words whitespace-pre-wrap">
                 {item.prompt}
               </p>
             </section>

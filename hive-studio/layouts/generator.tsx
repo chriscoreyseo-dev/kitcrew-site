@@ -121,7 +121,7 @@ export function GeneratorLayout({
         {copy.steps.map(([title, body], i) => (
           <Item
             key={title}
-            className="block rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+            className="block rounded-2xl border border-ink/10 bg-ink/[0.03] p-4"
           >
             <span className="block font-mono text-xs text-primary">
               0{i + 1}
@@ -145,13 +145,13 @@ export function GeneratorLayout({
   return (
     <div className="flex flex-col pb-28 lg:h-[calc(100dvh-var(--header-h))] lg:flex-row lg:overflow-hidden lg:pb-0">
       {/* Control panel */}
-      <aside className="flex w-full shrink-0 flex-col border-white/[0.06] lg:w-[400px] lg:border-r">
+      <aside className="flex w-full shrink-0 flex-col border-ink/[0.06] lg:w-[400px] lg:border-r">
         <div className="flex flex-1 flex-col gap-5 p-4 lg:overflow-y-auto">
           {modes.length > 1 ? (
             <div
               role="tablist"
               aria-label="Mode"
-              className="flex gap-1 rounded-xl bg-white/5 p-1"
+              className="flex gap-1 rounded-xl bg-ink/5 p-1"
             >
               {modes.map((m) => (
                 <button
@@ -163,7 +163,7 @@ export function GeneratorLayout({
                     setModeId(m.id)
                     c.selectModel(m.models[0]!.id)
                   }}
-                  className="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-muted-foreground aria-selected:bg-white/10 aria-selected:text-foreground"
+                  className="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-muted-foreground aria-selected:bg-ink/10 aria-selected:text-foreground"
                 >
                   {m.label}
                 </button>
@@ -206,7 +206,7 @@ export function GeneratorLayout({
                     ? "Editorial portrait, soft window light, film grain"
                     : "Warm lo-fi beat with vinyl crackle"
               }
-              className="min-h-28 resize-y rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm outline-none placeholder:text-muted-foreground/70 focus-visible:border-white/30"
+              className="min-h-28 resize-y rounded-xl border border-ink/10 bg-ink/[0.03] p-3 text-sm outline-none placeholder:text-muted-foreground/70 focus-visible:border-ink/30"
             />
           </label>
 
@@ -224,7 +224,7 @@ export function GeneratorLayout({
         </div>
 
         {/* Sticky footer: bottom bar on mobile, panel footer on desktop */}
-        <div className="fixed inset-x-0 bottom-0 z-30 flex flex-col gap-2 border-t border-white/[0.06] bg-background/90 p-3 backdrop-blur-xl lg:sticky lg:z-10 lg:p-4">
+        <div className="fixed inset-x-0 bottom-0 z-30 flex flex-col gap-2 border-t border-ink/[0.06] bg-background/90 p-3 backdrop-blur-xl lg:sticky lg:z-10 lg:p-4">
           {c.cancellable.length ? (
             <Button
               variant="ghost"
@@ -243,6 +243,7 @@ export function GeneratorLayout({
           />
           <button
             type="button"
+            data-mh="large-button"
             onClick={() => void c.generate()}
             disabled={!c.canGenerate}
             title={
@@ -268,7 +269,7 @@ export function GeneratorLayout({
 
       {/* Canvas */}
       <section className="flex min-h-[70vh] min-w-0 flex-1 flex-col lg:min-h-0">
-        <div className="flex items-center gap-1 border-b border-white/[0.06] px-4 py-2">
+        <div className="flex items-center gap-1 border-b border-ink/[0.06] px-4 py-2">
           {(
             [
               ["history", "History", Clock],
@@ -280,7 +281,7 @@ export function GeneratorLayout({
               type="button"
               aria-pressed={canvas === id}
               onClick={() => setCanvas(id)}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-muted-foreground aria-pressed:bg-white/10 aria-pressed:text-foreground"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-muted-foreground aria-pressed:bg-ink/10 aria-pressed:text-foreground"
             >
               <Icon aria-hidden className="size-4" />
               {label}

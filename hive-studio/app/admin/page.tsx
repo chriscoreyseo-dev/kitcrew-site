@@ -98,7 +98,7 @@ export default async function AdminUsersPage({
                     key={u.id}
                     className={cn(
                       rowClass,
-                      u.id === selected?.id && "bg-white/5"
+                      u.id === selected?.id && "bg-ink/5"
                     )}
                   >
                     <td className={tdClass}>
@@ -178,7 +178,7 @@ function UserDetail({
     <div className="flex flex-col gap-6">
       <section>
         <SectionTitle>Account</SectionTitle>
-        <div className="flex flex-col gap-3 rounded-xl border border-white/10 p-4">
+        <div className="flex flex-col gap-3 rounded-xl border border-ink/10 p-4">
           <p className="font-medium break-all">{user.email}</p>
           <dl className="grid grid-cols-3 gap-2 text-sm">
             {(

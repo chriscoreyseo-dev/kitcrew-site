@@ -16,7 +16,7 @@ export function AuthButtons() {
       <a
         href={studio.homeUrl}
         target="_top"
-        className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+        className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
       >
         Sign in with MarketHive
       </a>

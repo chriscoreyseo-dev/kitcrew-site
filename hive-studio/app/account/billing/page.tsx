@@ -82,7 +82,7 @@ export default async function BillingPage({
           ["Plan credits", balance.subscription],
           ["Top-up credits", balance.topup],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-white/10 p-4">
+          <div key={label} className="rounded-2xl border border-ink/10 p-4">
             <p className="text-xs text-muted-foreground uppercase">{label}</p>
             <p className="mt-1 font-mono text-2xl font-semibold">
               ✦ {Number(value).toLocaleString("en-US")}
@@ -91,7 +91,7 @@ export default async function BillingPage({
         ))}
       </section>
 
-      <section className="flex flex-col gap-3 rounded-2xl border border-white/10 p-4">
+      <section className="flex flex-col gap-3 rounded-2xl border border-ink/10 p-4">
         <p className="text-sm">
           Plan: <span className="font-semibold">{plan.name}</span>
           {doc?.planRenewsAt
@@ -130,7 +130,7 @@ export default async function BillingPage({
               {ledger.map((e) => (
                 <tr
                   key={`${e.reason}-${e.refId}`}
-                  className="border-t border-white/5"
+                  className="border-t border-ink/5"
                 >
                   <td className="py-2 text-muted-foreground">
                     {e.createdAt.toLocaleDateString("en-US")}

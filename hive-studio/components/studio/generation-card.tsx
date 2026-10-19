@@ -68,7 +68,7 @@ export function GenerationCard({
     <div
       data-state={state}
       className={cn(
-        "relative block w-full min-w-0 overflow-hidden bg-white/5",
+        "relative block w-full min-w-0 overflow-hidden bg-ink/5",
         className
       )}
       {...props}
@@ -99,7 +99,7 @@ export function GenerationCard({
             aria-hidden="true"
           />
           <span
-            className="absolute top-2 left-2 inline-flex items-center gap-2 rounded-full bg-white/8 py-1.5 pr-4 pl-2.5 backdrop-blur-md"
+            className="absolute top-2 left-2 inline-flex items-center gap-2 rounded-full bg-ink/8 py-1.5 pr-4 pl-2.5 backdrop-blur-md"
             role="status"
           >
             <Loader2 className="size-3.5 animate-spin text-primary" />
@@ -111,7 +111,7 @@ export function GenerationCard({
       ) : null}
       {state === "failed" ? (
         <span
-          className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-white/5 p-4 text-center"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-ink/5 p-4 text-center"
           role="status"
         >
           <span className="text-sm font-semibold text-foreground">

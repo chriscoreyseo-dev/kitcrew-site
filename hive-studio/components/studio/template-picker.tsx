@@ -77,7 +77,7 @@ function gradientFromSeed(seed: string): string {
 
 function GradientBadge({ as: Glyph, seed }: { as: LucideIcon; seed: string }) {
   return (
-    <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-white/25 text-white shadow-[0_5px_3px_rgba(0,0,0,0.08),inset_0_3px_5px_rgba(255,255,255,0.24)]">
+    <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-ink/25 text-white shadow-[0_5px_3px_rgba(0,0,0,0.08),inset_0_3px_5px_rgba(255,255,255,0.24)]">
       <span
         aria-hidden
         className="absolute inset-0"
@@ -85,7 +85,7 @@ function GradientBadge({ as: Glyph, seed }: { as: LucideIcon; seed: string }) {
       />
       <span
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 mix-blend-overlay"
+        className="absolute inset-0 bg-gradient-to-t from-transparent to-ink/20 mix-blend-overlay"
       />
       <Glyph className="relative size-5" />
     </span>
@@ -123,7 +123,7 @@ export function TemplateCard({
       role="button"
       tabIndex={0}
       aria-label={`Use template: ${template.title}`}
-      className="relative flex cursor-pointer flex-col gap-2 rounded-[20px] bg-white/5 p-2 shadow-[0_2px_6px_rgba(0,0,0,0.15)] transition-[transform,background-color] duration-200 hover:z-[1] hover:-translate-y-0.5 hover:bg-white/8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:hover:translate-y-0"
+      className="relative flex cursor-pointer flex-col gap-2 rounded-[20px] bg-ink/5 p-2 shadow-[0_2px_6px_rgba(0,0,0,0.15)] transition-[transform,background-color] duration-200 hover:z-[1] hover:-translate-y-0.5 hover:bg-ink/8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:hover:translate-y-0"
       onClick={() => onTry(template)}
       onKeyDown={onKeyDown}
     >
@@ -133,7 +133,7 @@ export function TemplateCard({
             <div
               key={i}
               className={cn(
-                "min-w-0 flex-1 overflow-hidden border border-white/10",
+                "min-w-0 flex-1 overflow-hidden border border-ink/10",
                 TRIPTYCH[i]
               )}
             >
@@ -145,7 +145,7 @@ export function TemplateCard({
             </div>
           ))
         ) : (
-          <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-white/10">
+          <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-ink/10">
             <img
               src={template.images[0]}
               alt={template.title}

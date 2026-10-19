@@ -58,7 +58,7 @@ export function PresetCover({
           <div className="absolute inset-0 flex items-center justify-center">
             <span
               className={cn(
-                "flex items-center justify-center rounded-full border border-white/15 bg-black/20 backdrop-blur-sm",
+                "flex items-center justify-center rounded-full border border-ink/15 bg-black/20 backdrop-blur-sm",
                 large ? "size-20" : "size-12"
               )}
             >

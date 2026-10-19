@@ -64,8 +64,8 @@ export function ModelControls({
             )
           }
           className={cn(
-            "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-white/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
-            enabled ? "bg-emerald-500/60" : "bg-white/10"
+            "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-ink/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
+            enabled ? "bg-emerald-500/60" : "bg-ink/10"
           )}
         >
           <span

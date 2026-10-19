@@ -54,9 +54,9 @@ export async function SiteHeader() {
   )
 
   return (
-    <div className="sticky top-0 z-40">
+    <div className="studio-site-header sticky top-0 z-40">
       <PromoBar />
-      <header className="flex h-[var(--header-h)] items-center gap-4 border-b border-white/[0.06] bg-background/80 px-3 backdrop-blur-xl sm:px-5">
+      <header className="flex h-[var(--header-h)] items-center gap-4 border-b border-ink/[0.06] bg-background/80 px-3 backdrop-blur-xl sm:px-5">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2"

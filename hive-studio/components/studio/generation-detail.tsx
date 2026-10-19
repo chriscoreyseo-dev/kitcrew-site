@@ -112,7 +112,7 @@ export function GenerationDetailModal({
           ) : null}
           <div className="relative flex min-h-0 flex-1 items-center justify-center p-4 md:p-8">
             {generation.mediaType === "audio" ? (
-              <div className="flex w-full max-w-xl flex-col items-center gap-6 rounded-2xl border border-white/10 bg-card/60 p-8 shadow-2xl">
+              <div className="flex w-full max-w-xl flex-col items-center gap-6 rounded-2xl border border-ink/10 bg-card/60 p-8 shadow-2xl">
                 <AudioLines aria-hidden className="size-14 text-primary" />
                 <audio
                   src={generation.src}
@@ -139,7 +139,7 @@ export function GenerationDetailModal({
               />
             )}
           </div>
-          <aside className="relative flex w-full shrink-0 flex-col gap-4 border-t border-white/10 bg-background/70 p-4 backdrop-blur-xl md:m-4 md:w-[360px] md:rounded-2xl md:border">
+          <aside className="relative flex w-full shrink-0 flex-col gap-4 border-t border-ink/10 bg-background/70 p-4 backdrop-blur-xl md:m-4 md:w-[360px] md:rounded-2xl md:border">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold">Generation</span>
               <DialogPrimitive.Close

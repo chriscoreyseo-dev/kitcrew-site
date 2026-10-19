@@ -22,7 +22,7 @@ export function BalancePill({ initial }: { initial: number }) {
   return (
     <Link
       href="/account"
-      className="flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 font-mono text-sm tabular-nums hover:bg-white/10"
+      className="flex h-8 items-center gap-1.5 rounded-full border border-ink/10 bg-ink/5 px-3 font-mono text-sm tabular-nums hover:bg-ink/10"
       aria-label={`${fmt(credits)} ${mode === "markethive" ? "Hive credits" : "credits"}. Open account`}
     >
       <Sparkles aria-hidden className="size-3.5 text-primary" />
