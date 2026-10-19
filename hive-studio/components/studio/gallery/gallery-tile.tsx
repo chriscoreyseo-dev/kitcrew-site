@@ -59,7 +59,9 @@ export function shareTargetFor(item: GalleryItem): ShareTarget {
 }
 
 function Placeholder() {
-  return <span className="absolute inset-0 bg-card" aria-hidden="true" />
+  // bg-muted, not bg-card: on MarketHive's white a card-coloured placeholder is
+  // invisible, so a still-loading tile read as an empty gap (S584).
+  return <span className="absolute inset-0 bg-muted" aria-hidden="true" />
 }
 
 function StillMedia({ item, tier }: { item: GalleryItem; tier: LoadTier }) {
@@ -132,7 +134,15 @@ function HoverVideo({
         onLoadedData={() => setLoaded(true)}
         style={{ opacity: showVideo ? 1 : 0 }}
       >
-        <source src={item.videoSrc} />
+        {/* No poster: "#t=0.1" makes the browser fetch and show the first frame
+            as the still (S584 - on dev3 the tile was blank until hovered). */}
+        <source
+          src={
+            hasPoster || !item.videoSrc || item.videoSrc.includes("#")
+              ? item.videoSrc
+              : `${item.videoSrc}#t=0.1`
+          }
+        />
       </video>
     </>
   )
