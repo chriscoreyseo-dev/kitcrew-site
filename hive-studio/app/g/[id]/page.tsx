@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { cache } from "react"
 import { ArrowLeft, AudioLines, Repeat2 } from "lucide-react"
 
+import { CaptionEditor } from "@/components/community/caption-editor"
 import { ReportDialog } from "@/components/community/report-dialog"
 import { SettingsList } from "@/components/community/settings-list"
 import { UnpublishButton } from "@/components/community/unpublish-button"
@@ -11,6 +12,7 @@ import { Page, SectionTitle } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { getPublicGeneration, isPublicOwner } from "@/lib/community"
 import type { PublicGenerationDTO } from "@/lib/community"
+import { recreateHref } from "@/lib/community-links"
 import { currentUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
@@ -54,14 +56,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 /** Generator deep link; the generator pages read `model` and `prompt`. */
-function recreateHref(item: PublicGenerationDTO) {
-  const qs = new URLSearchParams({
-    model: item.modelId,
-    prompt: item.prompt.slice(0, 2000),
-  })
-  return `/${item.surface}?${qs.toString()}`
-}
-
 function Media({
   kind,
   url,
@@ -184,6 +178,10 @@ export default async function GenerationPage({ params }: Params) {
               </time>
             </p>
           </div>
+
+          {item.caption || owner ? (
+            <CaptionEditor id={item.id} caption={item.caption} mine={owner} />
+          ) : null}
 
           <div className="flex flex-wrap items-center gap-2">
             <Link

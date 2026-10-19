@@ -6,6 +6,7 @@ import { CommunityFeed } from "@/components/community/community-feed"
 import { Page } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { decodeCursor, listPublicGenerations } from "@/lib/community"
+import { currentUser } from "@/lib/session"
 import type { CommunityPage as Feed } from "@/lib/community"
 
 export const metadata: Metadata = {
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
 
 async function loadFeed(cursor: string | null): Promise<Feed> {
   try {
-    return await listPublicGenerations(cursor)
+    const viewer = await currentUser().catch(() => null)
+    return await listPublicGenerations(cursor, undefined, viewer?.id ?? null)
   } catch (error) {
     console.error("[community] feed failed", error)
     return { items: [], nextCursor: null }

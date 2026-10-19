@@ -6,7 +6,7 @@ import { z } from "zod"
 import { RateLimitedError, run } from "@/lib/action-result"
 import type { ActionResult } from "@/lib/action-result"
 import { SignInRequiredError } from "@/lib/auth-guard"
-import { listPublicGenerations } from "@/lib/community"
+import { CAPTION_MAX, listPublicGenerations } from "@/lib/community"
 import type { CommunityPage } from "@/lib/community"
 import {
   findOwned,
@@ -28,6 +28,10 @@ const CURSOR = z
   .string()
   .regex(/^\d{1,15}_[0-9a-f]{24}$/)
   .nullish()
+
+const CAPTION = z.string().max(CAPTION_MAX * 2)
+/** Caption saves per user per minute. */
+const CAPTION_LIMIT = { max: 30, windowSec: 60 } as const
 
 /** Reports per user per hour. ("use server" files export only async functions.) */
 const REPORT_LIMIT = { max: 10, windowSec: 60 * 60 } as const
@@ -80,6 +84,60 @@ export async function publishGenerationAction(
       }
     )
     return { id: parsedId.data, isPublic: false, publishedAt: null }
+  })
+}
+
+/** Owner-only (S584, D-070): the creator's write-up shown beside the creation in
+    Hive Community. Plain text: control characters are dropped, runs of blank
+    lines collapsed, trimmed, at most CAPTION_MAX characters; empty clears it.
+    Someone else's run is NOT_FOUND. */
+export async function updateCaptionAction(
+  id: unknown,
+  caption: unknown
+): Promise<ActionResult<{ id: string; caption: string }>> {
+  return run(async () => {
+    const user = await requireSignedIn()
+    const parsedId = ID.safeParse(id)
+    const parsed = CAPTION.safeParse(caption)
+    if (!parsedId.success) throw new GenerationNotFoundError()
+    if (!parsed.success)
+      throw new GenerationInputError(`Keep it under ${CAPTION_MAX} characters.`)
+    const text = parsed.data
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+      .replace(/\r\n?/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+    if (text.length > CAPTION_MAX)
+      throw new GenerationInputError(`Keep it under ${CAPTION_MAX} characters.`)
+    const limit = await hit({
+      scope: "caption",
+      id: user.id,
+      max: CAPTION_LIMIT.max,
+      windowSec: CAPTION_LIMIT.windowSec,
+    })
+    if (!limit.ok)
+      throw new RateLimitedError("Saving too fast. Try again in a moment.")
+    const doc = await findOwned(user.id, parsedId.data)
+    if (doc.status !== "completed")
+      throw new GenerationInputError(
+        "Only finished creations can have a write-up."
+      )
+    await generations().updateOne(
+      { _id: doc._id, userId: doc.userId },
+      text
+        ? {
+            $set: {
+              caption: text,
+              captionUpdatedAt: new Date(),
+              updatedAt: new Date(),
+            },
+          }
+        : {
+            $unset: { caption: "", captionUpdatedAt: "" },
+            $set: { updatedAt: new Date() },
+          }
+    )
+    return { id: parsedId.data, caption: text }
   })
 }
 
@@ -158,6 +216,11 @@ export async function listCommunityAction(
   return run(async () => {
     const parsed = CURSOR.safeParse(cursor)
     if (!parsed.success) throw new GenerationInputError("Invalid cursor.")
-    return listPublicGenerations(parsed.data ?? null)
+    const viewer = await currentUser()
+    return listPublicGenerations(
+      parsed.data ?? null,
+      undefined,
+      viewer?.id ?? null
+    )
   })
 }

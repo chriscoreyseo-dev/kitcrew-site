@@ -29,6 +29,10 @@ export type PublicGenerationDTO = {
   publishedAt: number
   /** MarketHive display name, else a masked email ("chr…"). */
   author: string
+  /** The creator's write-up (S584, D-070); plain text, "" when none. */
+  caption: string
+  /** The viewer made it (shows Edit). Never reveals who did. */
+  mine: boolean
 }
 
 export type CommunityPage = {
@@ -38,6 +42,9 @@ export type CommunityPage = {
 }
 
 export const COMMUNITY_PAGE_SIZE = 24
+
+/** Longest write-up a creator can put beside a creation (S584). */
+export const CAPTION_MAX = 2000
 
 const PUBLIC: Filter<GenerationDoc> = { isPublic: true, status: "completed" }
 
@@ -76,7 +83,8 @@ export function authorLabel(author: Author | undefined | null): string {
 
 export function toPublicDTO(
   doc: GenerationDoc,
-  author?: Author | null
+  author?: Author | null,
+  viewerId?: string | null
 ): PublicGenerationDTO {
   const outputs = doc.outputs ?? []
   return {
@@ -91,6 +99,8 @@ export function toPublicDTO(
     aspect: doc.aspect || 1,
     publishedAt: (doc.publishedAt ?? doc.updatedAt).getTime(),
     author: authorLabel(author),
+    caption: typeof doc.caption === "string" ? doc.caption : "",
+    mine: Boolean(viewerId && doc.userId.toHexString() === viewerId),
   }
 }
 
@@ -133,7 +143,8 @@ export function decodeCursor(
 /** Newest first, keyset-paginated on (publishedAt, _id) so ties never skip. */
 export async function listPublicGenerations(
   cursor?: string | null,
-  limit = COMMUNITY_PAGE_SIZE
+  limit = COMMUNITY_PAGE_SIZE,
+  viewerId?: string | null
 ): Promise<CommunityPage> {
   const after = decodeCursor(cursor)
   const filter: Filter<GenerationDoc> = after
@@ -157,20 +168,23 @@ export async function listPublicGenerations(
   ])
   const last = docs[size - 1]
   return {
-    items: page.map((d) => toPublicDTO(d, authors.get(d.userId.toHexString()))),
+    items: page.map((d) =>
+      toPublicDTO(d, authors.get(d.userId.toHexString()), viewerId)
+    ),
     nextCursor: docs.length > size && last ? encodeCursor(last) : null,
   }
 }
 
 /** One published generation, or null (unpublished and missing look the same). */
 export async function getPublicGeneration(
-  id: string
+  id: string,
+  viewerId?: string | null
 ): Promise<PublicGenerationDTO | null> {
   if (!/^[0-9a-f]{24}$/.test(id)) return null
   const doc = await generations().findOne({ ...PUBLIC, _id: new ObjectId(id) })
   if (!doc || !doc.outputs?.length) return null
   const authors = await authorsFor([doc.userId])
-  return toPublicDTO(doc, authors.get(doc.userId.toHexString()))
+  return toPublicDTO(doc, authors.get(doc.userId.toHexString()), viewerId)
 }
 
 /** Whether `userId` owns the published generation `id` (for the owner-only

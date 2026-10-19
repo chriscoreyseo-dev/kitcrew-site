@@ -9,10 +9,12 @@ import type { PublicGenerationDTO } from "@/lib/community"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-import { CommunityTile } from "./community-tile"
+import { CommunityPost } from "./community-post"
 
-/** Justified feed with cursor load-more. The button is a real link to
-    `?cursor=`, so it still pages without JavaScript; with JS it appends. */
+/** Hive Community as a feed (S584, Chris): one creation per row at its own
+    shape with the creator's write-up beside it, like the News Feed. Cursor
+    load-more; the button is a real link to `?cursor=`, so it still pages without
+    JavaScript; with JS it appends. */
 export function CommunityFeed({
   initialItems,
   initialCursor,
@@ -46,12 +48,10 @@ export function CommunityFeed({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-start gap-2 [--row-h:140px] sm:[--row-h:200px] lg:[--row-h:240px]">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
         {items.map((item) => (
-          <CommunityTile key={item.id} item={item} />
+          <CommunityPost key={item.id} item={item} />
         ))}
-        {/* Absorbs the last row's free space so it isn't stretched. */}
-        <div aria-hidden className="h-0 grow-[10000] basis-0" />
       </div>
       {cursor ? (
         <div className="flex flex-col items-center gap-2">

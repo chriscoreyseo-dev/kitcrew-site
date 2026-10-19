@@ -293,6 +293,89 @@ describe("public community data", () => {
   })
 })
 
+describe("updateCaptionAction (S584, D-070)", () => {
+  it("the owner writes a plain-text write-up that the public feed shows", async () => {
+    const gen = await seedGeneration({
+      isPublic: true,
+      publishedAt: new Date(),
+    })
+    signIn(OWNER, OWNER_EMAIL)
+    const r = await actions.updateCaptionAction(
+      gen._id.toHexString(),
+      "  Cherry red.\r\n\r\n\r\n\r\nFor the meetup \u0007<b>tonight</b>  "
+    )
+    expect(r).toEqual({
+      ok: true,
+      data: {
+        id: gen._id.toHexString(),
+        caption: "Cherry red.\n\nFor the meetup <b>tonight</b>",
+      },
+    })
+    const page = await community.listPublicGenerations(
+      null,
+      24,
+      OWNER.toHexString()
+    )
+    expect(page.items[0]).toMatchObject({
+      caption: "Cherry red.\n\nFor the meetup <b>tonight</b>",
+      mine: true,
+    })
+    const other = await community.listPublicGenerations(
+      null,
+      24,
+      OTHER.toHexString()
+    )
+    expect(other.items[0]!.mine).toBe(false)
+    const anon = await community.getPublicGeneration(gen._id.toHexString())
+    expect(anon?.mine).toBe(false)
+    expect(anon?.caption).toBe("Cherry red.\n\nFor the meetup <b>tonight</b>")
+  })
+
+  it("someone else's creation looks like it doesn't exist", async () => {
+    const gen = await seedGeneration({
+      isPublic: true,
+      publishedAt: new Date(),
+    })
+    signIn(OTHER)
+    const r = await actions.updateCaptionAction(
+      gen._id.toHexString(),
+      "mine now"
+    )
+    expect(r).toMatchObject({ ok: false, code: "NOT_FOUND" })
+    expect((await stored(gen._id))?.caption).toBeUndefined()
+  })
+
+  it("signed out is refused, too long is refused, empty clears it", async () => {
+    const gen = await seedGeneration()
+    expect(
+      await actions.updateCaptionAction(gen._id.toHexString(), "hi")
+    ).toMatchObject({ ok: false })
+    signIn(OWNER, OWNER_EMAIL)
+    expect(
+      await actions.updateCaptionAction(
+        gen._id.toHexString(),
+        "x".repeat(community.CAPTION_MAX + 1)
+      )
+    ).toMatchObject({ ok: false, code: "INVALID" })
+    await actions.updateCaptionAction(gen._id.toHexString(), "first")
+    expect((await stored(gen._id))?.caption).toBe("first")
+    const cleared = await actions.updateCaptionAction(
+      gen._id.toHexString(),
+      "   "
+    )
+    expect(cleared).toMatchObject({ ok: true, data: { caption: "" } })
+    expect((await stored(gen._id))?.caption).toBeUndefined()
+  })
+
+  it("an unfinished run can't take a write-up", async () => {
+    const gen = await seedGeneration({ status: "failed", outputs: [] })
+    signIn(OWNER, OWNER_EMAIL)
+    expect(
+      await actions.updateCaptionAction(gen._id.toHexString(), "nope")
+    ).toMatchObject({ ok: false, code: "INVALID" })
+  })
+})
+
 describe("reportGenerationAction", () => {
   it("records one open report per reporter and generation", async () => {
     const gen = await seedGeneration({
