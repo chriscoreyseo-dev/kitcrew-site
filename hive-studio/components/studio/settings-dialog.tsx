@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import type { ModelEntry, SettingField } from "@/generation/catalog/types"
-import { cn } from "@/lib/utils"
+import { MhSwitch } from "@/components/ui/mh-switch"
 
 /** Every setting the active model declares, rendered from the catalog. */
 export interface SettingsDialogProps {
@@ -135,23 +135,7 @@ function SettingRow({
   return (
     <div className="flex min-h-11 items-center justify-between gap-4 px-1 text-q-body-sm-medium">
       <span>{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={current}
-        onClick={() => onChange(!current)}
-        className={cn(
-          "relative h-6 w-10 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-          current ? "bg-q-brand-primary" : "bg-q-transparent-light-15"
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 left-0.5 size-5 rounded-full bg-background transition-transform",
-            current ? "translate-x-4" : "translate-x-0"
-          )}
-        />
-      </button>
+      <MhSwitch checked={current} onChange={onChange} label={label} />
     </div>
   )
 }

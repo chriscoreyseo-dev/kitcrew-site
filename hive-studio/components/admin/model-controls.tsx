@@ -22,10 +22,10 @@ import {
   adminSetModelPricingAction,
 } from "@/generation/admin-actions"
 import type { PriceRule } from "@/lib/billing/price"
-import { cn } from "@/lib/utils"
 
 import { ErrorText, tdClass, textareaClass } from "./ui"
 import { useAdminAction } from "./use-admin-action"
+import { MhSwitch } from "@/components/ui/mh-switch"
 
 const EXAMPLE: PriceRule = { base: { kind: "per_run", usd: 0.05 } }
 
@@ -52,30 +52,16 @@ export function ModelControls({
   return (
     <>
       <td className={tdClass}>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
-          aria-label={`${label} enabled`}
+        <MhSwitch
+          checked={enabled}
+          label={`${label} enabled`}
           disabled={toggle.pending}
-          onClick={() =>
+          onChange={(on) =>
             toggle.execute(() =>
-              adminSetModelEnabledAction({ modelId, enabled: !enabled })
+              adminSetModelEnabledAction({ modelId, enabled: on })
             )
           }
-          className={cn(
-            "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-ink/10 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
-            enabled ? "bg-emerald-500/60" : "bg-ink/10"
-          )}
-        >
-          <span
-            aria-hidden
-            className={cn(
-              "inline-block size-4 rounded-full bg-foreground transition-transform",
-              enabled ? "translate-x-5" : "translate-x-1"
-            )}
-          />
-        </button>
+        />
         {toggle.error ? <ErrorText>{toggle.error}</ErrorText> : null}
       </td>
       <td className={tdClass}>

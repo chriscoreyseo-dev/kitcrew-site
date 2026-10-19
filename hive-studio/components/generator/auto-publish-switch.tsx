@@ -1,6 +1,7 @@
 "use client"
 
 import { Globe } from "lucide-react"
+import { MhSwitch } from "@/components/ui/mh-switch"
 
 /** Generator footer switch (D-065): when on, each new run is published to
     Community as soon as it finishes. Off by default. Drawn as MarketHive's own
@@ -29,19 +30,11 @@ export function AutoPublishSwitch({
           </span>
         </span>
       </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label="Auto-publish to Community"
-        onClick={() => onChange(!checked)}
-        className="mh-switch"
-      >
-        <span aria-hidden className="mh-switch-knob" />
-        <span aria-hidden className="mh-switch-label">
-          {checked ? "ON" : "OFF"}
-        </span>
-      </button>
+      <MhSwitch
+        checked={checked}
+        onChange={onChange}
+        label="Auto-publish to Community"
+      />
     </label>
   )
 }
