@@ -21,6 +21,7 @@ import {
 } from "@/generation/catalog/media-inputs"
 import { publishGenerationAction } from "@/generation/community-actions"
 import { listLibraryAction } from "@/generation/library-actions"
+import { useAutoPublish } from "@/generation/stores/auto-publish"
 import { useSettings } from "@/generation/stores/settings"
 import { toPlatform } from "@/generation/to-platform"
 import { priceFor } from "@/lib/billing/price"
@@ -79,6 +80,12 @@ export function useComposer({
   const settingsByModel = useSettings((s) => s.byModel)
   const setSetting = useSettings((s) => s.set)
   const uploads = useUploads((s) => s.items)
+  const autoPublish = useAutoPublish((s) => s.on)
+  const setAutoPublish = useAutoPublish((s) => s.set)
+
+  useEffect(() => {
+    void useAutoPublish.persist.rehydrate()
+  }, [])
 
   // Preset / recreate settings apply once, on first render of that model.
   useEffect(() => {
@@ -213,9 +220,9 @@ export function useComposer({
       return
     }
     setLocalError(null)
-    const record = await runs.submit(prepared.plane)
+    const record = await runs.submit(prepared.plane, undefined, autoPublish)
     if (record) refreshBalance()
-  }, [askToSignIn, prepared.plane, refreshBalance, runs, user])
+  }, [askToSignIn, autoPublish, prepared.plane, refreshBalance, runs, user])
 
   const cancelQueued = useCallback(() => {
     if (canceling || !cancellable.length) return
@@ -342,6 +349,8 @@ export function useComposer({
     galleryItems,
     runs,
     publish,
+    autoPublish,
+    setAutoPublish,
     reuse,
     error: localError ?? runs.error,
     authReason,

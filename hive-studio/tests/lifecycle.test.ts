@@ -307,6 +307,44 @@ describe("finalize", () => {
     expect(refunds()).toEqual([])
   })
 
+  it("auto-publish publishes the run when it completes, and only then (D-065)", async () => {
+    const auto = await life.submitGeneration({
+      userId: USER,
+      plane: plane(),
+      clientRequestId: crypto.randomUUID(),
+      autoPublish: true,
+    })
+    const manual = await submit()
+    expect((await stored(auto._id))?.isPublic).toBe(false)
+    h.platform.status.mockResolvedValue({
+      status: "completed",
+      requestId: "req-1",
+      images: [{ url: "https://hf.test/a.png" }],
+    })
+    await life.finalizeGeneration(auto._id)
+    await life.finalizeGeneration(manual._id)
+    const published = await stored(auto._id)
+    expect(published?.isPublic).toBe(true)
+    expect(published?.publishedAt).toBeInstanceOf(Date)
+    const privateRun = await stored(manual._id)
+    expect(privateRun?.isPublic).toBe(false)
+    expect(privateRun?.publishedAt).toBeUndefined()
+  })
+
+  it("auto-publish never publishes a blocked run", async () => {
+    const doc = await life.submitGeneration({
+      userId: USER,
+      plane: plane(),
+      clientRequestId: crypto.randomUUID(),
+      autoPublish: true,
+    })
+    h.platform.status.mockResolvedValue({ status: "nsfw", requestId: "req-1" })
+    await life.finalizeGeneration(doc._id)
+    const saved = await stored(doc._id)
+    expect(saved?.status).toBe("nsfw")
+    expect(saved?.isPublic).toBe(false)
+  })
+
   it("concurrent finalizers (webhook + reconciler) settle once", async () => {
     const doc = await submit()
     h.platform.status.mockResolvedValue({

@@ -102,6 +102,8 @@ export type SubmitInput = {
   plane: GenerationPlane
   projectId?: string
   clientRequestId: string
+  /** Publish to Community when the run completes (D-065). */
+  autoPublish?: boolean
 }
 
 /** Validate → insert pending_submit → call the platform → queued.
@@ -187,6 +189,7 @@ export async function submitGeneration(
     outputs: [],
     aspect: aspectFromSettings(plane.settings),
     isPublic: false,
+    ...(input.autoPublish ? { autoPublish: true } : {}),
     createdAt: now,
     updatedAt: now,
   }
@@ -317,6 +320,11 @@ export async function finalizeGeneration(
       return "settled"
     }
     const outputs = await storeOutputs(doc, outcome.outputs)
+    // Auto-publish (D-065): same fields the manual Publish sets.
+    const publish =
+      doc.autoPublish && outputs.length
+        ? { isPublic: true, publishedAt: at }
+        : {}
     await generations().updateOne(
       { _id: id, status: { $in: ["queued", "in_progress"] } },
       {
@@ -326,6 +334,7 @@ export async function finalizeGeneration(
           checkedAt: at,
           updatedAt: at,
           finishedAt: at,
+          ...publish,
         },
         $unset: { finalizingUntil: "", error: "" },
       }

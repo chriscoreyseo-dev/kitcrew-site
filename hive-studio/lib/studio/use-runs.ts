@@ -99,13 +99,15 @@ export function useRuns(
   const submit = useCallback(
     async (
       plane: GenerationPlane,
-      projectId?: string
+      projectId?: string,
+      autoPublish?: boolean
     ): Promise<RunRecord | null> => {
       setError(null)
       const result = await submitGenerationAction({
         plane,
         clientRequestId: crypto.randomUUID(),
         ...(projectId ? { projectId } : {}),
+        ...(autoPublish ? { autoPublish: true } : {}),
       })
       if (!result.ok) {
         if (

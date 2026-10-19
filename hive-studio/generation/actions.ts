@@ -41,6 +41,7 @@ const SUBMIT = z.object({
   plane: PLANE,
   projectId: z.uuid().optional(),
   clientRequestId: z.uuid(),
+  autoPublish: z.boolean().optional(),
 })
 
 async function signedIn() {
@@ -72,6 +73,7 @@ export async function submitGenerationAction(
       plane: parsed.data.plane as GenerationPlane,
       clientRequestId: parsed.data.clientRequestId,
       ...(parsed.data.projectId ? { projectId: parsed.data.projectId } : {}),
+      ...(parsed.data.autoPublish ? { autoPublish: true } : {}),
     })
     if (doc.projectId)
       await projects().updateOne(

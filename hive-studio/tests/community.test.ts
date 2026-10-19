@@ -267,6 +267,30 @@ describe("public community data", () => {
     expect(community.maskAuthor("al@example.com")).toBe("al…")
     expect(community.maskAuthor(undefined)).toBe("creator")
   })
+
+  it("shows the member's MarketHive name, else the masked email (D-065)", async () => {
+    await h.db
+      .collection("users")
+      .updateOne(
+        { _id: OWNER },
+        { $set: { markethive: { memberId: 7, name: "  Chris Corey  " } } }
+      )
+    const gen = await seedGeneration({
+      isPublic: true,
+      publishedAt: new Date(),
+    })
+    const page = await community.listPublicGenerations()
+    expect(page.items[0]!.author).toBe("Chris Corey")
+    const detail = await community.getPublicGeneration(gen._id.toHexString())
+    expect(detail?.author).toBe("Chris Corey")
+    expect(JSON.stringify(page)).not.toContain(OWNER_EMAIL)
+
+    expect(community.authorLabel({ email: OWNER_EMAIL, name: "   " })).toBe(
+      "chr…"
+    )
+    expect(community.authorLabel({ email: OWNER_EMAIL })).toBe("chr…")
+    expect(community.authorLabel(null)).toBe("creator")
+  })
 })
 
 describe("reportGenerationAction", () => {

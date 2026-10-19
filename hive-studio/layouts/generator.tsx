@@ -7,6 +7,7 @@ import { useMemo, useState } from "react"
 
 import { AuthDialog } from "@/components/auth/auth-dialog"
 import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
+import { AutoPublishSwitch } from "@/components/generator/auto-publish-switch"
 import { MediaSlots } from "@/components/generator/media-slots"
 import { ModelCard } from "@/components/generator/model-picker"
 import { SettingsRow } from "@/components/generator/settings-row"
@@ -236,6 +237,10 @@ export function GeneratorLayout({
                 : `Cancel queued (${c.cancellable.length})`}
             </Button>
           ) : null}
+          <AutoPublishSwitch
+            checked={c.autoPublish}
+            onChange={c.setAutoPublish}
+          />
           <button
             type="button"
             onClick={() => void c.generate()}

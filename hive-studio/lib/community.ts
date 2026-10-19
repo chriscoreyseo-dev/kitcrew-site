@@ -12,7 +12,8 @@ import type { OutputKind } from "@/lib/higgsfield/types"
 /** Public community data. Only completed, published generations are visible;
     everything else (unpublished, failed, someone's private run) looks exactly
     like a missing id. The DTO is an allowlist: userId, email, hfRequestId,
-    r2Key, modelPath, cost and input media never leave the server. */
+    r2Key, modelPath, cost and input media never leave the server. The author
+    is the member's MarketHive display name (D-065), else a masked email. */
 
 export type PublicGenerationDTO = {
   id: string
@@ -26,7 +27,7 @@ export type PublicGenerationDTO = {
   settings: Record<string, unknown>
   aspect: number
   publishedAt: number
-  /** Masked display name, e.g. "chr…". */
+  /** MarketHive display name, else a masked email ("chr…"). */
   author: string
 }
 
@@ -64,9 +65,18 @@ function publicSettings(
   return out
 }
 
+type Author = { email?: string; name?: string }
+
+/** The MarketHive NAME the member already shows on MarketHive (the same name
+    /watch/studio prints as "Shared by"); members without one get maskAuthor. */
+export function authorLabel(author: Author | undefined | null): string {
+  const name = author?.name?.trim().slice(0, 60)
+  return name || maskAuthor(author?.email)
+}
+
 export function toPublicDTO(
   doc: GenerationDoc,
-  email?: string | null
+  author?: Author | null
 ): PublicGenerationDTO {
   const outputs = doc.outputs ?? []
   return {
@@ -80,21 +90,31 @@ export function toPublicDTO(
     settings: publicSettings(doc.settings),
     aspect: doc.aspect || 1,
     publishedAt: (doc.publishedAt ?? doc.updatedAt).getTime(),
-    author: maskAuthor(email),
+    author: authorLabel(author),
   }
 }
 
-type UserEmailDoc = { _id: ObjectId; email?: string }
+type UserAuthorDoc = {
+  _id: ObjectId
+  email?: string
+  markethive?: { name?: string }
+}
 
-async function emailsFor(
-  userIds: ObjectId[]
-): Promise<Map<string, string | undefined>> {
+async function authorsFor(userIds: ObjectId[]): Promise<Map<string, Author>> {
   if (!userIds.length) return new Map()
   const users = await db()
-    .collection<UserEmailDoc>("users")
-    .find({ _id: { $in: userIds } }, { projection: { _id: 1, email: 1 } })
+    .collection<UserAuthorDoc>("users")
+    .find(
+      { _id: { $in: userIds } },
+      { projection: { _id: 1, email: 1, "markethive.name": 1 } }
+    )
     .toArray()
-  return new Map(users.map((u) => [u._id.toHexString(), u.email]))
+  return new Map(
+    users.map((u) => [
+      u._id.toHexString(),
+      { email: u.email, name: u.markethive?.name },
+    ])
+  )
 }
 
 export function encodeCursor(doc: Pick<GenerationDoc, "_id" | "publishedAt">) {
@@ -132,12 +152,12 @@ export async function listPublicGenerations(
     .limit(size + 1)
     .toArray()
   const page = docs.slice(0, size).filter((d) => d.outputs?.length)
-  const emails = await emailsFor([
+  const authors = await authorsFor([
     ...new Map(page.map((d) => [d.userId.toHexString(), d.userId])).values(),
   ])
   const last = docs[size - 1]
   return {
-    items: page.map((d) => toPublicDTO(d, emails.get(d.userId.toHexString()))),
+    items: page.map((d) => toPublicDTO(d, authors.get(d.userId.toHexString()))),
     nextCursor: docs.length > size && last ? encodeCursor(last) : null,
   }
 }
@@ -149,8 +169,8 @@ export async function getPublicGeneration(
   if (!/^[0-9a-f]{24}$/.test(id)) return null
   const doc = await generations().findOne({ ...PUBLIC, _id: new ObjectId(id) })
   if (!doc || !doc.outputs?.length) return null
-  const emails = await emailsFor([doc.userId])
-  return toPublicDTO(doc, emails.get(doc.userId.toHexString()))
+  const authors = await authorsFor([doc.userId])
+  return toPublicDTO(doc, authors.get(doc.userId.toHexString()))
 }
 
 /** Whether `userId` owns the published generation `id` (for the owner-only
