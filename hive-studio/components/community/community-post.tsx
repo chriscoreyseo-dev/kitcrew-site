@@ -5,16 +5,19 @@ import type { PublicGenerationDTO } from "@/lib/community"
 import { recreateHref } from "@/lib/community-links"
 
 import { CaptionEditor } from "./caption-editor"
-import { layoutAspect } from "./community-tile"
 import { FeedVideo } from "./feed-video"
 
-/** Width that shows the creation at its true shape inside the post box: tall
-    ones by height, wide ones by width, never wider than the box. */
-function mediaWidth(a: number): string {
-  if (a < 1) return `min(100%, ${Math.round(420 * a)}px)`
-  if (a === 1) return "min(100%, 360px)"
-  return "min(100%, 560px)"
-}
+/** S586 (Chris): "every feed should run from the same size as the newsfeed" -
+    rows, the boxes inside them AND the images. Measured on MarketHive's
+    /newsfeed (dev3, 1920px): post row 1px #dfdfdf, 10px padding, 10px between
+    posts; the post image is 329x205, cropped to fill (object-fit: cover);
+    post text 18px Tahoma. MarketHive's css/mh_ui.css carries the same numbers. */
+const NEWSFEED = {
+  border: "#dfdfdf",
+  imageW: 329,
+  imageH: 205,
+  font: "Tahoma, 'Poppins', Geneva, sans-serif",
+} as const
 
 /** One Hive Community post (S584, Chris; D-070), laid out like a MarketHive News
     Feed post (Chris: "spread out more like we have on the newsfeed and the blog
@@ -23,13 +26,15 @@ function mediaWidth(a: number): string {
     ...) and the write-up running the full width under it, then a line of small
     links like the News Feed's Tip / Like / Comment / Permalink. */
 export function CommunityPost({ item }: { item: PublicGenerationDTO }) {
-  const a = layoutAspect(item.aspect)
   const url = item.urls[0]
   const label = item.prompt ? item.prompt.slice(0, 120) : item.modelLabel
   const published = new Date(item.publishedAt)
 
   return (
-    <article className="flex w-full flex-col gap-2 border border-ink/15 bg-card px-4 pt-3 pb-2">
+    <article
+      className="flex w-full flex-col gap-[10px] border bg-card p-[10px]"
+      style={{ borderColor: NEWSFEED.border, fontFamily: NEWSFEED.font }}
+    >
       <header className="flex flex-wrap items-baseline gap-x-3">
         <p className="text-[15px] font-semibold text-[#2f4370]">
           {item.author}
@@ -37,12 +42,19 @@ export function CommunityPost({ item }: { item: PublicGenerationDTO }) {
         <p className="text-xs text-muted-foreground">{item.modelLabel}</p>
       </header>
 
-      <div className="flex flex-col gap-3 border border-ink/10 bg-[#f5f5f5] p-3">
+      <div
+        className="flex flex-col gap-[10px] border bg-[#f5f5f5] p-[10px]"
+        style={{ borderColor: NEWSFEED.border }}
+      >
         <Link
           href={`/g/${item.id}`}
           aria-label={`Open: ${label}`}
-          className="relative block overflow-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          style={{ aspectRatio: a, width: mediaWidth(a) }}
+          className="relative block shrink-0 overflow-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          style={{
+            width: NEWSFEED.imageW,
+            height: NEWSFEED.imageH,
+            maxWidth: "100%",
+          }}
         >
           {url && item.kind === "video" ? (
             <FeedVideo src={url} label={label} className="absolute inset-0" />
@@ -64,7 +76,7 @@ export function CommunityPost({ item }: { item: PublicGenerationDTO }) {
             </span>
           )}
         </Link>
-        <div className="px-1 text-[15px]">
+        <div className="px-1 text-[18px]">
           <CaptionEditor id={item.id} caption={item.caption} mine={item.mine} />
         </div>
       </div>

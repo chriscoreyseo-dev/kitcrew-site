@@ -48,7 +48,7 @@ export function CommunityFeed({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-[10px]">
         {items.map((item) => (
           <CommunityPost key={item.id} item={item} />
         ))}

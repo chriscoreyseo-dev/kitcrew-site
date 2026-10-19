@@ -29,7 +29,7 @@ export function CaptionEditor({
     return (
       <div className="flex flex-col items-start gap-2">
         {caption ? (
-          <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
+          <p className="text-[length:inherit] leading-relaxed whitespace-pre-line text-foreground">
             {caption}
           </p>
         ) : null}
@@ -69,7 +69,7 @@ export function CaptionEditor({
         autoFocus
         aria-label="Write about this creation"
         placeholder="Tell people about it: what you made, why, what to notice."
-        className="w-full resize-y rounded-lg border border-ink/15 bg-transparent px-3 py-2 text-sm"
+        className="w-full resize-y rounded-lg border border-ink/15 bg-transparent px-3 py-2 text-[length:inherit]"
       />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">

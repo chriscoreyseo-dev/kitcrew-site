@@ -180,7 +180,9 @@ export default async function GenerationPage({ params }: Params) {
           </div>
 
           {item.caption || owner ? (
-            <CaptionEditor id={item.id} caption={item.caption} mine={owner} />
+            <div className="text-sm">
+              <CaptionEditor id={item.id} caption={item.caption} mine={owner} />
+            </div>
           ) : null}
 
           <div className="flex flex-wrap items-center gap-2">
