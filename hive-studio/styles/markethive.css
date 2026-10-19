@@ -251,3 +251,102 @@ html[data-mh-chrome="page"] body {
   color: #1a1a2e;
   backdrop-filter: none;
 }
+
+/* ── The library's prompt bar (S584, Chris: "bring it more in line with
+      MarketHive design buttons and brand"). White panel on MarketHive's light
+      blue border; Video/Image tabs on the button blue; the model and ratio
+      pickers as Blog Feed .bh-btn controls; the frame slots as white tiles;
+      GENERATE as LARGE.BUTTON - no neon gradient, no glow. ─────────────── */
+:root[data-theme="markethive-light"] .q-prompt-box-dock,
+:root[data-theme="markethive-light"] .q-prompt-box-mode-rail {
+  border: 1px solid #a1b1d1;
+  border-radius: 4px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(18, 28, 49, 0.12);
+}
+:root[data-theme="markethive-light"] .q-prompt-box-dock-surface {
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-mode {
+  border-radius: 4px;
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-weight: 700;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-mode:hover {
+  background-image: none;
+  background-color: #e9eaf3;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-mode-active,
+:root[data-theme="markethive-light"] .q-prompt-box-mode-active:hover {
+  border: 1px solid #121c31;
+  border-radius: 4px;
+  background-color: #6d83b4;
+  color: #ffffff;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-field {
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-pill {
+  border: 2px solid #000000;
+  border-radius: 4px;
+  background-color: #e9eaf3;
+  background-image: none;
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  font-weight: 700;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-pill:hover {
+  background-image: none;
+  background-color: #dcdef0;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-pill-icon-only {
+  border-width: 1px;
+  border-color: #121c31;
+  background-color: #ffffff;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-upload {
+  border: 1px solid #a1b1d1;
+  border-radius: 4px;
+  background-color: #ffffff;
+  background-image: none;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-upload:hover {
+  background-image: none;
+  background-color: #e9eaf3;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-upload-add {
+  background-color: #6d83b4;
+  color: #ffffff;
+  box-shadow: none;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-upload-label {
+  color: #1a1a2e;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-generate {
+  border: 1px solid #121c31;
+  border-radius: 4px;
+  background-color: #6d83b4;
+  background-image: none;
+  color: #ffffff;
+  font-family: "Tahoma", "Poppins", Geneva, sans-serif;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-generate:hover {
+  filter: brightness(1.1);
+}
+:root[data-theme="markethive-light"] .q-prompt-box-generate:focus-visible {
+  outline: 2px solid #e9bc47;
+  outline-offset: 1px;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-generate-meta,
+:root[data-theme="markethive-light"] .q-prompt-box-generate-label {
+  color: #ffffff;
+}
+:root[data-theme="markethive-light"] .q-prompt-box-generate-old {
+  color: rgba(255, 255, 255, 0.55);
+}

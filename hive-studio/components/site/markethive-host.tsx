@@ -4,7 +4,24 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 import { balanceAction } from "@/generation/billing-actions"
-import { announceBalance, BALANCE_EVENT } from "@/lib/client-events"
+import { listLibraryAction } from "@/generation/library-actions"
+import {
+  announceBalance,
+  BALANCE_EVENT,
+  LIBRARY_EVENT,
+} from "@/lib/client-events"
+import { useProjects } from "@/lib/studio/projects"
+
+/** MarketHive's LIBRARY menu (S584): home | all | new | project:<id>. */
+const LIBRARY_TARGET = /^(home|all|new|project:[A-Za-z0-9-]{1,64})$/
+
+/** Where a Library choice lives when the library view is not on screen. */
+function libraryPath(target: string): string {
+  if (target === "home") return "/assets?library=home"
+  if (target === "new") return "/assets?library=new"
+  if (target.startsWith("project:")) return `/projects/${target.slice(8)}`
+  return "/assets"
+}
 
 /** Paths the host may send the studio to: same-origin, no scheme, no "//". */
 const SAFE_PATH = /^\/(?!\/)[A-Za-z0-9\-_/?=&.%]*$/
@@ -59,6 +76,19 @@ export function MarketHiveHost({
       if (data?.type === "hive-studio:host" && data.chrome === "page") {
         document.documentElement.dataset.mhChrome = "page"
         post({ type: "hive-studio:route", path: window.location.pathname })
+      } else if (
+        data?.type === "hive-studio:library" &&
+        typeof (data as { target?: unknown }).target === "string" &&
+        LIBRARY_TARGET.test((data as { target: string }).target)
+      ) {
+        const target = (data as { target: string }).target
+        const path = window.location.pathname
+        // The library view is mounted: switch it in place. Otherwise go there.
+        if (path === "/assets" || path.startsWith("/projects/"))
+          window.dispatchEvent(
+            new CustomEvent(LIBRARY_EVENT, { detail: target })
+          )
+        else router.push(libraryPath(target))
       } else if (data?.type === "hive-studio:refresh-balance") {
         void balanceAction().then((r) => {
           if (r.ok) announceBalance(r.data.subscription + r.data.topup)
@@ -96,6 +126,29 @@ export function MarketHiveHost({
       document.removeEventListener("click", onClick, true)
     }
   }, [origin, router, creditsUrl])
+
+  useEffect(() => {
+    if (!origin || window.parent === window) return
+    const send = () =>
+      window.parent.postMessage(
+        {
+          type: "hive-studio:projects",
+          projects: useProjects
+            .getState()
+            .projects.slice(0, 30)
+            .map((p) => ({ id: p.id, name: p.name.slice(0, 80) })),
+        },
+        origin
+      )
+    send()
+    const unsubscribe = useProjects.subscribe(send)
+    if (!useProjects.getState().projects.length)
+      void listLibraryAction().then((r) => {
+        if (r.ok && !useProjects.getState().projects.length)
+          useProjects.getState().hydrate(r.data.projects)
+      })
+    return unsubscribe
+  }, [origin])
 
   useEffect(() => {
     if (!origin || window.parent === window) return

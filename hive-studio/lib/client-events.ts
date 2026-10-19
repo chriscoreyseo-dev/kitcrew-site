@@ -7,3 +7,7 @@ export function announceBalance(credits: number): void {
     new CustomEvent<number>(BALANCE_EVENT, { detail: credits })
   )
 }
+
+/** MarketHive's LIBRARY menu asks the library view for: home | all | new |
+    project:<id> (S584). */
+export const LIBRARY_EVENT = "hive:library"
