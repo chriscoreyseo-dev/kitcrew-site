@@ -9,7 +9,7 @@ import { decodeCursor, listPublicGenerations } from "@/lib/community"
 import type { CommunityPage as Feed } from "@/lib/community"
 
 export const metadata: Metadata = {
-  title: "Community · Hive Studio",
+  title: "Hive Community · Hive Studio",
   description: "Images and videos published by Hive Studio creators.",
 }
 
@@ -34,7 +34,7 @@ export default async function CommunityPage({
 
   return (
     <Page
-      title="Community"
+      title="Hive Community"
       subtitle="Fresh images and videos published by creators. Open one to see the prompt and recreate it."
       width="wide"
       actions={
