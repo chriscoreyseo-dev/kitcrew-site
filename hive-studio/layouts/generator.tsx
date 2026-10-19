@@ -146,7 +146,7 @@ export function GeneratorLayout({
     <div className="flex flex-col pb-28 lg:h-[calc(100dvh-var(--header-h))] lg:flex-row lg:overflow-hidden lg:pb-0">
       {/* Control panel */}
       <aside className="flex w-full shrink-0 flex-col border-ink/[0.06] lg:w-[400px] lg:border-r">
-        <div className="flex flex-1 flex-col gap-5 p-4 lg:overflow-y-auto">
+        <div className="flex flex-1 flex-col gap-5 p-4 lg:overflow-y-auto [&>*]:shrink-0">
           {modes.length > 1 ? (
             <div
               role="tablist"
