@@ -323,7 +323,7 @@ export function AssetLibraryModal({
             caption={
               selected.length
                 ? `${selected.length} selected`
-                : "Choose references"
+                : "Click a picture to select it, then press Add"
             }
           >
             <Button
@@ -334,10 +334,15 @@ export function AssetLibraryModal({
               Clear selection
             </Button>
             <Button
+              size="lg"
+              className="px-5 text-sm font-semibold"
               disabled={uploading || selected.length === 0}
               onClick={() => commit(selected)}
             >
-              Add {selected.length || "references"}
+              <Check data-icon="inline-start" className="size-4" />
+              {selected.length === 0
+                ? "Add"
+                : `Add ${selected.length} ${selected.length === 1 ? "reference" : "references"}`}
             </Button>
           </DialogFooter>
         ) : null}
@@ -412,7 +417,8 @@ function ElementCard({
       disabled={disabled}
       className={cn(
         "flex h-[148px] w-full flex-col gap-1.5 rounded-q-400 p-1 text-left transition-colors hover:bg-q-transparent-light-05 focus-visible:ring-2 focus-visible:ring-q-border-focus focus-visible:outline-none disabled:opacity-40",
-        selected && "bg-q-transparent-light-10 ring-1 ring-q-border-focus"
+        // Chris (S587): a picked picture must look picked - a thin ring read as "nothing happened".
+        selected && "bg-q-transparent-light-10 ring-[3px] ring-primary"
       )}
     >
       <span className="relative block h-24 w-full overflow-hidden rounded-q-300 bg-q-background-tertiary">
@@ -442,8 +448,10 @@ function ElementCard({
           />
         )}
         {selected ? (
-          <span className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Check className="size-3" />
+          <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+            <span className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-2 ring-white">
+              <Check className="size-7" strokeWidth={3} />
+            </span>
           </span>
         ) : null}
         {item.kind === "video" ? (
