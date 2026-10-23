@@ -28,7 +28,7 @@ import type {
   GenerationStatus,
 } from "@/lib/generations/model"
 import { presets, reports } from "@/lib/presets"
-import type { PresetDoc, ReportDoc } from "@/lib/presets"
+import type { PresetDoc, PresetMedia, ReportDoc } from "@/lib/presets"
 import type { Role } from "@/types/next-auth"
 import { isMarketHive } from "@/lib/mode"
 
@@ -425,6 +425,7 @@ export type AdminPresetRow = {
   promptTemplate: string
   settings: Record<string, unknown>
   coverUrl?: string
+  media?: PresetMedia[]
   category: string
   order: number
   active: boolean
@@ -440,6 +441,8 @@ export type PresetInput = {
   promptTemplate: string
   settings: Record<string, unknown>
   coverUrl?: string
+  /** Inputs the effect loads (a template's motion clip, S611). */
+  media?: PresetMedia[]
   category: string
   order: number
   active: boolean
@@ -461,6 +464,7 @@ export async function listAllPresets(): Promise<AdminPresetRow[]> {
     promptTemplate: p.promptTemplate,
     settings: p.settings ?? {},
     ...(p.coverUrl ? { coverUrl: p.coverUrl } : {}),
+    ...(p.media?.length ? { media: p.media } : {}),
     category: p.category,
     order: p.order ?? 0,
     active: Boolean(p.active),
@@ -479,6 +483,17 @@ function checkPresetModel(input: PresetInput): Record<string, unknown> {
   for (const key of Object.keys(input.settings))
     if (!model.settings[key])
       throw new GenerationInputError(`${model.label} has no setting "${key}".`)
+  for (const item of input.media ?? []) {
+    const max = model.roles[item.role] ?? 0
+    if (!max)
+      throw new GenerationInputError(
+        `${model.label} takes no "${item.role}" input.`
+      )
+    if ((input.media ?? []).filter((m) => m.role === item.role).length > max)
+      throw new GenerationInputError(
+        `${model.label} takes at most ${max} "${item.role}" input(s).`
+      )
+  }
   let parsed: Record<string, unknown>
   try {
     parsed = parseSettings(model, input.settings)
@@ -513,6 +528,7 @@ export async function createPreset(input: PresetInput): Promise<string> {
     promptTemplate: input.promptTemplate,
     settings,
     ...(input.coverUrl ? { coverUrl: input.coverUrl } : {}),
+    ...(input.media?.length ? { media: input.media } : {}),
     category: input.category,
     order: input.order,
     active: input.active,
@@ -539,6 +555,7 @@ export async function updatePreset(
   const unset = {
     ...(input.description ? {} : { description: "" as const }),
     ...(input.coverUrl ? {} : { coverUrl: "" as const }),
+    ...(input.media?.length ? {} : { media: "" as const }),
   }
   try {
     const result = await presets().updateOne(
@@ -553,6 +570,7 @@ export async function updatePreset(
           promptTemplate: input.promptTemplate,
           settings,
           ...(input.coverUrl ? { coverUrl: input.coverUrl } : {}),
+          ...(input.media?.length ? { media: input.media } : {}),
           category: input.category,
           order: input.order,
           active: input.active,

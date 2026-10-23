@@ -19,6 +19,7 @@ import { platform, PlatformError } from "@/lib/higgsfield"
 import { projectBelongsTo, uploads } from "@/lib/library"
 import { mp4DurationSeconds } from "@/lib/media/mp4-duration"
 import { PlatformUnreachableError } from "@/lib/higgsfield/platform"
+import { activePresetMediaUrls } from "@/lib/presets"
 import { webhookUrlFor } from "@/lib/higgsfield/webhook"
 import { deleteOutputs, isStorageConfigured, storeOutput } from "@/lib/storage"
 import { signLocalMediaUrls } from "@/lib/storage/media-access"
@@ -67,15 +68,17 @@ export function webhooksEnabled(): boolean {
   return Boolean(e.HF_WEBHOOK_BASE_URL && e.HF_WEBHOOK_SECRET)
 }
 
-/** Every media URL must be the user's own upload or the user's own output.
-    The browser never chooses what the platform fetches. */
+/** Every media URL must be the user's own upload, the user's own output, a
+    creation published to Community (Recreate with my photos, S611), or an
+    active effect's own media (a template's motion clip, S611). The browser
+    never chooses what the platform fetches. */
 async function assertMediaOwned(
   userId: ObjectId,
   urls: string[]
 ): Promise<void> {
   const unique = [...new Set(urls)]
   if (!unique.length) return
-  const [ownedUploads, outputs] = await Promise.all([
+  const [ownedUploads, outputs, published, templateMedia] = await Promise.all([
     uploads()
       .find(
         { userId, status: "ready", publicUrl: { $in: unique } },
@@ -88,10 +91,18 @@ async function assertMediaOwned(
         { projection: { outputs: 1 } }
       )
       .toArray(),
+    generations()
+      .find(
+        { isPublic: true, status: "completed", "outputs.url": { $in: unique } },
+        { projection: { outputs: 1 } }
+      )
+      .toArray(),
+    activePresetMediaUrls(unique),
   ])
   const owned = new Set<string>([
     ...ownedUploads.map((u) => u.publicUrl),
-    ...outputs.flatMap((g) => g.outputs.map((o) => o.url)),
+    ...[...outputs, ...published].flatMap((g) => g.outputs.map((o) => o.url)),
+    ...templateMedia,
   ])
   if (unique.some((url) => !owned.has(url)))
     throw new GenerationInputError(

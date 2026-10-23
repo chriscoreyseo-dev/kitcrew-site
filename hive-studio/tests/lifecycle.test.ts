@@ -185,6 +185,46 @@ describe("submit", () => {
     expect(doc.status).toBe("queued")
   })
 
+  it("accepts another member's video published to Community (Recreate with my photos, S611)", async () => {
+    const url = "https://media.test/u/other/published/0.mp4"
+    const asReference = plane({
+      media: {
+        reference: [{ id: "x", url, role: "reference", kind: "image" }],
+      },
+    })
+    await expect(submit(undefined, asReference)).rejects.toThrow(/library/)
+    await h.db.collection("generations").insertOne({
+      _id: new ObjectId(),
+      userId: new ObjectId(),
+      status: "completed",
+      isPublic: true,
+      outputs: [{ url, kind: "video" }],
+    })
+    const doc = await submit(undefined, asReference)
+    expect(doc.status).toBe("queued")
+  })
+
+  it("accepts an ACTIVE effect's own media, never an inactive one's (templates, S611)", async () => {
+    const url = "https://media.test/templates/dance.mp4"
+    const withClip = plane({
+      media: {
+        reference: [{ id: "x", url, role: "reference", kind: "image" }],
+      },
+    })
+    await h.db.collection("presets").insertOne({
+      _id: new ObjectId(),
+      slug: "dance-off",
+      active: false,
+      media: [{ role: "reference", url, kind: "image" }],
+    })
+    await expect(submit(undefined, withClip)).rejects.toThrow(/library/)
+    await h.db
+      .collection("presets")
+      .updateOne({ slug: "dance-off" }, { $set: { active: true } })
+    const doc = await submit(undefined, withClip)
+    expect(doc.status).toBe("queued")
+  })
+
   it("hands the platform a signed link to the user's own /media output", async () => {
     const gen = new ObjectId().toHexString()
     const url = `http://localhost:3000/media/u/${USER}/${gen}/0.png`

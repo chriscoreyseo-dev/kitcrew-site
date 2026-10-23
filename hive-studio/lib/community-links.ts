@@ -10,3 +10,9 @@ export function recreateHref(
   })
   return `/${item.surface}?${qs.toString()}`
 }
+
+/** Recreate with my photos (S611, Chris): this video becomes the motion source
+    and its prompt loads; the member adds a photo per person. Videos only. */
+export function remixHref(item: Pick<PublicGenerationDTO, "id" | "kind">) {
+  return item.kind === "video" ? `/video?remix=${item.id}` : null
+}

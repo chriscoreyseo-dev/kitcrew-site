@@ -2,7 +2,7 @@ import Link from "next/link"
 import { AudioLines } from "lucide-react"
 
 import type { PublicGenerationDTO } from "@/lib/community"
-import { recreateHref } from "@/lib/community-links"
+import { recreateHref, remixHref } from "@/lib/community-links"
 
 import { CaptionEditor } from "./caption-editor"
 import { FeedVideo } from "./feed-video"
@@ -88,6 +88,11 @@ export function CommunityPost({ item }: { item: PublicGenerationDTO }) {
         <Link href={recreateHref(item)} className="hover:underline">
           Recreate
         </Link>
+        {remixHref(item) && (
+          <Link href={remixHref(item)!} className="hover:underline">
+            Recreate with my photos
+          </Link>
+        )}
         <time
           dateTime={published.toISOString()}
           className="text-muted-foreground"

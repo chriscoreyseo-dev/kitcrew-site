@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { cache } from "react"
-import { ArrowLeft, AudioLines, Repeat2 } from "lucide-react"
+import { ArrowLeft, AudioLines, Repeat2, Users } from "lucide-react"
 
 import { CaptionEditor } from "@/components/community/caption-editor"
 import { ReportDialog } from "@/components/community/report-dialog"
@@ -12,7 +12,7 @@ import { Page, SectionTitle } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { getPublicGeneration, isPublicOwner } from "@/lib/community"
 import type { PublicGenerationDTO } from "@/lib/community"
-import { recreateHref } from "@/lib/community-links"
+import { recreateHref, remixHref } from "@/lib/community-links"
 import { currentUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
@@ -193,6 +193,18 @@ export default async function GenerationPage({ params }: Params) {
               <Repeat2 aria-hidden />
               Recreate
             </Link>
+            {remixHref(item) ? (
+              <Link
+                href={remixHref(item)!}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "px-5"
+                )}
+              >
+                <Users aria-hidden />
+                Recreate with my photos
+              </Link>
+            ) : null}
             {owner ? (
               <UnpublishButton generationId={item.id} />
             ) : user ? (

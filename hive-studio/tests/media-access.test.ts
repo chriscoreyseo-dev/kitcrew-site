@@ -179,6 +179,18 @@ describe("mediaAccess", () => {
     expect(await mediaAccess(KEY, null)).toBe("public")
   })
 
+  it("opens an ACTIVE effect's template media to everyone (S611), not an inactive one's", async () => {
+    const { mediaAccess } = await access()
+    await h.db.collection("presets").insertOne({
+      _id: new ObjectId(),
+      active: false,
+      media: [{ role: "video", url: `${APP}/media/${KEY}`, kind: "video" }],
+    })
+    expect(await mediaAccess(KEY, null)).toBeNull()
+    await h.db.collection("presets").updateOne({}, { $set: { active: true } })
+    expect(await mediaAccess(KEY, null)).toBe("public")
+  })
+
   it("refuses anything that isn't an exact media key", async () => {
     const { mediaAccess } = await access()
     expect(await mediaAccess("u/../../etc/passwd", null)).toBeNull()
