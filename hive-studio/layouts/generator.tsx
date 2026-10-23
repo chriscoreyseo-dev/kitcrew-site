@@ -10,6 +10,7 @@ import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
 import { AutoPublishSwitch } from "@/components/generator/auto-publish-switch"
 import { MediaSlots } from "@/components/generator/media-slots"
 import { ModelCard } from "@/components/generator/model-picker"
+import { RecipeHelper } from "@/components/generator/recipe-helper"
 import { SettingsRow } from "@/components/generator/settings-row"
 import { UserGenerations } from "@/components/studio/user-generations"
 import { Button } from "@/components/ui/button"
@@ -186,6 +187,12 @@ export function GeneratorLayout({
             onUpload={c.upload}
             onAdd={c.addMedia}
             onRemove={c.removeMedia}
+          />
+
+          <RecipeHelper
+            model={c.model}
+            media={c.media}
+            setPrompt={c.setPrompt}
           />
 
           <label className="flex flex-col gap-2">

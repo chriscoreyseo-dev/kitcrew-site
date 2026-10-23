@@ -86,6 +86,15 @@ const schema = z.object({
       (S580-DRL-02, Chris). Same on dev3 and production. */
   MARKETHIVE_MARKUP: z.coerce.number().min(1).default(1.5),
 
+  /** AI prompt writer (S611): MarketHive's OpenAI proxy (the one AI Blog
+      Autopilot uses; its MH_OPENAI_PROXY_URL / _TOKEN). Unset = the "Write the
+      prompt for me" button says it isn't set up yet. */
+  OPENAI_PROXY_URL: url.optional(),
+  OPENAI_PROXY_TOKEN: nonEmpty.optional(),
+  /** Which of the proxy's keys to spend (X-Proxy-Key) and which allow-listed model. */
+  OPENAI_PROXY_KEY: nonEmpty.default("blog"),
+  RECIPE_MODEL: nonEmpty.default("gpt-5-nano"),
+
   /** Who may spend the platform key in production. "admins" until billing
       ships (Phase 5); then "everyone". Development is always open to
       signed-in users. */
@@ -111,6 +120,7 @@ export const ENV_GROUPS = {
   ],
   cron: ["CRON_SECRET"],
   markethive: ["MARKETHIVE_BASE_URL", "MARKETHIVE_SHARED_SECRET"],
+  recipes: ["OPENAI_PROXY_URL", "OPENAI_PROXY_TOKEN"],
 } as const satisfies Record<string, readonly Key[]>
 
 export type EnvGroup = keyof typeof ENV_GROUPS
@@ -174,6 +184,8 @@ export function groupsFor(e: Env): EnvGroup[] {
   )
   if (e.STORAGE_DRIVER === "local") skip.add("r2")
   if (e.INTERNAL_CRON_SECONDS > 0) skip.add("cron")
+  // Optional feature (S611): never blocks a boot; the button checks at use.
+  skip.add("recipes")
   return (Object.keys(ENV_GROUPS) as EnvGroup[]).filter((g) => !skip.has(g))
 }
 

@@ -39,6 +39,8 @@ const genjutsu: ModelEntry = {
   requiredRoles: ["video", "reference"],
   settings: genjutsuSettings,
   order: 36,
+  // Motion transfer comes back silent; keep the member's clip's soundtrack.
+  audioFrom: "video",
   toPlatform: mapGenjutsu,
 }
 

@@ -50,6 +50,10 @@ export type ModelEntry = {
   icon?: string
   /** Picker order, lower first. Unset sorts last. */
   order?: number
+  /** The platform returns this model's video without sound; the soundtrack of
+      the input in this role is laid back on when the run is stored (S611:
+      Genjutsu keeps the motion clip's music). */
+  audioFrom?: MediaRole
 }
 
 export type GenerationPlane = {

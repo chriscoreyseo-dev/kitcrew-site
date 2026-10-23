@@ -21,8 +21,14 @@ import { mp4DurationSeconds } from "@/lib/media/mp4-duration"
 import { PlatformUnreachableError } from "@/lib/higgsfield/platform"
 import { activePresetMediaUrls } from "@/lib/presets"
 import { webhookUrlFor } from "@/lib/higgsfield/webhook"
-import { deleteOutputs, isStorageConfigured, storeOutput } from "@/lib/storage"
-import { signLocalMediaUrls } from "@/lib/storage/media-access"
+import { withSoundtrack } from "@/lib/media/ffmpeg"
+import {
+  deleteOutputs,
+  isStorageConfigured,
+  storeOutput,
+  storeOutputFile,
+} from "@/lib/storage"
+import { signedMediaUrl, signLocalMediaUrls } from "@/lib/storage/media-access"
 
 import {
   aspectFromSettings,
@@ -72,7 +78,7 @@ export function webhooksEnabled(): boolean {
     creation published to Community (Recreate with my photos, S611), or an
     active effect's own media (a template's motion clip, S611). The browser
     never chooses what the platform fetches. */
-async function assertMediaOwned(
+export async function assertMediaOwned(
   userId: ObjectId,
   urls: string[]
 ): Promise<void> {
@@ -391,15 +397,27 @@ async function storeOutputs(
     )
     return outputs.map((o) => ({ kind: o.kind, url: o.url }))
   }
+  const soundtrack = soundtrackSource(doc)
   const stored: GenerationOutput[] = []
   for (const [index, output] of outputs.entries()) {
-    const copy = await storeOutput({
-      sourceUrl: output.url,
+    const target = {
       userId: doc.userId.toHexString(),
       generationId: doc._id.toHexString(),
       index,
       kind: output.kind,
-    })
+    }
+    const mixed =
+      soundtrack && output.kind === "video"
+        ? await withSoundtrack(output.url, soundtrack).catch(() => null)
+        : null
+    let copy
+    try {
+      copy = mixed
+        ? await storeOutputFile({ ...target, file: mixed.file, contentType: "video/mp4" })
+        : await storeOutput({ ...target, sourceUrl: output.url })
+    } finally {
+      await mixed?.cleanup()
+    }
     stored.push({
       kind: output.kind,
       url: copy.url,
@@ -409,6 +427,19 @@ async function storeOutputs(
     })
   }
   return stored
+}
+
+/** The input whose soundtrack goes back on a silent result (ModelEntry.audioFrom,
+    S611), as a URL ffmpeg can fetch; null when the model keeps its own sound. */
+function soundtrackSource(doc: GenerationDoc): string | null {
+  let role
+  try {
+    role = getModel(doc.modelId).audioFrom
+  } catch {
+    return null
+  }
+  const url = role ? doc.media.find((m) => m.role === role)?.url : undefined
+  return url ? signedMediaUrl(url) : null
 }
 
 export type CancelResult = "canceled" | "already_started" | "already_finished"

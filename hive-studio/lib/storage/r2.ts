@@ -2,6 +2,8 @@ import "server-only"
 
 import { DeleteObjectsCommand, S3Client } from "@aws-sdk/client-s3"
 import { Upload } from "@aws-sdk/lib-storage"
+import { createReadStream } from "node:fs"
+import { stat } from "node:fs/promises"
 import { Readable } from "node:stream"
 import type { ReadableStream as WebReadableStream } from "node:stream/web"
 
@@ -85,6 +87,39 @@ export async function copyToR2(input: {
       Bucket: env.R2_BUCKET,
       Key: key,
       Body: body,
+      ContentType: contentType,
+      CacheControl: "public, max-age=31536000, immutable",
+    },
+  }).done()
+  return { key, url: publicUrl(key), contentType, bytes }
+}
+
+/** A finished file made on this server (S611 soundtrack) uploaded under the
+    output's key, like copyToR2. */
+export async function storeFileR2(input: {
+  file: string
+  contentType: string
+  userId: string
+  generationId: string
+  index: number
+  kind: "image" | "video" | "audio"
+}): Promise<{ key: string; url: string; contentType: string; bytes: number }> {
+  const bytes = (await stat(input.file)).size
+  if (bytes > MAX_BYTES) throw new Error("Output is larger than the storage limit")
+  const { key, contentType } = outputKey(
+    input.userId,
+    input.generationId,
+    input.index,
+    input.contentType,
+    input.kind
+  )
+  const { client, env } = s3()
+  await new Upload({
+    client,
+    params: {
+      Bucket: env.R2_BUCKET,
+      Key: key,
+      Body: createReadStream(input.file),
       ContentType: contentType,
       CacheControl: "public, max-age=31536000, immutable",
     },
