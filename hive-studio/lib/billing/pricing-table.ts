@@ -19,7 +19,7 @@ import type { PriceRule } from "./price"
     Still null, and why:
     - soul-cinema, flux-2, flux-3, dop, seedance-2-fast, seedance-2-mini: no
       price page at our REST path (404).
-    - seedance-2.5-edit/-extend, kling-3-motion-std/-pro: billed on the INPUT
+    - seedance-2.5-edit/-extend, kling-3-motion-std/-pro, genjutsu: billed on the INPUT
       video's seconds, which the price function can't see.
 
     Shape examples:
@@ -80,6 +80,9 @@ export const PRICING_TABLE: Record<string, PriceRule | null> = {
   },
   "kling-3-motion-std": null,
   "kling-3-motion-pro": null,
+  // Genjutsu (S611) bills per second of the INPUT video (up to 30s), which the
+  // price function can't see. Unpriced until Chris rules how to charge it.
+  genjutsu: null,
 
   "flux-2": null,
   // $0.04 at 1k, $0.08 at 2k. No 4k price listed.

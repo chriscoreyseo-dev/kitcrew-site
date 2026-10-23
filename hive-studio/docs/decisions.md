@@ -515,3 +515,9 @@ Chris: "every feed should run from the same size as the newsfeed. For the divisi
 - **Community post** (`components/community/community-post.tsx`): row and inner box 1px `#dfdfdf`, 10px padding, 10px between posts (`community-feed.tsx`); Tahoma.
 - **Image/video box is the News Feed post image: 329x205, cropped to fill (object-fit: cover)** - replaces D-070's true-aspect sizing, so 9:16 and 16:9 creations crop to the same box as a News Feed picture. The full creation is still one click away (`/g/<id>`).
 - **Write-up text 18px** in the feed (News Feed post text); the share page `/g/<id>` keeps its 14px.
+
+### D-073 Genjutsu motion transfer joins the catalog, price pending (S611, Chris)
+Chris: "let's add Genjutsu. As a model". `generation/catalog/models/genjutsu.ts`: video model `genjutsu`, path `higgsfield/genjutsu/motion-transfer/v1.0`, one member video (`video_url`, 4s minimum, trimmed to 30s by the platform) plus 1-8 image references (`image_urls`), optional prompt, resolution 480p/720p/1080p (default 720p). Both inputs are required. Picker copy names it "Genjutsu" with no platform name (D-002 rule). Request fields come from the API reference as read through search on 2026-10-23; the docs hosts are blocked from the cloud sandbox, so re-check them against docs.higgsfield.ai.
+- **Unpriced (`null`)** like Kling Motion Control: it bills per second of the INPUT video, which `price.ts` can't see, so production shows "price pending" and refuses to sell it until Chris rules the charge.
+- Required-input message no longer reads "Add a image references": plural role labels take no article (`media-inputs.ts`).
+- Terms: Higgsfield's §5.2 bars reselling the Service. Chris was told on 2026-10-23 that written confirmation from Higgsfield is advised before selling it.

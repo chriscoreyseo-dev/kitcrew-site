@@ -129,3 +129,34 @@ describe("Phase 4 fixes (decisions D-034)", () => {
       expect(byId(id).roles.start).toBeUndefined()
   })
 })
+
+describe("Genjutsu (S611)", () => {
+  const genjutsu = MODELS.find((m) => m.id === "genjutsu")!
+
+  it("sends the member's video and references to motion transfer", () => {
+    const result = attempt(plane(genjutsu, { video: 1, reference: 2 }))
+    expect(result).toEqual({
+      path: "higgsfield/genjutsu/motion-transfer/v1.0",
+      body: {
+        video_url: "https://in.test/video0",
+        image_urls: ["https://in.test/reference0", "https://in.test/reference1"],
+        prompt: "a lighthouse at dusk",
+        resolution: "720p",
+      },
+    })
+  })
+
+  it("leaves out an empty prompt (it is optional)", () => {
+    const result = attempt(plane(genjutsu, { video: 1, reference: 1 }, ""))
+    expect("body" in result && "prompt" in result.body).toBe(false)
+  })
+
+  it("needs both a video and at least one image, with a readable message", () => {
+    expect(attempt(plane(genjutsu, { reference: 1 }))).toEqual({
+      error: "Add video references to use Genjutsu.",
+    })
+    expect(attempt(plane(genjutsu, { video: 1 }))).toEqual({
+      error: "Add image references to use Genjutsu.",
+    })
+  })
+})
