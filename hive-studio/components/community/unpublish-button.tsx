@@ -7,8 +7,15 @@ import { EyeOff, Loader2 } from "lucide-react"
 import { publishGenerationAction } from "@/generation/community-actions"
 import { Button } from "@/components/ui/button"
 
-/** Owner-only: take a creation off the community feed. */
-export function UnpublishButton({ generationId }: { generationId: string }) {
+/** Owner-only: take a creation off the community feed. `onDone` replaces the
+    trip back to /community (the feed's post window drops the post in place). */
+export function UnpublishButton({
+  generationId,
+  onDone,
+}: {
+  generationId: string
+  onDone?: () => void
+}) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -21,6 +28,7 @@ export function UnpublishButton({ generationId }: { generationId: string }) {
         setError(result.message)
         return
       }
+      if (onDone) return onDone()
       router.push("/community")
       router.refresh()
     })

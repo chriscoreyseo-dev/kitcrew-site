@@ -62,6 +62,7 @@ import { BRAND_TRIPTYCH } from "@/lib/brand-art"
 import { LIBRARY_EVENT } from "@/lib/client-events"
 import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
 import { useProjects } from "@/lib/studio/projects"
+import { cn } from "@/lib/utils"
 import {
   uploadAsset,
   useUploads,
@@ -116,6 +117,7 @@ function HomeState({
   onOpenAll,
   onOpenProject,
   onUseTemplate,
+  pageScroll = false,
 }: {
   title: string
   items: GalleryItem[]
@@ -125,13 +127,20 @@ function HomeState({
   onOpenAll: () => void
   onOpenProject: (project: MyProjectsProject) => void
   onUseTemplate: (template: TemplateItem) => void
+  /** markethive below 1024px: the page scrolls, not this view (S611). */
+  pageScroll?: boolean
 }) {
   const [tab, setTab] = useState("explore")
   const promptRef = useRef<HTMLDivElement>(null)
   const images = useMemo(() => heroImages(items), [items])
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
+    <div
+      className={cn(
+        "relative flex min-h-0 flex-1 flex-col items-center",
+        pageScroll ? "lg:overflow-y-auto" : "overflow-y-auto"
+      )}
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[600px]"
@@ -214,6 +223,7 @@ function FeedState({
   dock,
   onDelete,
   extraActions,
+  pageScroll = false,
 }: {
   items: GalleryItem[]
   previewItems: GalleryItem[]
@@ -221,6 +231,9 @@ function FeedState({
   dock: DockProps
   onDelete: (item: GalleryItem) => void
   extraActions?: TileActions
+  /** markethive below 1024px: the page scrolls the feed and the prompt dock
+      stays on the bottom of the frame (S611, Tom's review). */
+  pageScroll?: boolean
 }) {
   const images = useMemo(() => heroImages(previewItems), [previewItems])
   const dockRef = useRef<HTMLDivElement>(null)
@@ -235,7 +248,12 @@ function FeedState({
     return () => observer.disconnect()
   }, [])
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div
+      className={cn(
+        "relative flex min-h-0 flex-1 flex-col",
+        pageScroll ? "lg:overflow-hidden" : "overflow-hidden"
+      )}
+    >
       <div
         className="flex min-h-0 flex-1 flex-col px-4 pt-4"
         style={{ paddingBottom: dockHeight + 24 }}
@@ -245,6 +263,7 @@ function FeedState({
           title={title}
           onDelete={onDelete}
           extraActions={extraActions}
+          pageScrollBelowLg={pageScroll}
           emptyState={{
             images,
             title:
@@ -257,7 +276,10 @@ function FeedState({
         />
       </div>
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-4 pt-24 pb-4"
+        className={cn(
+          "pointer-events-none inset-x-0 bottom-0 flex justify-center px-4 pt-24 pb-4",
+          pageScroll ? "fixed z-20 lg:absolute lg:z-auto" : "absolute"
+        )}
         style={{
           backgroundImage:
             "linear-gradient(to bottom, transparent 0%, var(--background) 100%)",
@@ -630,7 +652,14 @@ export function StudioTemplate({
   }
 
   return (
-    <div className="flex h-[calc(100dvh-var(--header-h))] overflow-hidden bg-background">
+    <div
+      className={cn(
+        "flex bg-background",
+        inMarketHive
+          ? "min-h-[calc(100dvh-var(--header-h))] lg:h-[calc(100dvh-var(--header-h))] lg:overflow-hidden"
+          : "h-[calc(100dvh-var(--header-h))] overflow-hidden"
+      )}
+    >
       <ProjectCreateModal
         open={createOpen}
         onOpenChange={setCreateOpen}
@@ -689,6 +718,7 @@ export function StudioTemplate({
             onOpenAll={() => setView({ kind: "all" })}
             onOpenProject={(p) => setView({ kind: "project", projectId: p.id })}
             onUseTemplate={handleUseTemplate}
+            pageScroll={inMarketHive}
           />
         ) : (
           <FeedState
@@ -714,6 +744,7 @@ export function StudioTemplate({
               )
             }
             dock={dock}
+            pageScroll={inMarketHive}
             onDelete={(item) => runs.remove(item.runId)}
             extraActions={{
               onReuse: (item) =>
