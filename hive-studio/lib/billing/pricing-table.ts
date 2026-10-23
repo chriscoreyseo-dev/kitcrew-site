@@ -80,9 +80,24 @@ export const PRICING_TABLE: Record<string, PriceRule | null> = {
   },
   "kling-3-motion-std": null,
   "kling-3-motion-pro": null,
-  // Genjutsu (S611) bills per second of the INPUT video (up to 30s), which the
-  // price function can't see. Unpriced until Chris rules how to charge it.
-  genjutsu: null,
+  // Genjutsu (S611, Chris: "price model for genjutsu plus 30% mark up"): per
+  // second of the member's INPUT video, measured by the server off the MP4
+  // header, 4-30s (the platform trims longer clips). $0.318/s is the list rate
+  // the pricing page gives as "from"; no per-resolution tiers could be read, so
+  // 1080p is priced at 2x to stay above cost. Its own markup 1.3 (cost + 30%)
+  // replaces the global 1.5. Re-check the rate on the open.higgsfield.ai model
+  // page; correct it with a model_pricing override from /admin/models.
+  genjutsu: {
+    base: {
+      kind: "per_input_second",
+      usd: 0.318,
+      role: "video",
+      minSeconds: 4,
+      maxSeconds: 30,
+    },
+    multipliers: { resolution: { "1080p": 2 } },
+    markup: 1.3,
+  },
 
   "flux-2": null,
   // $0.04 at 1k, $0.08 at 2k. No 4k price listed.

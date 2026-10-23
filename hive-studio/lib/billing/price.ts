@@ -32,6 +32,9 @@ export type PriceRule = {
       }
   /** Multiply the base by setting value, e.g. { resolution: { "1080p": 1.5 } }. */
   multipliers?: Record<string, Record<string, number>>
+  /** This model's own markup over its Higgsfield cost, in place of the global
+      CREDIT_MARKUP / MARKETHIVE_MARKUP (S611: Genjutsu at cost + 30% = 1.3). */
+  markup?: number
 }
 
 export type PriceConfig = { markup: number; creditUsdValue: number }
@@ -91,8 +94,9 @@ export function priceFor(
   if (!Number.isFinite(usd) || usd < 0) return null
   // Round the product first so float noise (0.1 × 1.5 / 0.01 = 15.000000000000002)
   // never adds a credit.
+  const markup = rule.markup ?? config.markup
   const credits = Math.ceil(
-    Number(((usd * config.markup) / config.creditUsdValue).toFixed(6))
+    Number(((usd * markup) / config.creditUsdValue).toFixed(6))
   )
   return { credits, usd }
 }

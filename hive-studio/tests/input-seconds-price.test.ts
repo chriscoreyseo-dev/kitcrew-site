@@ -115,3 +115,12 @@ describe("mp4DurationSeconds", () => {
     expect(await mp4DurationSeconds("u", fakeFetch(new Uint8Array(4)).fetchRange)).toBeNull()
   })
 })
+
+describe("a model's own markup (S611: Genjutsu at cost + 30%)", () => {
+  it("replaces the global markup for that model only", () => {
+    const withOwn: PriceRule = { ...RULE, markup: 1.3 }
+    // 10s at $0.50/s = $5 cost; global 1.5 -> 750 cents, own 1.3 -> 650 cents.
+    expect(priceFor(RULE, {}, { markup: 1.5, creditUsdValue: 0.01 }, { inputSeconds: 10 })?.credits).toBe(750)
+    expect(priceFor(withOwn, {}, { markup: 1.5, creditUsdValue: 0.01 }, { inputSeconds: 10 })?.credits).toBe(650)
+  })
+})

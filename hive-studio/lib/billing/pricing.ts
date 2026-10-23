@@ -95,17 +95,18 @@ export async function clientPricing(): Promise<
   Record<string, { rule: PriceRule | null; enabled: boolean }>
 > {
   const { markup, creditUsdValue } = priceConfig()
-  const factor = markup / creditUsdValue
   return Object.fromEntries(
-    Object.entries(await effectivePricing()).map(([id, { rule, enabled }]) => [
-      id,
-      {
-        enabled,
-        rule: rule
-          ? { ...rule, base: { ...rule.base, usd: rule.base.usd * factor } }
-          : null,
-      },
-    ])
+    Object.entries(await effectivePricing()).map(([id, { rule, enabled }]) => {
+      if (!rule) return [id, { enabled, rule: null }]
+      // A rule's own markup (S611) is folded in here too, so the browser never
+      // learns it and its markup-1 quote still equals the server's credits.
+      const { markup: own, ...rest } = rule
+      const factor = (own ?? markup) / creditUsdValue
+      return [
+        id,
+        { enabled, rule: { ...rest, base: { ...rest.base, usd: rest.base.usd * factor } } },
+      ]
+    })
   )
 }
 

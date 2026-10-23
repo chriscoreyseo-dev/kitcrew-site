@@ -125,6 +125,8 @@ const PRICE_RULE = z
         )
       )
       .optional(),
+    // S611: a model's own markup over cost (1.3 = cost + 30%).
+    markup: z.number().finite().min(1).max(10).optional(),
   })
   .strict() satisfies z.ZodType<PriceRule>
 

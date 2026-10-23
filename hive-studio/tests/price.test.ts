@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { MODELS } from "@/generation/catalog"
 import { parseSettings } from "@/generation/catalog/parse-settings"
-import { priceFor } from "@/lib/billing/price"
+import { priceFor, priceInputsFor } from "@/lib/billing/price"
 import type { PriceRule } from "@/lib/billing/price"
 import { PRICING_TABLE } from "@/lib/billing/pricing-table"
 import {
@@ -82,7 +82,8 @@ describe("priceFor", () => {
       for (const resolution of tiers) {
         const settings = resolution ? { ...defaults, resolution } : defaults
         const label = `${model.id} ${resolution ?? ""}`
-        const quote = priceFor(rule, settings, cfg)
+        // Input-video models (S611) quote at their shortest billable video.
+        const quote = priceFor(rule, settings, cfg, priceInputsFor(rule, [], {}, true))
         expect(quote, label).not.toBeNull()
         expect(quote!.usd, label).toBeGreaterThan(0)
         expect(quote!.usd, label).toBeLessThan(25)
