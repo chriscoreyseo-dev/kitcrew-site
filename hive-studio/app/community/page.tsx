@@ -39,6 +39,7 @@ export default async function CommunityPage({
       title="Hive Community"
       subtitle="Fresh images and videos published by creators. Open one to see the prompt and recreate it."
       width="wide"
+      pageModeTitle={false}
       actions={
         cursor ? (
           <Link

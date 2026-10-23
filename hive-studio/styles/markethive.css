@@ -208,6 +208,15 @@ html[data-mh-chrome="page"] .studio-site-header {
 html[data-mh-chrome="page"] body {
   --header-h: 0px;
 }
+/* S611 (Tom: "You don't need this. Take that out."): MarketHive's toolbar names
+   the page, so a page's own big title can step aside (Page pageModeTitle={false},
+   used by Community) and its feed starts 10px down, like the News Feed's rows. */
+html[data-mh-chrome="page"] .mh-page-hide {
+  display: none;
+}
+html[data-mh-chrome="page"] .mh-page-tight {
+  padding-top: 10px;
+}
 
 /* ── Panels: white, not frosted glass (S584, Chris: "this should be white and
       consistent with markethive white and font not grey"). The model picker and

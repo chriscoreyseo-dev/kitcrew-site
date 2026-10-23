@@ -8,6 +8,8 @@ import {
   type ScreenEmptyStateContent,
 } from "@/components/studio/screen-empty-state"
 
+import { cn } from "@/lib/utils"
+
 import { DensityControl } from "./density-control"
 import { GalleryTile } from "./gallery-tile"
 import type { GalleryItem, LoadTier, TileActions } from "./gallery-types"
@@ -29,6 +31,10 @@ export interface JustifiedGalleryProps {
   emptyState: ScreenEmptyStateContent
   onDelete?: (item: GalleryItem) => void
   extraActions?: TileActions
+  /** Below 1024px the page scrolls the gallery instead of its own box (S611,
+      Tom: inside MarketHive's frame a box inside a scrolling page trapped the
+      wheel and the finger). Used where the layout stacks on narrow screens. */
+  pageScrollBelowLg?: boolean
 }
 
 export function JustifiedGallery({
@@ -41,6 +47,7 @@ export function JustifiedGallery({
   emptyState,
   onDelete,
   extraActions,
+  pageScrollBelowLg = false,
 }: JustifiedGalleryProps) {
   const reducedMotion = useReducedMotion()
   const { viewportRef, ...gallery } = useJustifiedGallery(items, grouped, {
@@ -76,10 +83,13 @@ export function JustifiedGallery({
 
       <div
         ref={viewportRef}
-        className="relative min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]"
+        className={cn(
+          "relative min-h-0 flex-1 lg:overflow-y-auto lg:[overscroll-behavior:contain]",
+          !pageScrollBelowLg && "overflow-y-auto"
+        )}
       >
         {gallery.itemCount === 0 ? (
-          <ScreenEmptyState className="h-full" {...emptyState} />
+          <ScreenEmptyState className="min-h-full" {...emptyState} />
         ) : (
           <div
             className="relative w-full"

@@ -7,6 +7,9 @@ export interface ScreenEmptyStateContent {
   images: readonly [string, string, string]
   title: ReactNode
   description: ReactNode
+  /** Use the width there is (up to 880px) instead of a 444px column; the
+      generator's "how it works" cards need it (S611, Tom's review). */
+  wide?: boolean
 }
 
 export interface ScreenEmptyStateProps extends ScreenEmptyStateContent {
@@ -17,18 +20,21 @@ export interface ScreenEmptyStateProps extends ScreenEmptyStateContent {
 const DOTS_MASK =
   "radial-gradient(ellipse 70% 65% at 50% 50%, #000 0%, transparent 78%)"
 
-/** Shared full-screen empty state. The preview shows representative generations from this app. */
+/** Shared full-screen empty state. The preview shows representative generations from this app.
+    Never clips: when its box is shorter than the content it grows (and its
+    scroller scrolls) instead of cutting the cards off (S611, Tom's review). */
 export function ScreenEmptyState({
   images,
   title,
   description,
+  wide = false,
   action,
   className,
 }: ScreenEmptyStateProps) {
   return (
     <div
       className={cn(
-        "relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 py-12 text-center",
+        "relative flex flex-col items-center justify-center px-4 py-8 text-center sm:px-6",
         className
       )}
     >
@@ -43,8 +49,13 @@ export function ScreenEmptyState({
           WebkitMaskImage: DOTS_MASK,
         }}
       />
-      <div className="relative flex w-full max-w-[444px] flex-col items-center gap-6">
-        <div className="relative h-[105px] w-full" aria-hidden>
+      <div
+        className={cn(
+          "relative flex w-full flex-col items-center gap-6",
+          wide ? "max-w-[880px]" : "max-w-[444px]"
+        )}
+      >
+        <div className="relative h-[105px] w-full max-w-[444px]" aria-hidden>
           <div className="absolute top-2.5 left-0 h-[85px] w-[38%] overflow-hidden rounded-2xl opacity-70">
             <img src={images[0]} alt="" className="size-full object-cover" />
             <span className="absolute inset-0 bg-black/30" />
@@ -57,11 +68,11 @@ export function ScreenEmptyState({
             <img src={images[1]} alt="" className="size-full object-cover" />
           </div>
         </div>
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex w-full flex-col items-center gap-1">
           <h2 className="text-q-headline-sm-semi-bold text-foreground">
             {title}
           </h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="w-full text-sm text-muted-foreground">{description}</p>
         </div>
         {action != null ? (
           <div className="flex items-center justify-center">{action}</div>

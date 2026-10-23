@@ -5,20 +5,32 @@ import { Pencil } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { updateCaptionAction } from "@/generation/community-actions"
+import { cn } from "@/lib/utils"
 
 const MAX = 2000
 
 /** The creator's write-up beside a creation in Hive Community (S584, D-070).
     Everyone reads it; only its creator (mine) sees Edit - like editing your own
-    News Feed post. Plain text: line breaks kept, no HTML. */
+    News Feed post. Plain text: line breaks kept, no HTML.
+    `fallback` (S611, Tom's review): what the post says while there is no
+    write-up - the creation's prompt, already public on /g/<id>. It is shown as
+    the post text, never saved as the caption. */
 export function CaptionEditor({
   id,
   caption: initial,
   mine,
+  fallback,
+  fallbackClassName,
+  onSaved,
 }: {
   id: string
   caption: string
   mine: boolean
+  fallback?: string
+  /** Extra classes for the fallback text, e.g. a line clamp in the feed. */
+  fallbackClassName?: string
+  /** Told about every saved write-up, so a second view of the post can follow. */
+  onSaved?: (caption: string) => void
 }) {
   const [caption, setCaption] = useState(initial)
   const [draft, setDraft] = useState<string | null>(null)
@@ -29,8 +41,18 @@ export function CaptionEditor({
     return (
       <div className="flex flex-col items-start gap-2">
         {caption ? (
-          <p className="text-[length:inherit] leading-relaxed whitespace-pre-line text-foreground">
+          <p className="text-[length:inherit] leading-relaxed break-words whitespace-pre-line text-foreground">
             {caption}
+          </p>
+        ) : fallback?.trim() ? (
+          <p
+            data-slot="post-prompt"
+            className={cn(
+              "text-[length:inherit] leading-relaxed break-words whitespace-pre-line text-foreground",
+              fallbackClassName
+            )}
+          >
+            {fallback.trim()}
           </p>
         ) : null}
         {mine ? (
@@ -58,6 +80,7 @@ export function CaptionEditor({
       }
       setCaption(result.data.caption)
       setDraft(null)
+      onSaved?.(result.data.caption)
     })
 
   return (

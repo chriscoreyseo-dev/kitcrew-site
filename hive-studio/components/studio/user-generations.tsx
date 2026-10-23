@@ -22,6 +22,8 @@ export interface UserGenerationsProps {
   onDelete?: (item: GalleryItem) => void
   /** Reuse / Animate / Publish on each tile, when handlers are given. */
   extraActions?: TileActions
+  /** Below 1024px the page scrolls the feed, not a box of its own (S611). */
+  pageScrollBelowLg?: boolean
 }
 
 export function UserGenerations(props: UserGenerationsProps) {

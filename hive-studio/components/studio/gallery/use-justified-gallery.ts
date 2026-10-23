@@ -50,6 +50,28 @@ export interface UseJustifiedGalleryResult {
   loadingMore: boolean
 }
 
+/**
+ * Where the gallery scrolls. Normally its own viewport (an overflow-y-auto
+ * box). When the viewport is NOT a scroll container (overflow visible: the
+ * generator and library below 1024px, S611 - Tom's review inside MarketHive's
+ * frame), the page itself scrolls, so the window is read off the viewport's
+ * position on screen instead.
+ */
+function metrics(el: HTMLElement): {
+  top: number
+  height: number
+  self: boolean
+} {
+  if (getComputedStyle(el).overflowY !== "visible")
+    return { top: el.scrollTop, height: el.clientHeight, self: true }
+  const rect = el.getBoundingClientRect()
+  return {
+    top: Math.max(0, -rect.top),
+    height: window.innerHeight,
+    self: false,
+  }
+}
+
 export function useJustifiedGallery(
   items: GalleryItem[],
   grouped = true,
@@ -91,8 +113,7 @@ export function useJustifiedGallery(
   const readRange = useCallback(() => {
     const el = viewportRef.current
     if (el == null) return
-    const st = el.scrollTop
-    const vh = el.clientHeight
+    const { top: st, height: vh } = metrics(el)
     const win = engine.getWindow(st, vh, OVERSCAN_PX)
     setViewportHeight(vh)
     setRange((prev) =>
@@ -106,14 +127,18 @@ export function useJustifiedGallery(
   useLayoutEffect(() => {
     const el = viewportRef.current
     if (el == null || typeof ResizeObserver === "undefined") return
-    const ro = new ResizeObserver(() => {
+    const measure = () => {
       setWidth(el.clientWidth)
-      setViewportHeight(el.clientHeight)
-    })
+      setViewportHeight(metrics(el).height)
+    }
+    const ro = new ResizeObserver(measure)
     ro.observe(el)
-    setWidth(el.clientWidth)
-    setViewportHeight(el.clientHeight)
-    return () => ro.disconnect()
+    window.addEventListener("resize", measure)
+    measure()
+    return () => {
+      ro.disconnect()
+      window.removeEventListener("resize", measure)
+    }
   }, [])
 
   // After any re-layout (width / density / items), recompute the window and
@@ -122,7 +147,7 @@ export function useJustifiedGallery(
     const el = viewportRef.current
     if (el == null) return
     const anchor = anchorRef.current
-    if (anchor.index > 0) {
+    if (anchor.index > 0 && metrics(el).self) {
       const nextTop = engine.getItemTop(anchor.index) + anchor.offset
       if (Math.abs(nextTop - el.scrollTop) > 0.5) el.scrollTop = nextTop
     }
@@ -154,14 +179,10 @@ export function useJustifiedGallery(
   // when a request settles even if the resulting geometry did not change.
   useEffect(() => {
     const el = viewportRef.current
-    if (
-      el != null &&
-      width > 0 &&
-      el.clientHeight > 0 &&
-      el.scrollTop + el.clientHeight >= layout.totalHeight - INFINITE_MARGIN
-    ) {
+    if (el == null || width <= 0) return
+    const { top, height } = metrics(el)
+    if (height > 0 && top + height >= layout.totalHeight - INFINITE_MARGIN)
       triggerLoadMore()
-    }
   }, [layout.totalHeight, loadingMore, triggerLoadMore, width])
 
   // Scroll handling: rAF-throttled window recompute + infinite-scroll trigger.
@@ -176,7 +197,7 @@ export function useJustifiedGallery(
       if (raf !== 0) return
       raf = requestAnimationFrame(() => {
         raf = 0
-        const st = el.scrollTop
+        const { top: st, height: vh } = metrics(el)
 
         // Capture the anchor for the next density/resize re-layout.
         anchorRef.current = engine.findAnchor(st)
@@ -185,15 +206,17 @@ export function useJustifiedGallery(
 
         // Infinite scroll: append an older batch as the bottom nears.
         const nearBottom =
-          st + el.clientHeight >=
-          engine.getLayout().totalHeight - INFINITE_MARGIN
+          st + vh >= engine.getLayout().totalHeight - INFINITE_MARGIN
         if (nearBottom) triggerLoadMore()
       })
     }
 
+    // Its own viewport scrolls, or (narrow, overflow visible) the page does.
     el.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("scroll", onScroll, { passive: true })
     return () => {
       el.removeEventListener("scroll", onScroll)
+      window.removeEventListener("scroll", onScroll)
       if (raf !== 0) cancelAnimationFrame(raf)
     }
   }, [engine, readRange, triggerLoadMore])
@@ -204,7 +227,7 @@ export function useJustifiedGallery(
       // live scroll position right now so the re-pin is exact even without a
       // recent scroll event.
       const el = viewportRef.current
-      if (el != null) anchorRef.current = engine.findAnchor(el.scrollTop)
+      if (el != null) anchorRef.current = engine.findAnchor(metrics(el).top)
       setDensityState(level)
     },
     [engine]

@@ -118,7 +118,7 @@ export function GeneratorLayout({
     const Wrap = inline ? "span" : "ol"
     const Item = inline ? "span" : "li"
     return (
-      <Wrap className="grid gap-3 text-left sm:grid-cols-3">
+      <Wrap className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-3 text-left">
         {copy.steps.map(([title, body], i) => (
           <Item
             key={title}
@@ -127,7 +127,7 @@ export function GeneratorLayout({
             <span className="block font-mono text-xs text-primary">
               0{i + 1}
             </span>
-            <span className="mt-2 block font-heading text-lg font-bold text-foreground uppercase">
+            <span className="mt-2 block font-heading text-base font-bold text-foreground uppercase">
               {title}
             </span>
             <span className="mt-1 block text-sm text-muted-foreground">
@@ -275,7 +275,10 @@ export function GeneratorLayout({
       </aside>
 
       {/* Canvas */}
-      <section className="flex min-h-[70vh] min-w-0 flex-1 flex-col lg:min-h-0">
+      {/* Below 1024px the canvas drops under the controls and the page scrolls
+          both (S611, Tom's review in MarketHive's frame: no inner scroll box,
+          nothing hidden). From 1024px it sits beside them and scrolls itself. */}
+      <section className="flex min-w-0 flex-1 flex-col lg:min-h-0">
         <div className="flex items-center gap-1 border-b border-ink/[0.06] px-4 py-2">
           {(
             [
@@ -296,8 +299,8 @@ export function GeneratorLayout({
           ))}
         </div>
         {canvas === "how" ? (
-          <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
-            <h2 className="font-heading text-3xl font-bold uppercase sm:text-5xl">
+          <div className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:overflow-y-auto">
+            <h2 className="font-heading text-2xl font-bold uppercase sm:text-3xl">
               {copy.headline}
             </h2>
             {steps(false)}
@@ -306,10 +309,12 @@ export function GeneratorLayout({
           <div className="relative flex min-h-0 flex-1 flex-col px-4 pt-4">
             <UserGenerations
               items={c.galleryItems}
+              pageScrollBelowLg
               emptyState={{
                 images: EMPTY_IMAGES,
+                wide: true,
                 title: (
-                  <span className="font-heading text-3xl font-bold uppercase sm:text-5xl">
+                  <span className="font-heading text-2xl font-bold uppercase sm:text-3xl">
                     {copy.headline}
                   </span>
                 ),
