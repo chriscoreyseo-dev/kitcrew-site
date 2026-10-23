@@ -26,6 +26,7 @@ vi.mock("@/lib/db/mongo", () => ({
   mongoClient: () => h.db.client,
 }))
 vi.mock("@/lib/billing/pricing", () => ({
+  inputPricedRole: async () => null,
   quoteFor: async () => ({ enabled: true, quote: h.quote }),
 }))
 vi.mock("@/lib/higgsfield", async () => {

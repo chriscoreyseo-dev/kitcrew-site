@@ -1,11 +1,12 @@
 import "server-only"
 
+import type { MediaRole } from "@/generation/catalog/types"
 import { db } from "@/lib/db/mongo"
 import { env } from "@/lib/env"
 import { isMarketHive } from "@/lib/mode"
 
 import { priceFor } from "./price"
-import type { PriceRule, Quote } from "./price"
+import type { PriceInputs, PriceRule, Quote } from "./price"
 import { PRICING_TABLE } from "./pricing-table"
 
 /** Effective pricing = static table + `model_pricing` overrides (admin-editable).
@@ -66,13 +67,25 @@ export function priceConfig() {
 
 export async function quoteFor(
   modelId: string,
-  settings: Record<string, unknown>
+  settings: Record<string, unknown>,
+  inputs: PriceInputs = {}
 ): Promise<{ enabled: boolean; quote: Quote | null }> {
   const entry = (await effectivePricing())[modelId]
   return {
     enabled: entry?.enabled ?? true,
-    quote: priceFor(entry?.rule ?? null, settings, priceConfig()),
+    quote: priceFor(entry?.rule ?? null, settings, priceConfig(), inputs),
   }
+}
+
+/** The input a model's price depends on, when its rule bills an input video's
+    seconds (S611, Genjutsu): which role, and the shortest length it accepts. */
+export async function inputPricedRole(
+  modelId: string
+): Promise<{ role: MediaRole; minSeconds: number } | null> {
+  const base = (await effectivePricing())[modelId]?.rule?.base
+  return base?.kind === "per_input_second"
+    ? { role: base.role, minSeconds: base.minSeconds }
+    : null
 }
 
 /** Rules rescaled into credit units so the browser can show exact costs

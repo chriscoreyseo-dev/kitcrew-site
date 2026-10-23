@@ -10,7 +10,7 @@ import { AccountRow } from "@/components/auth/account-row"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
 import { balanceAction, pricingAction } from "@/generation/billing-actions"
-import { priceFor } from "@/lib/billing/price"
+import { priceFor, priceInputsFor } from "@/lib/billing/price"
 import type { PriceRule } from "@/lib/billing/price"
 import { StudioPromptBox } from "@/components/studio/studio-prompt-box"
 import {
@@ -68,6 +68,7 @@ import {
   type AssetSelection,
 } from "@/lib/studio/uploads"
 import { useRuns } from "@/lib/studio/use-runs"
+import { useVideoSeconds } from "@/lib/studio/video-seconds"
 
 /**
  * StudioTemplate — the full creative workspace: projects-first sidebar, hero,
@@ -412,10 +413,15 @@ export function StudioTemplate({
   const inputMode = inferInputMode(model, media)
   // Same pure function the server charges with; rules arrive in credit units.
   const fmt = useFormatCredits()
-  const quote = priceFor(pricing[model.id]?.rule, settings, {
-    markup: 1,
-    creditUsdValue: 1,
-  })
+  const videoSeconds = useVideoSeconds(
+    media.filter((m) => m.kind === "video").map((m) => m.url)
+  )
+  const quote = priceFor(
+    pricing[model.id]?.rule,
+    settings,
+    { markup: 1, creditUsdValue: 1 },
+    priceInputsFor(pricing[model.id]?.rule, media, videoSeconds)
+  )
   const prepared = useMemo(() => {
     try {
       const plane: GenerationPlane = {

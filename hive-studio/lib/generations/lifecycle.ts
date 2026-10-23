@@ -11,11 +11,13 @@ import {
   parallelLimitFor,
   retryWalletRefund,
 } from "@/lib/billing/wallet"
-import { quoteFor } from "@/lib/billing/pricing"
+import type { PriceInputs } from "@/lib/billing/price"
+import { inputPricedRole, quoteFor } from "@/lib/billing/pricing"
 import { db } from "@/lib/db/mongo"
 import { env } from "@/lib/env"
 import { platform, PlatformError } from "@/lib/higgsfield"
 import { projectBelongsTo, uploads } from "@/lib/library"
+import { mp4DurationSeconds } from "@/lib/media/mp4-duration"
 import { PlatformUnreachableError } from "@/lib/higgsfield/platform"
 import { webhookUrlFor } from "@/lib/higgsfield/webhook"
 import { deleteOutputs, isStorageConfigured, storeOutput } from "@/lib/storage"
@@ -146,7 +148,24 @@ export async function submitGeneration(
   if (input.projectId && !(await projectBelongsTo(userId, input.projectId)))
     throw new GenerationInputError("That project no longer exists.")
 
-  const { enabled, quote } = await quoteFor(model.id, plane.settings)
+  // S611: a model billed on an input video's seconds (Genjutsu) is priced from
+  // the length the SERVER reads off the file, never one the browser reports.
+  const inputs: PriceInputs = {}
+  const inputPriced = await inputPricedRole(model.id)
+  if (inputPriced) {
+    const url = plane.media[inputPriced.role]?.[0]?.url
+    const seconds = url ? await mp4DurationSeconds(url).catch(() => null) : null
+    if (seconds === null)
+      throw new GenerationInputError(
+        `We couldn't read that video's length. Upload it as an MP4 and try again.`
+      )
+    if (seconds < inputPriced.minSeconds)
+      throw new GenerationInputError(
+        `${model.label} needs a video at least ${inputPriced.minSeconds} seconds long.`
+      )
+    inputs.inputSeconds = seconds
+  }
+  const { enabled, quote } = await quoteFor(model.id, plane.settings, inputs)
   if (!enabled)
     throw new GenerationInputError("That model isn't available right now.")
   let cost = quote?.credits ?? null

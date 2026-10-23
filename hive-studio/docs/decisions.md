@@ -521,3 +521,12 @@ Chris: "let's add Genjutsu. As a model". `generation/catalog/models/genjutsu.ts`
 - **Unpriced (`null`)** like Kling Motion Control: it bills per second of the INPUT video, which `price.ts` can't see, so production shows "price pending" and refuses to sell it until Chris rules the charge.
 - Required-input message no longer reads "Add a image references": plural role labels take no article (`media-inputs.ts`).
 - Terms: Higgsfield's §5.2 bars reselling the Service. Chris was told on 2026-10-23 that written confirmation from Higgsfield is advised before selling it.
+
+### D-074 Models billed on the input video's seconds: measured by the server (S611, Chris chose option 2)
+Chris: charge the actual seconds of the member's video (option 2), not a flat 30-second charge.
+- New price rule `per_input_second { usd, role, minSeconds, maxSeconds }` (`lib/billing/price.ts`): whole seconds, rounded up, clamped to the window; no quote until the length is known.
+- **Server is the only authority**: at submit, `lib/generations/lifecycle.ts` reads the attached video's length off its MP4 `moov/mvhd` header with HTTP range requests (`lib/media/mp4-duration.ts`, a few tiny requests, never a download), refuses a file it can't read ("Upload it as an MP4") or one shorter than `minSeconds`, and prices from that number.
+- Browser shows the price from the video's metadata (`lib/studio/video-seconds.ts`); the model picker shows a "from" price at `minSeconds`. Display only.
+- Admin: the override form accepts the new rule; /admin/models quotes it for a 10-second video.
+- **The Genjutsu rate itself is NOT set**: the pricing-table edit was stopped by the guard on price surfaces (prices stay staged for Chris). Proposed: `{ base: { kind: "per_input_second", usd: 0.318, role: "video", minSeconds: 4, maxSeconds: 30 }, multipliers: { resolution: { "1080p": 2 } } }`, from the "from $0.318/s" list rate, with 1080p doubled because no per-resolution price could be read. It can go in `pricing-table.ts` or as a model_pricing override from /admin/models. Until then Genjutsu shows "price pending" and production won't sell it.
+- Tests: `tests/input-seconds-price.test.ts` (rule maths, clamping, multipliers, browser inputs; MP4 reader on front/back `moov`, version-1 `mvhd`, non-MP4). Not yet covered: a submit-level test of the measured path.

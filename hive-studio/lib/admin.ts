@@ -320,7 +320,10 @@ export async function listModelRows(): Promise<AdminModelRow[]> {
     const rule = entry?.rule ?? null
     let quote: Quote | null = null
     try {
-      quote = priceFor(rule, parseSettings(model, {}), config)
+      // An input-video rule is quoted for a 10-second video (S611).
+      quote = priceFor(rule, parseSettings(model, {}), config, {
+        inputSeconds: 10,
+      })
     } catch {
       quote = null
     }

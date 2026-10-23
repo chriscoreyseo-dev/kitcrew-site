@@ -102,6 +102,19 @@ const PRICE_RULE = z
           defaultSeconds: z.number().finite().positive().max(3600),
         })
         .strict(),
+      // S611: billed on an input video's measured seconds (Genjutsu).
+      z
+        .object({
+          kind: z.literal("per_input_second"),
+          usd: USD,
+          role: z.enum(["video", "source"]),
+          minSeconds: z.number().finite().positive().max(3600),
+          maxSeconds: z.number().finite().positive().max(3600),
+        })
+        .strict()
+        .refine((b) => b.minSeconds <= b.maxSeconds, {
+          message: "minSeconds can't be more than maxSeconds.",
+        }),
     ]),
     multipliers: z
       .record(

@@ -177,9 +177,12 @@ function PricingDialog({
               <div className="text-xs text-muted-foreground">
                 <p>
                   base.kind: <code>per_run</code> {"{ usd }"},{" "}
-                  <code>per_image</code> {"{ usd, countSetting? }"} or{" "}
+                  <code>per_image</code> {"{ usd, countSetting? }"},{" "}
                   <code>per_second</code>{" "}
-                  {"{ usd, defaultSeconds, durationSetting? }"}. Optional{" "}
+                  {"{ usd, defaultSeconds, durationSetting? }"} or{" "}
+                  <code>per_input_second</code>{" "}
+                  {'{ usd, role: "video", minSeconds, maxSeconds }'} (billed on
+                  the uploaded video&apos;s length). Optional{" "}
                   <code>multipliers</code>:{" "}
                   {'{ "resolution": { "1080p": 1.5 } }'}.
                 </p>
