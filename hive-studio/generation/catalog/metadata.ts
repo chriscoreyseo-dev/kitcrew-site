@@ -95,6 +95,12 @@ export const MODEL_META: Record<string, ModelMeta> = {
       "Moves a character from your image using motion from a reference video.",
     bestFor: "Putting a dance or movement on your own character.",
   },
+  genjutsu: {
+    provider: "Genjutsu",
+    description:
+      "Redraws the motion of your video in the look of your reference images.",
+    bestFor: "Putting a dance or movement from your clip onto your own character or style.",
+  },
   "kling-3-motion-pro": {
     provider: "Kling",
     description: "Higher-quality Kling motion control.",

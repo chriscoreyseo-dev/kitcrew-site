@@ -8,6 +8,8 @@
     `model_pricing` collection. A model with no rule is unpriced and can't be
     sold in production. */
 
+import type { MediaRole } from "@/generation/catalog/types"
+
 export type PriceRule = {
   base:
     | { kind: "per_run"; usd: number }
@@ -18,17 +20,35 @@ export type PriceRule = {
         durationSetting?: string
         defaultSeconds: number
       }
+    /** Billed on the length of an INPUT video the member attached (S611, Genjutsu):
+        whole seconds, rounded up, clamped to [minSeconds, maxSeconds]. Unpriceable
+        (null quote) until that length is known; the server measures it itself. */
+    | {
+        kind: "per_input_second"
+        usd: number
+        role: MediaRole
+        minSeconds: number
+        maxSeconds: number
+      }
   /** Multiply the base by setting value, e.g. { resolution: { "1080p": 1.5 } }. */
   multipliers?: Record<string, Record<string, number>>
+  /** This model's own markup over its Higgsfield cost, in place of the global
+      CREDIT_MARKUP / MARKETHIVE_MARKUP (S611: Genjutsu at cost + 30% = 1.3). */
+  markup?: number
 }
 
 export type PriceConfig = { markup: number; creditUsdValue: number }
+
+/** What a rule can't read from settings: the measured length (seconds) of the
+    input video for a per_input_second rule. */
+export type PriceInputs = { inputSeconds?: number }
 
 export type Quote = { credits: number; usd: number }
 
 export function hfUsdFor(
   rule: PriceRule,
-  settings: Record<string, unknown>
+  settings: Record<string, unknown>,
+  inputs: PriceInputs = {}
 ): number {
   const { base } = rule
   let usd: number
@@ -37,6 +57,14 @@ export function hfUsdFor(
     const raw = base.countSetting ? settings[base.countSetting] : undefined
     const count = typeof raw === "number" && raw >= 1 ? Math.floor(raw) : 1
     usd = base.usd * count
+  } else if (base.kind === "per_input_second") {
+    const raw = inputs.inputSeconds
+    if (typeof raw !== "number" || !Number.isFinite(raw) || raw <= 0) return NaN
+    const seconds = Math.min(
+      base.maxSeconds,
+      Math.max(base.minSeconds, Math.ceil(raw))
+    )
+    usd = base.usd * seconds
   } else {
     const raw = settings[base.durationSetting ?? "duration"]
     const seconds =
@@ -58,15 +86,34 @@ export function hfUsdFor(
 export function priceFor(
   rule: PriceRule | null | undefined,
   settings: Record<string, unknown>,
-  config: PriceConfig
+  config: PriceConfig,
+  inputs: PriceInputs = {}
 ): Quote | null {
   if (!rule) return null
-  const usd = hfUsdFor(rule, settings)
+  const usd = hfUsdFor(rule, settings, inputs)
   if (!Number.isFinite(usd) || usd < 0) return null
   // Round the product first so float noise (0.1 × 1.5 / 0.01 = 15.000000000000002)
   // never adds a credit.
+  const markup = rule.markup ?? config.markup
   const credits = Math.ceil(
-    Number(((usd * config.markup) / config.creditUsdValue).toFixed(6))
+    Number(((usd * markup) / config.creditUsdValue).toFixed(6))
   )
   return { credits, usd }
+}
+
+/** The inputs a rule needs, from what the browser knows: the attached video's
+    length for a per_input_second rule (display only - the server re-measures).
+    `fromCheapest` quotes the shortest billable video, for "from" prices. */
+export function priceInputsFor(
+  rule: PriceRule | null | undefined,
+  media: { role: MediaRole; url: string }[],
+  secondsByUrl: Record<string, number>,
+  fromCheapest = false
+): PriceInputs {
+  const base = rule?.base
+  if (base?.kind !== "per_input_second") return {}
+  if (fromCheapest) return { inputSeconds: base.minSeconds }
+  const url = media.find((m) => m.role === base.role)?.url
+  const seconds = url ? secondsByUrl[url] : undefined
+  return seconds === undefined ? {} : { inputSeconds: seconds }
 }

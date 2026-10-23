@@ -37,6 +37,10 @@ services:
       HF_WEBHOOK_BASE_URL: ${HF_WEBHOOK_BASE_URL:-}
       # Admins only until the Hive-credit prices are ruled (S566-DRL-01).
       GENERATION_ACCESS: admins
+      # AI prompt writer (S611, D-077): MarketHive's internal OpenAI proxy, the
+      # one AI Blog Autopilot uses, reached on Coolify's shared network below.
+      OPENAI_PROXY_URL: ${OPENAI_PROXY_URL:-http://openai-proxy:80}
+      OPENAI_PROXY_TOKEN: ${OPENAI_PROXY_TOKEN:-}             # SECRET (same value as MarketHive's MH_OPENAI_PROXY_TOKEN)
     volumes:
       - studio-media:/data/media
     depends_on:
@@ -44,6 +48,11 @@ services:
         condition: service_healthy
     expose:
       - "3000"
+    # `default` keeps the studio with its own MongoDB; `coolify` is the shared
+    # network where MarketHive's openai-proxy lives (internal only, no domain).
+    networks:
+      - default
+      - coolify
 
   mongo:
     image: mongo:7.0
@@ -67,3 +76,7 @@ services:
 volumes:
   studio-media:
   studio-mongo:
+
+networks:
+  coolify:
+    external: true

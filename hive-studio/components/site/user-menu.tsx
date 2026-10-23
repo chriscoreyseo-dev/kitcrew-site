@@ -21,7 +21,7 @@ export function UserMenu({ email, admin }: { email: string; admin: boolean }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Account menu"
-        className="flex size-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold hover:bg-white/20"
+        className="flex size-8 items-center justify-center rounded-full bg-ink/10 text-sm font-semibold hover:bg-ink/20"
       >
         {initial}
       </DropdownMenuTrigger>

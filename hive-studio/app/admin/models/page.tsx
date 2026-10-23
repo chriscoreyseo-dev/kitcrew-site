@@ -23,9 +23,12 @@ function ruleSummary(rule: PriceRule | null): string {
       ? `${usd} / run`
       : base.kind === "per_image"
         ? `${usd} / image${base.countSetting ? ` × ${base.countSetting}` : ""}`
-        : `${usd} / s × ${base.durationSetting ?? "duration"} (default ${base.defaultSeconds}s)`
+        : base.kind === "per_input_second"
+          ? `${usd} / s of the input ${base.role} (${base.minSeconds}-${base.maxSeconds}s)`
+          : `${usd} / s × ${base.durationSetting ?? "duration"} (default ${base.defaultSeconds}s)`
   const mult = Object.keys(rule.multipliers ?? {})
-  return mult.length ? `${head} · × ${mult.join(", ")}` : head
+  const withMult = mult.length ? `${head} · × ${mult.join(", ")}` : head
+  return rule.markup ? `${withMult} · markup ${rule.markup}` : withMult
 }
 
 export default async function AdminModelsPage() {

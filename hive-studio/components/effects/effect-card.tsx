@@ -9,7 +9,7 @@ export function EffectCard({ preset }: { preset: PresetDTO }) {
   return (
     <Link
       href={`/effects/${preset.slug}`}
-      className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-card transition-colors hover:border-white/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-ink/10 bg-card transition-colors hover:border-ink/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
       <PresetCover
         slug={preset.slug}

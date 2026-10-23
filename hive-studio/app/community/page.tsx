@@ -6,6 +6,7 @@ import { CommunityFeed } from "@/components/community/community-feed"
 import { Page } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { decodeCursor, listPublicGenerations } from "@/lib/community"
+import { currentUser } from "@/lib/session"
 import type { CommunityPage as Feed } from "@/lib/community"
 
 export const metadata: Metadata = {
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
 
 async function loadFeed(cursor: string | null): Promise<Feed> {
   try {
-    return await listPublicGenerations(cursor)
+    const viewer = await currentUser().catch(() => null)
+    return await listPublicGenerations(cursor, undefined, viewer?.id ?? null)
   } catch (error) {
     console.error("[community] feed failed", error)
     return { items: [], nextCursor: null }
@@ -55,8 +57,8 @@ export default async function CommunityPage({
           initialCursor={feed.nextCursor}
         />
       ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-card px-6 py-16 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-white/5">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-ink/10 bg-card px-6 py-16 text-center">
+          <span className="flex size-12 items-center justify-center rounded-full bg-ink/5">
             <Sparkles className="size-5 text-muted-foreground" aria-hidden />
           </span>
           <div className="flex flex-col gap-1">

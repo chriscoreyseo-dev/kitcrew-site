@@ -28,6 +28,7 @@ export default async function AdminPresetsPage() {
     label: m.label,
     surface: m.surface,
     settings: m.settings,
+    roles: m.roles,
   }))
   const labelOf = new Map(MODELS.map((m) => [m.id, m.label]))
 

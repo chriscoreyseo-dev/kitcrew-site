@@ -182,10 +182,13 @@ export function validateMedia(
     }
   }
   for (const role of model.requiredRoles ?? []) {
-    if (!media[role]?.length)
+    if (!media[role]?.length) {
+      const label = ROLE_LABEL[role].toLowerCase()
+      // "Add a start frame" but "Add image references" (plural labels take no article).
       throw new Error(
-        `Add a ${ROLE_LABEL[role].toLowerCase()} to use ${model.label}.`
+        `Add ${label.endsWith("s") ? "" : "a "}${label} to use ${model.label}.`
       )
+    }
   }
   if (
     model.mediaModes?.find((item) => item.id === mode)?.requireAny &&

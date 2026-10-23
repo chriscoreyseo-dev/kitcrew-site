@@ -44,8 +44,8 @@ export function IconTile({
       className={cn(
         "relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md",
         gradient
-          ? "border border-white/20 text-white shadow-[0_4px_2px_rgba(0,0,0,0.08),inset_0_2px_4px_rgba(255,255,255,0.24)]"
-          : "border border-white/10 bg-white/5 text-muted-foreground",
+          ? "border border-ink/20 text-white shadow-[0_4px_2px_rgba(0,0,0,0.08),inset_0_2px_4px_rgba(255,255,255,0.24)]"
+          : "border border-ink/10 bg-ink/5 text-muted-foreground",
         className
       )}
       style={gradient ? { backgroundImage, ...style } : style}

@@ -1,16 +1,16 @@
 "use client"
 
-import { useFormatCredits } from "@/components/site/studio-mode"
+import { useFormatCredits, useStudioMode } from "@/components/site/studio-mode"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import type { ComponentProps } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { Compass, Folder } from "lucide-react"
 
 import { AccountRow } from "@/components/auth/account-row"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
 import { balanceAction, pricingAction } from "@/generation/billing-actions"
-import { priceFor } from "@/lib/billing/price"
+import { priceFor, priceInputsFor } from "@/lib/billing/price"
 import type { PriceRule } from "@/lib/billing/price"
 import { StudioPromptBox } from "@/components/studio/studio-prompt-box"
 import {
@@ -23,6 +23,10 @@ import {
   MyProjects,
   type MyProjectsProject,
 } from "@/components/studio/my-projects"
+import {
+  ProjectActions,
+  ProjectCreateModal,
+} from "@/components/studio/project-dialogs"
 import { StudioSidebar, type StudioView } from "@/components/studio/sidebar"
 import { UserGenerations } from "@/components/studio/user-generations"
 import type {
@@ -55,6 +59,7 @@ import {
 } from "@/lib/studio/gallery-items"
 import { listLibraryAction } from "@/generation/library-actions"
 import { BRAND_TRIPTYCH } from "@/lib/brand-art"
+import { LIBRARY_EVENT } from "@/lib/client-events"
 import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
 import { useProjects } from "@/lib/studio/projects"
 import {
@@ -63,6 +68,7 @@ import {
   type AssetSelection,
 } from "@/lib/studio/uploads"
 import { useRuns } from "@/lib/studio/use-runs"
+import { useVideoSeconds } from "@/lib/studio/video-seconds"
 
 /**
  * StudioTemplate — the full creative workspace: projects-first sidebar, hero,
@@ -211,7 +217,7 @@ function FeedState({
 }: {
   items: GalleryItem[]
   previewItems: GalleryItem[]
-  title: string
+  title: ReactNode
   dock: DockProps
   onDelete: (item: GalleryItem) => void
   extraActions?: TileActions
@@ -278,6 +284,8 @@ export interface StudioTemplateProps {
   user?: { email: string } | null
   /** Which view opens first (/assets → all, /projects/[id] → that project). */
   initialView?: StudioView
+  /** Open "New project" on arrival (MarketHive's Library menu, S584). */
+  initialCreate?: boolean
 }
 
 export function StudioTemplate({
@@ -285,8 +293,24 @@ export function StudioTemplate({
   headline = "What will you make today?",
   user = null,
   initialView = { kind: "home" },
+  initialCreate = false,
 }: StudioTemplateProps) {
   const [view, setView] = useState<StudioView>(initialView)
+  // Inside MarketHive the toolbar's LIBRARY menu replaces the sidebar (S584).
+  const inMarketHive = useStudioMode().mode === "markethive"
+  const [createOpen, setCreateOpen] = useState(initialCreate)
+  useEffect(() => {
+    const onLibrary = (event: Event) => {
+      const target = (event as CustomEvent<string>).detail
+      if (target === "home") setView({ kind: "home" })
+      else if (target === "all") setView({ kind: "all" })
+      else if (target === "new") setCreateOpen(true)
+      else if (typeof target === "string" && target.startsWith("project:"))
+        setView({ kind: "project", projectId: target.slice(8) })
+    }
+    window.addEventListener(LIBRARY_EVENT, onLibrary)
+    return () => window.removeEventListener(LIBRARY_EVENT, onLibrary)
+  }, [])
   // Keep the address bar shareable as the user moves between views.
   useEffect(() => {
     const path =
@@ -389,10 +413,15 @@ export function StudioTemplate({
   const inputMode = inferInputMode(model, media)
   // Same pure function the server charges with; rules arrive in credit units.
   const fmt = useFormatCredits()
-  const quote = priceFor(pricing[model.id]?.rule, settings, {
-    markup: 1,
-    creditUsdValue: 1,
-  })
+  const videoSeconds = useVideoSeconds(
+    media.filter((m) => m.kind === "video").map((m) => m.url)
+  )
+  const quote = priceFor(
+    pricing[model.id]?.rule,
+    settings,
+    { markup: 1, creditUsdValue: 1 },
+    priceInputsFor(pricing[model.id]?.rule, media, videoSeconds)
+  )
   const prepared = useMemo(() => {
     try {
       const plane: GenerationPlane = {
@@ -602,36 +631,48 @@ export function StudioTemplate({
 
   return (
     <div className="flex h-[calc(100dvh-var(--header-h))] overflow-hidden bg-background">
-      <StudioSidebar
-        footer={(isCollapsed) => (
-          <AccountRow
-            email={user?.email ?? null}
-            balance={balance}
-            onBuyCredits={() =>
-              setUpgradeReason("Top up or pick a plan to keep generating.")
-            }
-            collapsed={isCollapsed}
-            onSignIn={() =>
-              setAuthReason("Enter your email and we'll send you a link.")
-            }
-          />
-        )}
-        title={title}
-        view={view}
-        onViewChange={setView}
-        projects={projects}
-        onCreateProject={(name) =>
+      <ProjectCreateModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreate={(name) =>
           setView({ kind: "project", projectId: projectsStore.create(name).id })
         }
-        onRenameProject={(id, name) => projectsStore.rename(id, name)}
-        onDeleteProject={(id) => {
-          projectsStore.remove(id)
-          if (view.kind === "project" && view.projectId === id)
-            setView({ kind: "all" })
-        }}
-        collapsed={collapsed}
-        onCollapsedChange={setCollapsed}
       />
+      {inMarketHive ? null : (
+        <StudioSidebar
+          footer={(isCollapsed) => (
+            <AccountRow
+              email={user?.email ?? null}
+              balance={balance}
+              onBuyCredits={() =>
+                setUpgradeReason("Top up or pick a plan to keep generating.")
+              }
+              collapsed={isCollapsed}
+              onSignIn={() =>
+                setAuthReason("Enter your email and we'll send you a link.")
+              }
+            />
+          )}
+          title={title}
+          view={view}
+          onViewChange={setView}
+          projects={projects}
+          onCreateProject={(name) =>
+            setView({
+              kind: "project",
+              projectId: projectsStore.create(name).id,
+            })
+          }
+          onRenameProject={(id, name) => projectsStore.rename(id, name)}
+          onDeleteProject={(id) => {
+            projectsStore.remove(id)
+            if (view.kind === "project" && view.projectId === id)
+              setView({ kind: "all" })
+          }}
+          collapsed={collapsed}
+          onCollapsedChange={setCollapsed}
+        />
+      )}
       <main className="relative flex min-w-0 flex-1 flex-col">
         {view.kind === "home" ? (
           <HomeState
@@ -653,7 +694,25 @@ export function StudioTemplate({
           <FeedState
             items={visibleItems}
             previewItems={galleryItems}
-            title={selectedProject?.name ?? "All Generations"}
+            title={
+              selectedProject && inMarketHive ? (
+                <span className="inline-flex items-center gap-2">
+                  {selectedProject.name}
+                  <ProjectActions
+                    projectName={selectedProject.name}
+                    onRename={(name) =>
+                      projectsStore.rename(selectedProject.id, name)
+                    }
+                    onDelete={() => {
+                      projectsStore.remove(selectedProject.id)
+                      setView({ kind: "all" })
+                    }}
+                  />
+                </span>
+              ) : (
+                (selectedProject?.name ?? "All Generations")
+              )
+            }
             dock={dock}
             onDelete={(item) => runs.remove(item.runId)}
             extraActions={{

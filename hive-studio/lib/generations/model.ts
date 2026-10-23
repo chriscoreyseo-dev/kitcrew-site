@@ -76,6 +76,10 @@ export type GenerationDoc = {
   /** The owner had Auto-publish on at submit (D-065): finalize publishes the
       run to Community the moment it completes. Never set on failed runs. */
   autoPublish?: boolean
+  /** The creator's own write-up shown beside it in Hive Community (S584,
+      D-070). Plain text; only the owner edits it. */
+  caption?: string
+  captionUpdatedAt?: Date
   /** Set when the owner clicks Share (S581): the run's files become public and
       it gets a MarketHive share page (lib/sharing.ts). */
   sharedAt?: Date

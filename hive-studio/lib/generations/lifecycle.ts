@@ -11,15 +11,24 @@ import {
   parallelLimitFor,
   retryWalletRefund,
 } from "@/lib/billing/wallet"
-import { quoteFor } from "@/lib/billing/pricing"
+import type { PriceInputs } from "@/lib/billing/price"
+import { inputPricedRole, quoteFor } from "@/lib/billing/pricing"
 import { db } from "@/lib/db/mongo"
 import { env } from "@/lib/env"
 import { platform, PlatformError } from "@/lib/higgsfield"
 import { projectBelongsTo, uploads } from "@/lib/library"
+import { mp4DurationSeconds } from "@/lib/media/mp4-duration"
 import { PlatformUnreachableError } from "@/lib/higgsfield/platform"
+import { activePresetMediaUrls } from "@/lib/presets"
 import { webhookUrlFor } from "@/lib/higgsfield/webhook"
-import { deleteOutputs, isStorageConfigured, storeOutput } from "@/lib/storage"
-import { signLocalMediaUrls } from "@/lib/storage/media-access"
+import { withSoundtrack } from "@/lib/media/ffmpeg"
+import {
+  deleteOutputs,
+  isStorageConfigured,
+  storeOutput,
+  storeOutputFile,
+} from "@/lib/storage"
+import { signedMediaUrl, signLocalMediaUrls } from "@/lib/storage/media-access"
 
 import {
   aspectFromSettings,
@@ -65,15 +74,17 @@ export function webhooksEnabled(): boolean {
   return Boolean(e.HF_WEBHOOK_BASE_URL && e.HF_WEBHOOK_SECRET)
 }
 
-/** Every media URL must be the user's own upload or the user's own output.
-    The browser never chooses what the platform fetches. */
-async function assertMediaOwned(
+/** Every media URL must be the user's own upload, the user's own output, a
+    creation published to Community (Recreate with my photos, S611), or an
+    active effect's own media (a template's motion clip, S611). The browser
+    never chooses what the platform fetches. */
+export async function assertMediaOwned(
   userId: ObjectId,
   urls: string[]
 ): Promise<void> {
   const unique = [...new Set(urls)]
   if (!unique.length) return
-  const [ownedUploads, outputs] = await Promise.all([
+  const [ownedUploads, outputs, published, templateMedia] = await Promise.all([
     uploads()
       .find(
         { userId, status: "ready", publicUrl: { $in: unique } },
@@ -86,10 +97,18 @@ async function assertMediaOwned(
         { projection: { outputs: 1 } }
       )
       .toArray(),
+    generations()
+      .find(
+        { isPublic: true, status: "completed", "outputs.url": { $in: unique } },
+        { projection: { outputs: 1 } }
+      )
+      .toArray(),
+    activePresetMediaUrls(unique),
   ])
   const owned = new Set<string>([
     ...ownedUploads.map((u) => u.publicUrl),
-    ...outputs.flatMap((g) => g.outputs.map((o) => o.url)),
+    ...[...outputs, ...published].flatMap((g) => g.outputs.map((o) => o.url)),
+    ...templateMedia,
   ])
   if (unique.some((url) => !owned.has(url)))
     throw new GenerationInputError(
@@ -146,7 +165,24 @@ export async function submitGeneration(
   if (input.projectId && !(await projectBelongsTo(userId, input.projectId)))
     throw new GenerationInputError("That project no longer exists.")
 
-  const { enabled, quote } = await quoteFor(model.id, plane.settings)
+  // S611: a model billed on an input video's seconds (Genjutsu) is priced from
+  // the length the SERVER reads off the file, never one the browser reports.
+  const inputs: PriceInputs = {}
+  const inputPriced = await inputPricedRole(model.id)
+  if (inputPriced) {
+    const url = plane.media[inputPriced.role]?.[0]?.url
+    const seconds = url ? await mp4DurationSeconds(url).catch(() => null) : null
+    if (seconds === null)
+      throw new GenerationInputError(
+        `We couldn't read that video's length. Upload it as an MP4 and try again.`
+      )
+    if (seconds < inputPriced.minSeconds)
+      throw new GenerationInputError(
+        `${model.label} needs a video at least ${inputPriced.minSeconds} seconds long.`
+      )
+    inputs.inputSeconds = seconds
+  }
+  const { enabled, quote } = await quoteFor(model.id, plane.settings, inputs)
   if (!enabled)
     throw new GenerationInputError("That model isn't available right now.")
   let cost = quote?.credits ?? null
@@ -361,15 +397,27 @@ async function storeOutputs(
     )
     return outputs.map((o) => ({ kind: o.kind, url: o.url }))
   }
+  const soundtrack = soundtrackSource(doc)
   const stored: GenerationOutput[] = []
   for (const [index, output] of outputs.entries()) {
-    const copy = await storeOutput({
-      sourceUrl: output.url,
+    const target = {
       userId: doc.userId.toHexString(),
       generationId: doc._id.toHexString(),
       index,
       kind: output.kind,
-    })
+    }
+    const mixed =
+      soundtrack && output.kind === "video"
+        ? await withSoundtrack(output.url, soundtrack).catch(() => null)
+        : null
+    let copy
+    try {
+      copy = mixed
+        ? await storeOutputFile({ ...target, file: mixed.file, contentType: "video/mp4" })
+        : await storeOutput({ ...target, sourceUrl: output.url })
+    } finally {
+      await mixed?.cleanup()
+    }
     stored.push({
       kind: output.kind,
       url: copy.url,
@@ -379,6 +427,19 @@ async function storeOutputs(
     })
   }
   return stored
+}
+
+/** The input whose soundtrack goes back on a silent result (ModelEntry.audioFrom,
+    S611), as a URL ffmpeg can fetch; null when the model keeps its own sound. */
+function soundtrackSource(doc: GenerationDoc): string | null {
+  let role
+  try {
+    role = getModel(doc.modelId).audioFrom
+  } catch {
+    return null
+  }
+  const url = role ? doc.media.find((m) => m.role === role)?.url : undefined
+  return url ? signedMediaUrl(url) : null
 }
 
 export type CancelResult = "canceled" | "already_started" | "already_finished"

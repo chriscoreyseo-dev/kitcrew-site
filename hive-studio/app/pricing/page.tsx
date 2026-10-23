@@ -72,9 +72,9 @@ export default async function PricingPage() {
 
       <section className="mt-16">
         <SectionTitle>Compare plans</SectionTitle>
-        <div className="overflow-x-auto rounded-2xl border border-white/10">
+        <div className="overflow-x-auto rounded-2xl border border-ink/10">
           <table className="w-full min-w-[560px] text-sm">
-            <thead className="bg-white/[0.03] text-left text-xs text-muted-foreground">
+            <thead className="bg-ink/[0.03] text-left text-xs text-muted-foreground">
               <tr>
                 <th className="p-3 font-normal">Feature</th>
                 {(["free", "starter", "plus", "ultra"] as const).map((id) => (
@@ -103,7 +103,7 @@ export default async function PricingPage() {
                 ["Top-ups", () => "✓"],
                 ["Community sharing", () => "✓"],
               ].map(([label, value]) => (
-                <tr key={label as string} className="border-t border-white/5">
+                <tr key={label as string} className="border-t border-ink/5">
                   <td className="p-3 text-muted-foreground">
                     {label as string}
                   </td>
@@ -139,7 +139,7 @@ export default async function PricingPage() {
         </div>
         <div>
           <SectionTitle>Questions</SectionTitle>
-          <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10">
+          <div className="flex flex-col divide-y divide-ink/5 rounded-2xl border border-ink/10">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group p-4">
                 <summary className="cursor-pointer list-none font-semibold marker:hidden">

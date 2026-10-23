@@ -25,7 +25,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
           aria-current={isActive(pathname, item.href) ? "page" : undefined}
           className={cn(
             "rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-            "aria-[current=page]:bg-white/10 aria-[current=page]:text-foreground"
+            "aria-[current=page]:bg-ink/10 aria-[current=page]:text-foreground"
           )}
         >
           {item.label}
@@ -65,14 +65,14 @@ export function MobileNav({
         aria-expanded={open}
         aria-controls="mobile-nav"
         aria-label={open ? "Close menu" : "Open menu"}
-        className="flex size-9 items-center justify-center rounded-lg hover:bg-white/10"
+        className="flex size-9 items-center justify-center rounded-lg hover:bg-ink/10"
       >
         {open ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
       {open ? (
         <div
           id="mobile-nav"
-          className="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-50 overflow-y-auto border-t border-white/10 bg-background/95 px-4 py-4 backdrop-blur-xl"
+          className="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-50 overflow-y-auto border-t border-ink/10 bg-background/95 px-4 py-4 backdrop-blur-xl"
         >
           <nav aria-label="Main" className="flex flex-col gap-1">
             {items.map((item) => (
@@ -89,7 +89,7 @@ export function MobileNav({
             ))}
           </nav>
           {footer ? (
-            <div className="mt-6 border-t border-white/10 pt-4">{footer}</div>
+            <div className="mt-6 border-t border-ink/10 pt-4">{footer}</div>
           ) : null}
         </div>
       ) : null}

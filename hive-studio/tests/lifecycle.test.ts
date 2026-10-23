@@ -19,6 +19,18 @@ const h = vi.hoisted(() => ({
   } | null,
   copies: [] as string[],
   deleted: [] as string[],
+  /** S611 soundtrack: what withSoundtrack returns, and files stored from disk. */
+  mix: null as null | { file: string; cleanup: () => Promise<void> },
+  mixCalls: [] as Array<[string, string]>,
+  files: [] as string[],
+}))
+
+vi.mock("@/lib/media/ffmpeg", () => ({
+  withSoundtrack: async (video: string, audio: string) => {
+    h.mixCalls.push([video, audio])
+    return h.mix
+  },
+  stillFrames: async () => null,
 }))
 
 vi.mock("@/lib/db/mongo", () => ({
@@ -26,6 +38,7 @@ vi.mock("@/lib/db/mongo", () => ({
   mongoClient: () => h.db.client,
 }))
 vi.mock("@/lib/billing/pricing", () => ({
+  inputPricedRole: async () => null,
   quoteFor: async () => ({ enabled: true, quote: h.quote }),
 }))
 vi.mock("@/lib/higgsfield", async () => {
@@ -53,6 +66,21 @@ vi.mock("@/lib/storage/r2", () => ({
   },
   deleteFromR2: async (keys: string[]) => {
     h.deleted.push(...keys)
+  },
+  storeFileR2: async (input: {
+    file: string
+    userId: string
+    generationId: string
+    index: number
+  }) => {
+    h.files.push(input.file)
+    const key = `u/${input.userId}/${input.generationId}/${input.index}.mp4`
+    return {
+      key,
+      url: `https://media.test/${key}`,
+      contentType: "video/mp4",
+      bytes: 20,
+    }
   },
 }))
 
@@ -121,6 +149,9 @@ beforeEach(async () => {
     })
   h.copies.length = 0
   h.deleted.length = 0
+  h.mix = null
+  h.mixCalls.length = 0
+  h.files.length = 0
   for (const fn of Object.values(h.platform)) fn.mockReset()
   h.platform.submit.mockResolvedValue({
     requestId: "req-1",
@@ -181,6 +212,46 @@ describe("submit", () => {
         },
       })
     )
+    expect(doc.status).toBe("queued")
+  })
+
+  it("accepts another member's video published to Community (Recreate with my photos, S611)", async () => {
+    const url = "https://media.test/u/other/published/0.mp4"
+    const asReference = plane({
+      media: {
+        reference: [{ id: "x", url, role: "reference", kind: "image" }],
+      },
+    })
+    await expect(submit(undefined, asReference)).rejects.toThrow(/library/)
+    await h.db.collection("generations").insertOne({
+      _id: new ObjectId(),
+      userId: new ObjectId(),
+      status: "completed",
+      isPublic: true,
+      outputs: [{ url, kind: "video" }],
+    })
+    const doc = await submit(undefined, asReference)
+    expect(doc.status).toBe("queued")
+  })
+
+  it("accepts an ACTIVE effect's own media, never an inactive one's (templates, S611)", async () => {
+    const url = "https://media.test/templates/dance.mp4"
+    const withClip = plane({
+      media: {
+        reference: [{ id: "x", url, role: "reference", kind: "image" }],
+      },
+    })
+    await h.db.collection("presets").insertOne({
+      _id: new ObjectId(),
+      slug: "dance-off",
+      active: false,
+      media: [{ role: "reference", url, kind: "image" }],
+    })
+    await expect(submit(undefined, withClip)).rejects.toThrow(/library/)
+    await h.db
+      .collection("presets")
+      .updateOne({ slug: "dance-off" }, { $set: { active: true } })
+    const doc = await submit(undefined, withClip)
     expect(doc.status).toBe("queued")
   })
 
@@ -305,6 +376,52 @@ describe("finalize", () => {
     ])
     expect(h.copies).toHaveLength(2)
     expect(refunds()).toEqual([])
+  })
+
+  it("lays the motion clip's soundtrack back on a Genjutsu result (S611), else keeps it as is", async () => {
+    const clip = "https://media.test/clips/dance.mp4"
+    const seed = async () => {
+      const _id = new ObjectId()
+      await gens().insertOne({
+        _id,
+        userId: new ObjectId(USER),
+        clientRequestId: crypto.randomUUID(),
+        surface: "video",
+        modelId: "genjutsu",
+        prompt: "dance",
+        settings: {},
+        media: [
+          { role: "video", kind: "video", url: clip },
+          { role: "reference", kind: "image", url: "https://media.test/p.jpg" },
+        ],
+        status: "queued",
+        hfRequestId: "req-1",
+        cost: 10,
+        outputs: [],
+        aspect: 1,
+        isPublic: false,
+      })
+      return _id
+    }
+    h.platform.status.mockResolvedValue({
+      status: "completed",
+      requestId: "req-1",
+      video: { url: "https://hf.test/out.mp4" },
+    })
+
+    h.mix = { file: "/tmp/mixed.mp4", cleanup: async () => undefined }
+    const mixed = await seed()
+    expect(await life.finalizeGeneration(mixed)).toBe("settled")
+    expect(h.mixCalls).toEqual([["https://hf.test/out.mp4", clip]])
+    expect(h.files).toEqual(["/tmp/mixed.mp4"])
+    expect(h.copies).toEqual([])
+    expect((await stored(mixed))?.outputs[0]?.url).toMatch(/0\.mp4$/)
+
+    h.mix = null
+    const plain = await seed()
+    expect(await life.finalizeGeneration(plain)).toBe("settled")
+    expect(h.copies).toEqual(["https://hf.test/out.mp4"])
+    expect((await stored(plain))?.status).toBe("completed")
   })
 
   it("auto-publish publishes the run when it completes, and only then (D-065)", async () => {

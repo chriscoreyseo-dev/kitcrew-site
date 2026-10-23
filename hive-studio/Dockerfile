@@ -31,6 +31,11 @@ ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
     LOCAL_STORAGE_DIR=/data/media
+# ffmpeg (S611): lays a motion clip's soundtrack back on Genjutsu results and
+# grabs still frames for the AI prompt writer (lib/media/ffmpeg.ts).
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ffmpeg \
+ && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system --gid 1001 studio \
  && useradd --system --uid 1001 --gid studio studio \
  && mkdir -p /data/media \

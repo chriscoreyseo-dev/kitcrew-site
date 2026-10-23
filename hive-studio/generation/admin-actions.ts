@@ -102,6 +102,19 @@ const PRICE_RULE = z
           defaultSeconds: z.number().finite().positive().max(3600),
         })
         .strict(),
+      // S611: billed on an input video's measured seconds (Genjutsu).
+      z
+        .object({
+          kind: z.literal("per_input_second"),
+          usd: USD,
+          role: z.enum(["video", "source"]),
+          minSeconds: z.number().finite().positive().max(3600),
+          maxSeconds: z.number().finite().positive().max(3600),
+        })
+        .strict()
+        .refine((b) => b.minSeconds <= b.maxSeconds, {
+          message: "minSeconds can't be more than maxSeconds.",
+        }),
     ]),
     multipliers: z
       .record(
@@ -112,6 +125,8 @@ const PRICE_RULE = z
         )
       )
       .optional(),
+    // S611: a model's own markup over cost (1.3 = cost + 30%).
+    markup: z.number().finite().min(1).max(10).optional(),
   })
   .strict() satisfies z.ZodType<PriceRule>
 
@@ -182,6 +197,18 @@ const PRESET = z.object({
     .union([z.literal(""), z.url({ protocol: /^https$/ }).max(2000)])
     .optional()
     .transform((v) => (v ? v : undefined)),
+  // Inputs the effect loads, e.g. a Genjutsu template's motion clip (S611).
+  media: z
+    .array(
+      z.object({
+        role: z.enum(["start", "end", "reference", "video", "audio", "source"]),
+        url: z.url({ protocol: /^https$/ }).max(2000),
+        kind: z.enum(["image", "video"]),
+      })
+    )
+    .max(9)
+    .optional()
+    .transform((v) => (v?.length ? v : undefined)),
   category: z.string().trim().min(1).max(40),
   order: z.number().int().min(-10_000).max(10_000).default(0),
   active: z.boolean().default(false),

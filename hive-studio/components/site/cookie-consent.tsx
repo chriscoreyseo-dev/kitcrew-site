@@ -67,7 +67,7 @@ export function CookieConsent() {
       <div
         role="region"
         aria-label="Cookie consent"
-        className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-3xl flex-col gap-3 rounded-2xl border border-white/10 bg-card/95 p-4 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-center"
+        className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-3xl flex-col gap-3 rounded-2xl border border-ink/10 bg-card/95 p-4 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-center"
       >
         <p className="flex-1 text-sm text-muted-foreground">
           We use essential cookies to keep you signed in. With your OK we&apos;d
@@ -95,7 +95,7 @@ export function CookieConsent() {
             </DialogDescription>
           </DialogHeader>
           <DialogBody>
-            <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 p-3 text-sm">
+            <label className="flex items-center justify-between gap-4 rounded-xl border border-ink/10 p-3 text-sm">
               <span>
                 <span className="font-semibold">Analytics</span>
                 <span className="block text-xs text-muted-foreground">

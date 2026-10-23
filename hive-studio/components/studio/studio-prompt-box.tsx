@@ -206,10 +206,10 @@ function AudioChip({ item, label }: { item: MediaItem; label: string }) {
   const [playing, setPlaying] = useState(false)
   const [failed, setFailed] = useState(false)
   return (
-    <div className="flex h-12 w-32 items-center gap-2 rounded-xl bg-white/5 px-2">
+    <div className="flex h-12 w-32 items-center gap-2 rounded-xl bg-ink/5 px-2">
       <button
         type="button"
-        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/5"
+        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ink/5"
         aria-label={`${playing ? "Pause" : "Play"} ${item.name ?? label}`}
         onClick={() => {
           if (!audio.current) return
@@ -419,7 +419,7 @@ function MediaInputs({
                   <button
                     type="button"
                     aria-label={`${item ? "Replace" : "Add"} ${label.toLowerCase()}`}
-                    className="flex h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/5 pr-3 text-q-caption-sm-medium"
+                    className="flex h-12 items-center gap-2 rounded-xl border border-ink/10 bg-ink/5 pr-3 text-q-caption-sm-medium"
                   >
                     <span className="flex size-12 items-center justify-center overflow-hidden rounded-xl">
                       {item ? (
@@ -460,7 +460,7 @@ function MediaInputs({
             {kind === "audio" ? (
               <AudioChip item={item} label={label} />
             ) : (
-              <div className="relative size-12 overflow-hidden rounded-xl bg-white/5">
+              <div className="relative size-12 overflow-hidden rounded-xl bg-ink/5">
                 <MediaPreview item={item} />
                 {kind === "video" ? (
                   <Play className="pointer-events-none absolute bottom-1 left-1 size-3 fill-white text-white drop-shadow" />
@@ -477,7 +477,7 @@ function MediaInputs({
           type="button"
           aria-label="Clear attachments"
           title="Clear attachments"
-          className="flex size-7 items-center justify-center rounded-full text-q-icon-secondary hover:bg-white/5 hover:text-q-icon-primary"
+          className="flex size-7 items-center justify-center rounded-full text-q-icon-secondary hover:bg-ink/5 hover:text-q-icon-primary"
           onClick={() => media.forEach((item) => onMediaRemove(item.id))}
         >
           <Trash2 className="size-3.5" />

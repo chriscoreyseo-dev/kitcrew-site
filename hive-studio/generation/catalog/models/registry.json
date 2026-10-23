@@ -26,6 +26,11 @@
           "target": "~/generation/catalog/models/flux-3.ts"
         },
         {
+          "path": "genjutsu.ts",
+          "type": "registry:file",
+          "target": "~/generation/catalog/models/genjutsu.ts"
+        },
+        {
           "path": "grok-imagine-2.ts",
           "type": "registry:file",
           "target": "~/generation/catalog/models/grok-imagine-2.ts"
@@ -218,6 +223,29 @@
           "path": "flux-3.ts",
           "type": "registry:file",
           "target": "~/generation/catalog/models/flux-3.ts"
+        }
+      ]
+    },
+    {
+      "name": "genjutsu",
+      "type": "registry:item",
+      "title": "Genjutsu",
+      "description": "Genjutsu video model for Higgsfield app templates. Requires a template item (studio).",
+      "categories": [
+        "model",
+        "video"
+      ],
+      "meta": {
+        "ids": [
+          "genjutsu"
+        ],
+        "surface": "video"
+      },
+      "files": [
+        {
+          "path": "genjutsu.ts",
+          "type": "registry:file",
+          "target": "~/generation/catalog/models/genjutsu.ts"
         }
       ]
     },

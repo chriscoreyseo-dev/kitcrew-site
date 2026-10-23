@@ -55,7 +55,7 @@ export function PlanCards({
       <div
         role="radiogroup"
         aria-label="Billing period"
-        className="mx-auto flex rounded-full bg-white/5 p-1"
+        className="mx-auto flex rounded-full bg-ink/5 p-1"
       >
         {(
           [
@@ -69,7 +69,7 @@ export function PlanCards({
             role="radio"
             aria-checked={annual === value}
             onClick={() => setAnnual(value)}
-            className="flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold text-muted-foreground aria-checked:bg-white/10 aria-checked:text-foreground"
+            className="flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold text-muted-foreground aria-checked:bg-ink/10 aria-checked:text-foreground"
           >
             {label}
             {value ? (
@@ -92,7 +92,7 @@ export function PlanCards({
                 "relative flex flex-col gap-5 rounded-3xl border bg-card p-6",
                 plan.badge === "Most popular"
                   ? "border-primary/60"
-                  : "border-white/10"
+                  : "border-ink/10"
               )}
             >
               {plan.badge ? (
@@ -101,7 +101,7 @@ export function PlanCards({
                     "absolute -top-3 left-6 rounded-full px-3 py-1 text-xs font-semibold",
                     plan.badge === "Most popular"
                       ? "bg-primary text-primary-foreground"
-                      : "bg-white/15"
+                      : "bg-ink/15"
                   )}
                 >
                   {plan.badge}
@@ -142,7 +142,7 @@ export function PlanCards({
                 ))}
               </ul>
               {plan.current ? (
-                <p className="rounded-xl border border-white/10 py-2.5 text-center text-sm text-muted-foreground">
+                <p className="rounded-xl border border-ink/10 py-2.5 text-center text-sm text-muted-foreground">
                   Your plan
                 </p>
               ) : plan.available ? (
@@ -154,13 +154,13 @@ export function PlanCards({
                     "rounded-xl py-2.5 font-semibold",
                     plan.badge === "Most popular"
                       ? "bg-primary text-primary-foreground hover:bg-primary/85"
-                      : "border border-white/15 hover:bg-white/5"
+                      : "border border-ink/15 hover:bg-ink/5"
                   )}
                 >
                   {signedIn ? `Get ${plan.name}` : "Sign in to subscribe"}
                 </button>
               ) : (
-                <p className="rounded-xl border border-dashed border-white/10 py-2.5 text-center text-sm text-muted-foreground">
+                <p className="rounded-xl border border-dashed border-ink/10 py-2.5 text-center text-sm text-muted-foreground">
                   Coming soon
                 </p>
               )}

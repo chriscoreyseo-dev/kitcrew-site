@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Mono, Inter, Space_Grotesk } from "next/font/google"
 
 import { CookieConsent } from "@/components/site/cookie-consent"
+import { MarketHiveHost } from "@/components/site/markethive-host"
 import { SiteHeader } from "@/components/site/site-header"
 import { StudioModeProvider } from "@/components/site/studio-mode"
 import { studioModeInfo } from "@/lib/mode-info"
@@ -41,19 +42,28 @@ export const viewport: Viewport = { themeColor: "#131416" }
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const info = studioModeInfo()
+  // Inside MarketHive the studio wears MarketHive's white theme (S584).
+  const markethive = info.mode === "markethive"
   return (
     <html
       lang="en"
-      data-theme="default-dark"
+      data-theme={markethive ? "markethive-light" : "default-dark"}
       className={cn(
-        "dark font-sans antialiased",
+        markethive ? "font-sans antialiased" : "dark font-sans antialiased",
         spaceGrotesk.variable,
         inter.variable,
         plexMono.variable
       )}
     >
       <body className="min-h-svh bg-background text-foreground [--header-h:56px]">
-        <StudioModeProvider value={studioModeInfo()}>
+        <StudioModeProvider value={info}>
+          {markethive && info.homeUrl ? (
+            <MarketHiveHost
+              homeUrl={info.homeUrl}
+              creditsUrl={info.creditsUrl}
+            />
+          ) : null}
           <SiteHeader />
           {children}
           <CookieConsent />

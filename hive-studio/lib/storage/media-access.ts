@@ -14,7 +14,7 @@ import { LOCAL_KEY, localPublicUrl } from "./local"
     is not a secret and never grants access by itself. A file is served when:
     - the viewer is signed in and owns it, or is an admin;
     - its generation is published to Community (completed + isPublic);
-    - it is an effect's cover image;
+    - it is an effect's cover image, or media an active effect loads (S611);
     - the URL carries a valid expiring signature. Only the server signs, and
       only when it hands the member's own media to the platform as an input
       (Higgsfield fetches it with no cookie). */
@@ -129,8 +129,14 @@ export async function mediaAccess(
     )
   if (published) return "public"
 
+  const url = localPublicUrl(key)
   const cover = await db()
-    .collection<{ coverUrl?: string }>("presets")
-    .findOne({ coverUrl: localPublicUrl(key) }, { projection: { _id: 1 } })
+    .collection<{ coverUrl?: string; active?: boolean; media?: { url: string }[] }>(
+      "presets"
+    )
+    .findOne(
+      { $or: [{ coverUrl: url }, { active: true, "media.url": url }] },
+      { projection: { _id: 1 } }
+    )
   return cover ? "public" : null
 }

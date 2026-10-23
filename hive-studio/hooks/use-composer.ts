@@ -24,10 +24,11 @@ import { listLibraryAction } from "@/generation/library-actions"
 import { useAutoPublish } from "@/generation/stores/auto-publish"
 import { useSettings } from "@/generation/stores/settings"
 import { toPlatform } from "@/generation/to-platform"
-import { priceFor } from "@/lib/billing/price"
+import { priceFor, priceInputsFor } from "@/lib/billing/price"
 import type { PriceRule } from "@/lib/billing/price"
 import { announceBalance } from "@/lib/client-events"
 import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
+import { useVideoSeconds } from "@/lib/studio/video-seconds"
 import {
   runToGalleryItems,
   runToLibraryItems,
@@ -156,16 +157,21 @@ export function useComposer({
   )
   const inputMode = inferInputMode(model, media)
   const roles = inputRoles(model, inputMode)
+  const videoSeconds = useVideoSeconds(
+    media.filter((m) => m.kind === "video").map((m) => m.url)
+  )
   const quote = priceFor(
     pricing[model.id]?.rule,
     parseSettings(model, settings),
-    { markup: 1, creditUsdValue: 1 }
+    { markup: 1, creditUsdValue: 1 },
+    priceInputsFor(pricing[model.id]?.rule, media, videoSeconds)
   )
   const priced = (m: ModelEntry) =>
     priceFor(
       pricing[m.id]?.rule,
       parseSettings(m, settingsByModel[m.id] ?? {}),
-      { markup: 1, creditUsdValue: 1 }
+      { markup: 1, creditUsdValue: 1 },
+      priceInputsFor(pricing[m.id]?.rule, [], {}, true)
     )
   const enabledModels = models.filter((m) => pricing[m.id]?.enabled !== false)
 

@@ -1,7 +1,7 @@
 import "server-only"
 
 import { createWriteStream } from "node:fs"
-import { mkdir, rename, rm, stat } from "node:fs/promises"
+import { copyFile, mkdir, rename, rm, stat } from "node:fs/promises"
 import path from "node:path"
 import { Readable, Transform } from "node:stream"
 import { pipeline } from "node:stream/promises"
@@ -73,6 +73,39 @@ export async function copyToLocal(input: {
       createWriteStream(partial)
     )
     // Only a complete file ever appears under its final name.
+    await rename(partial, target)
+  } catch (error) {
+    await rm(partial, { force: true })
+    throw error
+  }
+  return { key, url: localPublicUrl(key), contentType, bytes }
+}
+
+/** A finished file made on this server (e.g. a result with its soundtrack laid
+    back on, S611) stored under the output's key, like copyToLocal. */
+export async function storeFileLocal(input: {
+  file: string
+  contentType: string
+  userId: string
+  generationId: string
+  index: number
+  kind: "image" | "video" | "audio"
+}): Promise<{ key: string; url: string; contentType: string; bytes: number }> {
+  const bytes = (await stat(input.file)).size
+  if (bytes > MAX_OUTPUT_BYTES)
+    throw new Error("Output is larger than the storage limit")
+  const { key, contentType } = outputKey(
+    input.userId,
+    input.generationId,
+    input.index,
+    input.contentType,
+    input.kind
+  )
+  const target = localPath(key)
+  await mkdir(path.dirname(target), { recursive: true })
+  const partial = `${target}.part`
+  try {
+    await copyFile(input.file, partial)
     await rename(partial, target)
   } catch (error) {
     await rm(partial, { force: true })

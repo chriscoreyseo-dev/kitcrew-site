@@ -41,7 +41,7 @@ function Badges({ badges }: { badges?: ModelBadge[] }) {
             "rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide",
             b === "TOP"
               ? "bg-primary text-primary-foreground"
-              : "bg-white/10 text-foreground"
+              : "bg-ink/10 text-foreground"
           )}
         >
           {b}
@@ -60,7 +60,7 @@ function Icon({ model, className }: { model: ModelEntry; className?: string }) {
       className={cn("size-5", className)}
     />
   ) : (
-    <span aria-hidden className={cn("size-5 rounded bg-white/10", className)} />
+    <span aria-hidden className={cn("size-5 rounded bg-ink/10", className)} />
   )
 }
 
@@ -80,7 +80,7 @@ export function ModelCard({
   const meta = modelMeta(model.id)
   return (
     <>
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-4">
+      <div className="relative overflow-hidden rounded-2xl border border-ink/10 bg-gradient-to-br from-ink/[0.08] via-ink/[0.03] to-transparent p-4">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-10 -right-10 size-40 rounded-full bg-primary/10 blur-3xl"
@@ -203,7 +203,7 @@ export function ModelPickerDialog({
                         type="button"
                         onClick={() => onSelect(m.id)}
                         aria-pressed={m.id === current}
-                        className="flex flex-col gap-1.5 rounded-xl border border-white/10 p-3 text-left transition-colors hover:bg-white/5 aria-pressed:border-primary/60 aria-pressed:bg-primary/5"
+                        className="flex flex-col gap-1.5 rounded-xl border border-ink/10 p-3 text-left transition-colors hover:bg-ink/5 aria-pressed:border-primary/60 aria-pressed:bg-primary/5"
                       >
                         <span className="flex items-center gap-2">
                           <Icon model={m} />

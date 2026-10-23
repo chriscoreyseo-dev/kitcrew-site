@@ -63,8 +63,8 @@ function ReportCard({ group }: { group: AdminReportGroup }) {
   const gen = group.generation
   const first = gen?.outputs[0]
   return (
-    <article className="flex h-full min-w-0 gap-3 rounded-xl border border-white/10 p-3">
-      <div className="aspect-square w-28 shrink-0 overflow-hidden rounded-lg bg-white/5 sm:w-36">
+    <article className="flex h-full min-w-0 gap-3 rounded-xl border border-ink/10 p-3">
+      <div className="aspect-square w-28 shrink-0 overflow-hidden rounded-lg bg-ink/5 sm:w-36">
         {first ? (
           <Preview output={first} />
         ) : (

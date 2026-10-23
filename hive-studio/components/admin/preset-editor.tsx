@@ -32,6 +32,7 @@ export type PresetModelOption = {
   label: string
   surface: Surface
   settings: ModelEntry["settings"]
+  roles: ModelEntry["roles"]
 }
 
 const SURFACES: Surface[] = ["image", "video", "audio"]
@@ -161,6 +162,10 @@ function PresetDialog({
     JSON.stringify(preset?.settings ?? {}, null, 2)
   )
   const [coverUrl, setCoverUrl] = useState(preset?.coverUrl ?? "")
+  // A template's motion clip (S611): loads with the effect, the member adds photos.
+  const [templateVideo, setTemplateVideo] = useState(
+    preset?.media?.find((m) => m.kind === "video")?.url ?? ""
+  )
   const [category, setCategory] = useState(preset?.category ?? "")
   const [order, setOrder] = useState(String(preset?.order ?? 0))
   const [active, setActive] = useState(preset?.active ?? false)
@@ -193,6 +198,7 @@ function PresetDialog({
       setError("Order must be a whole number.")
       return
     }
+    const videoRole = model?.roles.video ? "video" : "source"
     const input = {
       slug: slug.trim(),
       title,
@@ -202,6 +208,9 @@ function PresetDialog({
       promptTemplate,
       settings,
       coverUrl: coverUrl.trim(),
+      media: templateVideo.trim()
+        ? [{ role: videoRole, url: templateVideo.trim(), kind: "video" }]
+        : [],
       category,
       order: orderValue,
       active,
@@ -340,6 +349,20 @@ function PresetDialog({
                     type="url"
                     value={coverUrl}
                     onChange={(e) => setCoverUrl(e.target.value)}
+                    maxLength={2000}
+                  />
+                </Field>
+              </div>
+              <div className="sm:col-span-2">
+                <Field
+                  label="Template video URL (https, optional): loads with the effect; members add their photos"
+                  htmlFor={id("template-video")}
+                >
+                  <Input
+                    id={id("template-video")}
+                    type="url"
+                    value={templateVideo}
+                    onChange={(e) => setTemplateVideo(e.target.value)}
                     maxLength={2000}
                   />
                 </Field>

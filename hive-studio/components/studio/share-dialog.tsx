@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 
+import { useStudioMode } from "@/components/site/studio-mode"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,6 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { downloadMedia } from "@/lib/studio/download-media"
+
+import { NewsFeedShare } from "./newsfeed-share"
 
 /** What the Share button shares: one output of a finished run. */
 export interface ShareTarget {
@@ -70,6 +73,7 @@ export function ShareDialog({
           }
   const copied = copiedKey === key
   const [savingCommunity, setSavingCommunity] = useState(false)
+  const { mode } = useStudioMode()
 
   useEffect(() => {
     if (!target) return
@@ -155,7 +159,7 @@ export function ShareDialog({
                   value={url}
                   aria-label="Your share link"
                   onFocus={(e) => e.currentTarget.select()}
-                  className="h-9 min-w-0 flex-1 rounded-lg border border-white/15 bg-transparent px-3 text-sm"
+                  className="h-9 min-w-0 flex-1 rounded-lg border border-ink/15 bg-transparent px-3 text-sm"
                 />
                 <Button
                   variant="outline"
@@ -174,7 +178,7 @@ export function ShareDialog({
                     href={n.href}
                     target="_blank"
                     rel="noopener"
-                    className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+                    className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
                   >
                     {n.label}
                   </a>
@@ -183,7 +187,7 @@ export function ShareDialog({
                   <button
                     type="button"
                     onClick={() => void downloadMedia(target.mediaUrl)}
-                    className="inline-flex h-8 items-center rounded-lg border border-white/15 px-3 text-sm hover:bg-white/5"
+                    className="inline-flex h-8 items-center rounded-lg border border-ink/15 px-3 text-sm hover:bg-ink/5"
                   >
                     Download
                   </button>
@@ -195,8 +199,11 @@ export function ShareDialog({
               </p>
             </>
           )}
+          {mode === "markethive" && target ? (
+            <NewsFeedShare key={key} target={target} />
+          ) : null}
           {community ? (
-            <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+            <div className="flex items-center justify-between gap-3 border-t border-ink/10 pt-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold">Hive Studio Community</p>
                 <p className="text-xs text-muted-foreground">

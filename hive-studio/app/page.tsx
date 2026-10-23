@@ -83,7 +83,7 @@ export default async function ExplorePage() {
             </Link>
             <Link
               href="/image"
-              className="flex h-12 items-center rounded-xl border border-white/15 px-6 font-heading font-bold uppercase hover:bg-white/5"
+              className="flex h-12 items-center rounded-xl border border-ink/15 px-6 font-heading font-bold uppercase hover:bg-ink/5"
             >
               Create image
             </Link>
@@ -102,7 +102,7 @@ export default async function ExplorePage() {
                 <Link
                   key={m.id}
                   href={`/${m.surface}?model=${m.id}`}
-                  className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent p-5 transition-colors hover:border-white/25"
+                  className="group relative flex min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-ink/10 bg-gradient-to-br from-ink/[0.07] to-transparent p-5 transition-colors hover:border-ink/25"
                 >
                   <span className="flex items-center justify-between">
                     <span className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground uppercase">
@@ -173,7 +173,7 @@ export default async function ExplorePage() {
               ))}
             </div>
           ) : (
-            <p className="rounded-2xl border border-white/10 p-6 text-sm text-muted-foreground">
+            <p className="rounded-2xl border border-ink/10 p-6 text-sm text-muted-foreground">
               Nothing shared yet. Publish a generation from your library to be
               first.
             </p>

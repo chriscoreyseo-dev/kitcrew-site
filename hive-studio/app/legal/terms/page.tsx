@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Terms of Service · Hive Studio" }
 export default function LegalPage() {
   return (
     <Page title="Terms of Service" width="narrow">
-      <div className="rounded-2xl border border-dashed border-white/15 p-6 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-dashed border-ink/15 p-6 text-sm text-muted-foreground">
         <p className="font-semibold text-foreground">
           This page is a placeholder.
         </p>

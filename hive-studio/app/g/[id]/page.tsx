@@ -2,8 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { cache } from "react"
-import { ArrowLeft, AudioLines, Repeat2 } from "lucide-react"
+import { ArrowLeft, AudioLines, Repeat2, Users } from "lucide-react"
 
+import { CaptionEditor } from "@/components/community/caption-editor"
 import { ReportDialog } from "@/components/community/report-dialog"
 import { SettingsList } from "@/components/community/settings-list"
 import { UnpublishButton } from "@/components/community/unpublish-button"
@@ -11,6 +12,7 @@ import { Page, SectionTitle } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { getPublicGeneration, isPublicOwner } from "@/lib/community"
 import type { PublicGenerationDTO } from "@/lib/community"
+import { recreateHref, remixHref } from "@/lib/community-links"
 import { currentUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
@@ -54,14 +56,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 /** Generator deep link; the generator pages read `model` and `prompt`. */
-function recreateHref(item: PublicGenerationDTO) {
-  const qs = new URLSearchParams({
-    model: item.modelId,
-    prompt: item.prompt.slice(0, 2000),
-  })
-  return `/${item.surface}?${qs.toString()}`
-}
-
 function Media({
   kind,
   url,
@@ -77,7 +71,7 @@ function Media({
 }) {
   if (kind === "audio")
     return (
-      <div className="flex flex-col items-center gap-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.02] p-8">
+      <div className="flex flex-col items-center gap-6 rounded-2xl border border-ink/10 bg-gradient-to-br from-ink/10 to-ink/[0.02] p-8">
         <AudioLines className="size-10 text-muted-foreground" aria-hidden />
         <audio src={url} controls className="w-full max-w-xl" />
       </div>
@@ -85,7 +79,7 @@ function Media({
   const a = aspect > 0 && Number.isFinite(aspect) ? aspect : 1
   return (
     <div
-      className="relative mx-auto w-full overflow-hidden rounded-2xl border border-white/10 bg-card"
+      className="relative mx-auto w-full overflow-hidden rounded-2xl border border-ink/10 bg-card"
       style={{
         aspectRatio: a,
         maxWidth: large ? `calc(72svh * ${a})` : undefined,
@@ -185,6 +179,12 @@ export default async function GenerationPage({ params }: Params) {
             </p>
           </div>
 
+          {item.caption || owner ? (
+            <div className="text-sm">
+              <CaptionEditor id={item.id} caption={item.caption} mine={owner} />
+            </div>
+          ) : null}
+
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={recreateHref(item)}
@@ -193,6 +193,18 @@ export default async function GenerationPage({ params }: Params) {
               <Repeat2 aria-hidden />
               Recreate
             </Link>
+            {remixHref(item) ? (
+              <Link
+                href={remixHref(item)!}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "px-5"
+                )}
+              >
+                <Users aria-hidden />
+                Recreate with my photos
+              </Link>
+            ) : null}
             {owner ? (
               <UnpublishButton generationId={item.id} />
             ) : user ? (
@@ -213,7 +225,7 @@ export default async function GenerationPage({ params }: Params) {
           {item.prompt ? (
             <section>
               <SectionTitle>Prompt</SectionTitle>
-              <p className="rounded-xl border border-white/10 bg-card p-4 text-sm leading-relaxed break-words whitespace-pre-wrap">
+              <p className="rounded-xl border border-ink/10 bg-card p-4 text-sm leading-relaxed break-words whitespace-pre-wrap">
                 {item.prompt}
               </p>
             </section>

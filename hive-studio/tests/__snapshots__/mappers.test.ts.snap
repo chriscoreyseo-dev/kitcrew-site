@@ -67,6 +67,20 @@ exports[`toPlatform snapshots > flux-3 1`] = `
 }
 `;
 
+exports[`toPlatform snapshots > genjutsu 1`] = `
+{
+  "prompt only": {
+    "error": "Add video references to use Genjutsu.",
+  },
+  "references": {
+    "error": "Add video references to use Genjutsu.",
+  },
+  "video reference": {
+    "error": "Add image references to use Genjutsu.",
+  },
+}
+`;
+
 exports[`toPlatform snapshots > grok-imagine-2 1`] = `
 {
   "prompt only": {

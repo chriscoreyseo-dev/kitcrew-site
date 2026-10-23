@@ -1,9 +1,13 @@
 "use client"
 
 import { Globe } from "lucide-react"
+import { MhSwitch } from "@/components/ui/mh-switch"
 
 /** Generator footer switch (D-065): when on, each new run is published to
-    Community as soon as it finishes. Off by default. */
+    Community as soon as it finishes. Off by default. Drawn as MarketHive's own
+    switch (the dashboard's MEMB/CORP toggle, Tom S572/S575): a pill with a navy
+    border, a white knob that slides, white copy; ON on the button blue #6d83b4,
+    OFF on the light blue #a1b1d1. */
 export function AutoPublishSwitch({
   checked,
   onChange,
@@ -12,7 +16,7 @@ export function AutoPublishSwitch({
   onChange: (on: boolean) => void
 }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-1 text-xs text-muted-foreground">
+    <label className="flex cursor-pointer items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
       <span className="flex min-w-0 items-center gap-2">
         <Globe aria-hidden className="size-3.5 shrink-0" />
         <span>
@@ -26,19 +30,11 @@ export function AutoPublishSwitch({
           </span>
         </span>
       </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label="Auto-publish to Community"
-        onClick={() => onChange(!checked)}
-        className="relative h-5 w-9 shrink-0 rounded-full bg-white/15 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/40 aria-checked:bg-primary"
-      >
-        <span
-          aria-hidden
-          className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform ${checked ? "translate-x-4" : ""}`}
-        />
-      </button>
+      <MhSwitch
+        checked={checked}
+        onChange={onChange}
+        label="Auto-publish to Community"
+      />
     </label>
   )
 }

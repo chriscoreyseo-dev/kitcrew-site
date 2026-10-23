@@ -6,43 +6,105 @@
  * Dark only — data-theme is pinned in app/layout.tsx.
  */
 :root[data-theme="default-dark"] {
-    --hf-type-family-grotesk-base: var(--font-space-grotesk), "Space Grotesk";
-    --hf-type-family-primary-base: var(--font-space-grotesk), "Space Grotesk";
-    --hf-type-family-secondary-base: var(--font-inter), "Inter";
-    --hf-type-family-mono-base: var(--font-ibm-plex-mono), "IBM Plex Mono";
+  --hf-type-family-grotesk-base: var(--font-space-grotesk), "Space Grotesk";
+  --hf-type-family-primary-base: var(--font-space-grotesk), "Space Grotesk";
+  --hf-type-family-secondary-base: var(--font-inter), "Inter";
+  --hf-type-family-mono-base: var(--font-ibm-plex-mono), "IBM Plex Mono";
 
-    --background: var(--hf-color-background-primary);
-    --foreground: var(--hf-color-text-primary);
-    --card: var(--hf-color-background-secondary);
-    --card-foreground: var(--hf-color-text-primary);
-    --popover: var(--hf-color-background-tertiary);
-    --popover-foreground: var(--hf-color-text-primary);
-    --primary: var(--hf-color-brand-primary);
-    --primary-foreground: var(--hf-color-button-label-brand);
-    --secondary: var(--hf-color-transparent-light-05);
-    --secondary-foreground: var(--hf-color-text-primary);
-    --muted: var(--hf-color-transparent-light-05);
-    /* Lifted from grey-300 (#828282, 4.2:1 on cards) to clear WCAG AA 4.5:1. */
-    --muted-foreground: #9a9a9a;
-    --accent: var(--hf-color-overlay-hover);
-    --accent-foreground: var(--hf-color-text-primary);
-    --destructive: var(--hf-color-state-error-fg);
-    --border: var(--hf-color-border-default);
-    --input: var(--hf-color-border-strong);
-    --ring: var(--hf-color-border-focus);
-    --chart-1: var(--hf-color-brand-primary);
-    --chart-2: var(--hf-color-brand-blue);
-    --chart-3: var(--hf-color-brand-pink);
-    --chart-4: var(--hf-color-brand-orange);
-    --chart-5: var(--hf-color-brand-cyan);
-    --radius: var(--hf-radius-300);
-    --sidebar: var(--hf-color-background-secondary);
-    --sidebar-foreground: var(--hf-color-text-primary);
-    --sidebar-primary: var(--hf-color-brand-primary);
-    --sidebar-primary-foreground: var(--hf-color-button-label-brand);
-    --sidebar-accent: var(--hf-color-overlay-hover);
-    --sidebar-accent-foreground: var(--hf-color-text-primary);
-    --sidebar-border: var(--hf-color-border-default);
-    --sidebar-ring: var(--hf-color-border-focus);
-    color-scheme: dark;
+  --background: var(--hf-color-background-primary);
+  --foreground: var(--hf-color-text-primary);
+  --card: var(--hf-color-background-secondary);
+  --card-foreground: var(--hf-color-text-primary);
+  --popover: var(--hf-color-background-tertiary);
+  --popover-foreground: var(--hf-color-text-primary);
+  --primary: var(--hf-color-brand-primary);
+  --primary-foreground: var(--hf-color-button-label-brand);
+  --secondary: var(--hf-color-transparent-light-05);
+  --secondary-foreground: var(--hf-color-text-primary);
+  --muted: var(--hf-color-transparent-light-05);
+  /* Lifted from grey-300 (#828282, 4.2:1 on cards) to clear WCAG AA 4.5:1. */
+  --muted-foreground: #9a9a9a;
+  --accent: var(--hf-color-overlay-hover);
+  --accent-foreground: var(--hf-color-text-primary);
+  --destructive: var(--hf-color-state-error-fg);
+  --border: var(--hf-color-border-default);
+  --input: var(--hf-color-border-strong);
+  --ring: var(--hf-color-border-focus);
+  --chart-1: var(--hf-color-brand-primary);
+  --chart-2: var(--hf-color-brand-blue);
+  --chart-3: var(--hf-color-brand-pink);
+  --chart-4: var(--hf-color-brand-orange);
+  --chart-5: var(--hf-color-brand-cyan);
+  --radius: var(--hf-radius-300);
+  --sidebar: var(--hf-color-background-secondary);
+  --sidebar-foreground: var(--hf-color-text-primary);
+  --sidebar-primary: var(--hf-color-brand-primary);
+  --sidebar-primary-foreground: var(--hf-color-button-label-brand);
+  --sidebar-accent: var(--hf-color-overlay-hover);
+  --sidebar-accent-foreground: var(--hf-color-text-primary);
+  --sidebar-border: var(--hf-color-border-default);
+  --sidebar-ring: var(--hf-color-border-focus);
+  color-scheme: dark;
+}
+
+/**
+ * MarketHive mode (S584, Chris): Hive Studio inside MarketHive matches MarketHive -
+ * a white page, Tom's palette (FONT.COLORS.LAYOUT.NEW.CORPORATE.ID.psd / controls
+ * sheet S572) and the platform's control font stack. Quanta's light tokens apply
+ * (any data-theme other than default-dark resolves to them); these map shadcn's
+ * variables onto MarketHive's colours. Control skins live in markethive.css.
+ */
+:root[data-theme="markethive-light"] {
+  --hf-type-family-grotesk-base: "Tahoma", "Poppins", Geneva;
+  --hf-type-family-primary-base: "Tahoma", "Poppins", Geneva;
+  --hf-type-family-secondary-base: "Tahoma", "Poppins", Geneva;
+  --hf-type-family-mono-base: var(--font-ibm-plex-mono), "IBM Plex Mono";
+
+  /* Hairlines and tints that were white-on-black are navy-on-white here. */
+  --color-ink: #121c31;
+
+  /* Quanta's own text, icon and glass tokens, for components that read them
+     directly (q-* utilities): dark copy, solid white instead of glass. */
+  --hf-color-text-primary: #1a1a2e;
+  --hf-color-text-secondary: #383c43;
+  --hf-color-text-tertiary: #383c43;
+  --hf-color-icon-primary: #1a1a2e;
+  --hf-color-icon-secondary: #383c43;
+  --hf-color-background-glass: #ffffff;
+
+  --background: #ffffff;
+  /* S584 (Chris: "font not grey"): copy is MarketHive's dark #1a1a2e (the Blog
+     Feed controls); secondary copy is the sheet's #383c43, not a grey. */
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+  --primary: #6d83b4;
+  --primary-foreground: #ffffff;
+  --secondary: #e9eaf3;
+  --secondary-foreground: #1a1a2e;
+  --muted: #e9eaf3;
+  --muted-foreground: #383c43;
+  --accent: #e9eaf3;
+  --accent-foreground: #1a1a2e;
+  --destructive: #c62828;
+  --border: #a1b1d1;
+  --input: #a1b1d1;
+  --ring: #e9bc47;
+  --chart-1: #6d83b4;
+  --chart-2: #2f4370;
+  --chart-3: #a1b1d1;
+  --chart-4: #e9bc47;
+  --chart-5: #d39725;
+  --radius: 4px;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a2e;
+  --sidebar-primary: #6d83b4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e9eaf3;
+  --sidebar-accent-foreground: #1a1a2e;
+  --sidebar-border: #a1b1d1;
+  --sidebar-ring: #e9bc47;
+  color-scheme: light;
 }

@@ -42,12 +42,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 function PromptTemplate({ text }: { text: string }) {
   const parts = text.split(/(\{subject\})/g)
   return (
-    <p className="rounded-xl border border-white/10 bg-card p-4 text-sm leading-relaxed break-words text-muted-foreground">
+    <p className="rounded-xl border border-ink/10 bg-card p-4 text-sm leading-relaxed break-words text-muted-foreground">
       {parts.map((part, i) =>
         part === "{subject}" ? (
           <span
             key={i}
-            className="mx-0.5 rounded-md border border-white/15 bg-white/10 px-1.5 py-0.5 text-foreground"
+            className="mx-0.5 rounded-md border border-ink/15 bg-ink/10 px-1.5 py-0.5 text-foreground"
           >
             your subject
           </span>
@@ -91,7 +91,7 @@ export default async function EffectPage({ params }: Params) {
           title={preset.title}
           surface={preset.surface}
           coverUrl={preset.coverUrl}
-          className="aspect-video w-full rounded-2xl border border-white/10"
+          className="aspect-video w-full rounded-2xl border border-ink/10"
           large
         />
         <aside className="flex min-w-0 flex-col gap-6">
@@ -122,7 +122,7 @@ export default async function EffectPage({ params }: Params) {
 
           <section>
             <SectionTitle>Model</SectionTitle>
-            <p className="rounded-xl border border-white/10 bg-card px-4 py-3 text-sm">
+            <p className="rounded-xl border border-ink/10 bg-card px-4 py-3 text-sm">
               {modelLabel(preset.modelId)}
             </p>
           </section>

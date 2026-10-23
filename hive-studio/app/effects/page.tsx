@@ -39,8 +39,8 @@ function Chip({
       className={cn(
         "inline-flex h-8 shrink-0 items-center rounded-full border px-3.5 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         active
-          ? "border-white/30 bg-white/10 text-foreground"
-          : "border-white/10 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+          ? "border-ink/30 bg-ink/10 text-foreground"
+          : "border-ink/10 text-muted-foreground hover:bg-ink/5 hover:text-foreground"
       )}
     >
       {children}
@@ -103,8 +103,8 @@ export default async function EffectsPage({
           </div>
         </>
       ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-card px-6 py-16 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-white/5">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-ink/10 bg-card px-6 py-16 text-center">
+          <span className="flex size-12 items-center justify-center rounded-full bg-ink/5">
             <Wand2 className="size-5 text-muted-foreground" aria-hidden />
           </span>
           <div className="flex flex-col gap-1">

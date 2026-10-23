@@ -94,11 +94,18 @@ function NameDialog({
 export function ProjectCreateModal({
   trigger,
   onCreate,
+  open: controlledOpen,
+  onOpenChange,
 }: {
-  trigger: ReactElement
+  /** Optional: S584 opens it from MarketHive's Library menu instead. */
+  trigger?: ReactElement
   onCreate: (name: string) => void | Promise<void>
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
-  const [open, setOpen] = useState(false)
+  const [ownOpen, setOwnOpen] = useState(false)
+  const open = controlledOpen ?? ownOpen
+  const setOpen = onOpenChange ?? setOwnOpen
   return (
     <NameDialog
       trigger={trigger}

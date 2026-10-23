@@ -36,6 +36,7 @@ vi.mock("@/lib/db/mongo", () => ({
   mongoClient: () => h.db.client,
 }))
 vi.mock("@/lib/billing/pricing", () => ({
+  inputPricedRole: async () => null,
   quoteFor: async () => ({
     enabled: true,
     quote: h.mh.price === null ? null : { credits: h.mh.price, usd: 0 },

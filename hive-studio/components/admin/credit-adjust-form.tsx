@@ -58,7 +58,7 @@ export function CreditAdjustForm({
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col gap-3 rounded-xl border border-white/10 p-4"
+      className="flex flex-col gap-3 rounded-xl border border-ink/10 p-4"
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="flex min-w-0 flex-col gap-1.5">
