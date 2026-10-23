@@ -1,0 +1,82 @@
+# MarketHive dev3: Hive Studio in markethive mode on MarketHive's dev Coolify
+# (docker-compose build pack, base directory /hive-studio). See docs/runbook.md.
+#
+# Values marked SECRET are set by the operator in Coolify's Environment
+# Variables screen, never here and never by KitFire. Everything else has a
+# safe default for dev3.
+services:
+  studio:
+    build: .
+    restart: unless-stopped
+    environment:
+      STUDIO_MODE: markethive
+      # The studio's own public https URL: Coolify's SERVICE_URL_<service> is
+      # the domain set on this service (Domains tab), so it can never drift.
+      APP_URL: ${SERVICE_URL_STUDIO:-https://hive-studio.91.99.211.175.sslip.io}
+      # MongoDB below: single-node replica set (transactions need one).
+      MONGODB_URI: mongodb://mongo:27017/?replicaSet=rs0&directConnection=true
+      MONGODB_DB: hive-studio
+      DB_INIT_AT_BOOT: "1"
+      # Outputs on the local volume, served by /media; no R2 on dev3.
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /data/media
+      # No Vercel Cron on Docker: reconcile in-process every minute.
+      INTERNAL_CRON_SECONDS: "60"
+      # dev3 boots on the database alone while the operator adds keys; sign-in,
+      # wallet and generation each refuse (requireEnv) until their keys are set.
+      BOOT_REQUIRED_GROUPS: ${BOOT_REQUIRED_GROUPS:-db}
+      MARKETHIVE_BASE_URL: ${MARKETHIVE_BASE_URL:-https://dev3.markethive.com}
+      MARKETHIVE_FRAME_ANCESTORS: ${MARKETHIVE_FRAME_ANCESTORS:-https://dev3.markethive.com}
+      MARKETHIVE_CREDITS_URL: ${MARKETHIVE_CREDITS_URL:-}
+      # Member price = Higgsfield cost x this (S580-DRL-02: 50% for MarketHive).
+      MARKETHIVE_MARKUP: ${MARKETHIVE_MARKUP:-1.5}
+      MARKETHIVE_SHARED_SECRET: ${MARKETHIVE_SHARED_SECRET}   # SECRET (same value as MarketHive's MH_HIVE_STUDIO_SECRET)
+      HF_API_BASE_URL: ${HF_API_BASE_URL:-https://api.higgsfield.ai}
+      HF_CREDENTIALS: ${HF_CREDENTIALS}                       # SECRET (Higgsfield key_id:key_secret)
+      HF_WEBHOOK_SECRET: ${HF_WEBHOOK_SECRET}                 # SECRET (32+ random chars)
+      HF_WEBHOOK_BASE_URL: ${HF_WEBHOOK_BASE_URL:-}
+      # Admins only until the Hive-credit prices are ruled (S566-DRL-01).
+      GENERATION_ACCESS: admins
+      # AI prompt writer (S611, D-077): MarketHive's internal OpenAI proxy, the
+      # one AI Blog Autopilot uses, reached on Coolify's shared network below.
+      OPENAI_PROXY_URL: ${OPENAI_PROXY_URL:-http://openai-proxy:80}
+      OPENAI_PROXY_TOKEN: ${OPENAI_PROXY_TOKEN:-}             # SECRET (same value as MarketHive's MH_OPENAI_PROXY_TOKEN)
+    volumes:
+      - studio-media:/data/media
+    depends_on:
+      mongo:
+        condition: service_healthy
+    expose:
+      - "3000"
+    # `default` keeps the studio with its own MongoDB; `coolify` is the shared
+    # network where MarketHive's openai-proxy lives (internal only, no domain).
+    networks:
+      - default
+      - coolify
+
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - studio-mongo:/data/db
+    # Initiates the one-member replica set on first boot, then just reports it.
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok }"
+      interval: 10s
+      timeout: 10s
+      start_period: 20s
+      retries: 12
+
+volumes:
+  studio-media:
+  studio-mongo:
+
+networks:
+  coolify:
+    external: true

@@ -1,0 +1,784 @@
+"use client"
+
+import { useFormatCredits, useStudioMode } from "@/components/site/studio-mode"
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import type { ComponentProps, ReactNode } from "react"
+import { Compass, Folder } from "lucide-react"
+
+import { AccountRow } from "@/components/auth/account-row"
+import { AuthDialog } from "@/components/auth/auth-dialog"
+import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
+import { balanceAction, pricingAction } from "@/generation/billing-actions"
+import { priceFor, priceInputsFor } from "@/lib/billing/price"
+import type { PriceRule } from "@/lib/billing/price"
+import { StudioPromptBox } from "@/components/studio/studio-prompt-box"
+import {
+  ExamplePresets,
+  TEMPLATES,
+  type TemplateItem,
+} from "@/components/studio/template-picker"
+import { HeroComposition } from "@/components/studio/hero-composition"
+import {
+  MyProjects,
+  type MyProjectsProject,
+} from "@/components/studio/my-projects"
+import {
+  ProjectActions,
+  ProjectCreateModal,
+} from "@/components/studio/project-dialogs"
+import { StudioSidebar, type StudioView } from "@/components/studio/sidebar"
+import { UserGenerations } from "@/components/studio/user-generations"
+import type {
+  GalleryItem,
+  TileActions,
+} from "@/components/studio/gallery/gallery-types"
+import { publishGenerationAction } from "@/generation/community-actions"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { MODELS, getModel, parseSettings } from "@/generation/catalog"
+import type {
+  GenerationPlane,
+  MediaItem,
+  MediaRole,
+  Surface,
+} from "@/generation/catalog"
+import {
+  changeImageRole,
+  groupMedia,
+  inferInputMode,
+  inputRoles,
+  mergeMedia,
+  mergeReferences,
+} from "@/generation/catalog/media-inputs"
+import { toPlatform } from "@/generation/to-platform"
+import { useActive } from "@/generation/stores/active"
+import { useSettings } from "@/generation/stores/settings"
+import {
+  runToGalleryItems,
+  runToLibraryItems,
+} from "@/lib/studio/gallery-items"
+import { listLibraryAction } from "@/generation/library-actions"
+import { BRAND_TRIPTYCH } from "@/lib/brand-art"
+import { LIBRARY_EVENT } from "@/lib/client-events"
+import { saveDockDraft, takeDockDraft } from "@/lib/studio/dock-draft"
+import { useProjects } from "@/lib/studio/projects"
+import { cn } from "@/lib/utils"
+import {
+  uploadAsset,
+  useUploads,
+  type AssetSelection,
+} from "@/lib/studio/uploads"
+import { useRuns } from "@/lib/studio/use-runs"
+import { useVideoSeconds } from "@/lib/studio/video-seconds"
+
+/**
+ * StudioTemplate — the full creative workspace: projects-first sidebar, hero,
+ * the floating prompt dock, Effects / My Projects, and the edge-to-edge
+ * generations feed. Generation goes through the model catalog and the
+ * platform server actions; history and projects live in the browser.
+ *
+ * Keep the six structural parts when adapting (see AGENTS.md): sidebar,
+ * glow + dot-field atmosphere, HeroComposition, StudioPromptBox, the
+ * Effects / My Projects section, and the UserGenerations feed.
+ */
+
+// Our brand art until the user has three outputs of their own.
+const HERO_FALLBACKS = BRAND_TRIPTYCH
+
+const HERO_GLOW =
+  "radial-gradient(60% 80% at 50% 0%, rgba(160,164,170,0.14) 0%, rgba(160,164,170,0.05) 42%, transparent 72%)"
+const HERO_DOTS = "radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px)"
+const HERO_DOTS_MASK =
+  "radial-gradient(55% 70% at 50% 0%, #000 0%, rgba(0,0,0,0.35) 45%, transparent 75%)"
+
+type DockProps = Omit<
+  ComponentProps<typeof StudioPromptBox>,
+  "className" | "skin"
+>
+
+function heroImages(items: GalleryItem[]): readonly [string, string, string] {
+  const ready = items
+    .filter((i) => i.status === "ready" && i.src !== "")
+    .slice(0, 3)
+    .map((i) => i.src)
+  return [
+    ready[0] ?? HERO_FALLBACKS[0],
+    ready[1] ?? HERO_FALLBACKS[1],
+    ready[2] ?? HERO_FALLBACKS[2],
+  ]
+}
+
+function HomeState({
+  title,
+  items,
+  projects,
+  dock,
+  onCreateProject,
+  onOpenAll,
+  onOpenProject,
+  onUseTemplate,
+  pageScroll = false,
+}: {
+  title: string
+  items: GalleryItem[]
+  projects: MyProjectsProject[]
+  dock: DockProps
+  onCreateProject: (name: string) => void
+  onOpenAll: () => void
+  onOpenProject: (project: MyProjectsProject) => void
+  onUseTemplate: (template: TemplateItem) => void
+  /** markethive below 1024px: the page scrolls, not this view (S611). */
+  pageScroll?: boolean
+}) {
+  const [tab, setTab] = useState("explore")
+  const promptRef = useRef<HTMLDivElement>(null)
+  const images = useMemo(() => heroImages(items), [items])
+
+  return (
+    <div
+      className={cn(
+        "relative flex min-h-0 flex-1 flex-col items-center",
+        pageScroll ? "lg:overflow-y-auto" : "overflow-y-auto"
+      )}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[600px]"
+        style={{
+          backgroundImage: HERO_DOTS,
+          backgroundSize: "14px 14px",
+          maskImage: HERO_DOTS_MASK,
+          WebkitMaskImage: HERO_DOTS_MASK,
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[600px]"
+        style={{ backgroundImage: HERO_GLOW }}
+      />
+
+      <div className="relative flex w-full flex-col items-center gap-12 px-6 pt-16 pb-16">
+        <div
+          ref={promptRef}
+          className="flex w-full min-w-0 flex-col items-center gap-8"
+        >
+          <div className="flex flex-col items-center gap-5">
+            <HeroComposition images={images} alt="Recent Studio outputs" />
+            <h1 className="max-w-[640px] text-center text-q-accent-lg-bold uppercase">
+              {title}
+            </h1>
+          </div>
+          <StudioPromptBox {...dock} />
+        </div>
+
+        <div className="flex w-full max-w-[900px] flex-col items-start gap-5">
+          <Tabs
+            variant="segmented"
+            shape="pill"
+            value={tab}
+            onValueChange={(v) => setTab(String(v))}
+          >
+            <TabsList>
+              <TabsTrigger value="explore" start={<Compass />}>
+                Effects
+              </TabsTrigger>
+              <TabsTrigger value="projects" start={<Folder />}>
+                My Projects
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <div key={tab} className="w-full animate-in duration-300 fade-in-0">
+            {tab === "projects" ? (
+              <MyProjects
+                projects={projects}
+                generations={items}
+                onCreateProject={onCreateProject}
+                onOpenAllGenerations={onOpenAll}
+                onOpenProject={onOpenProject}
+              />
+            ) : (
+              <ExamplePresets
+                items={TEMPLATES}
+                onUse={(t) => {
+                  onUseTemplate(t)
+                  promptRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  })
+                }}
+                className="w-full"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function FeedState({
+  items,
+  previewItems,
+  title,
+  dock,
+  onDelete,
+  extraActions,
+  pageScroll = false,
+}: {
+  items: GalleryItem[]
+  previewItems: GalleryItem[]
+  title: ReactNode
+  dock: DockProps
+  onDelete: (item: GalleryItem) => void
+  extraActions?: TileActions
+  /** markethive below 1024px: the page scrolls the feed and the prompt dock
+      stays on the bottom of the frame (S611, Tom's review). */
+  pageScroll?: boolean
+}) {
+  const images = useMemo(() => heroImages(previewItems), [previewItems])
+  const dockRef = useRef<HTMLDivElement>(null)
+  const [dockHeight, setDockHeight] = useState(180)
+  useEffect(() => {
+    const node = dockRef.current
+    if (!node) return
+    const observer = new ResizeObserver(() =>
+      setDockHeight(node.getBoundingClientRect().height)
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+  return (
+    <div
+      className={cn(
+        "relative flex min-h-0 flex-1 flex-col",
+        pageScroll ? "lg:overflow-hidden" : "overflow-hidden"
+      )}
+    >
+      <div
+        className="flex min-h-0 flex-1 flex-col px-4 pt-4"
+        style={{ paddingBottom: dockHeight + 24 }}
+      >
+        <UserGenerations
+          items={items}
+          title={title}
+          onDelete={onDelete}
+          extraActions={extraActions}
+          pageScrollBelowLg={pageScroll}
+          emptyState={{
+            images,
+            title:
+              title === "All Generations"
+                ? "No generations yet"
+                : `No generations in ${title}`,
+            description:
+              "Describe an idea below, then generate the first result.",
+          }}
+        />
+      </div>
+      <div
+        className={cn(
+          "pointer-events-none inset-x-0 bottom-0 flex justify-center px-4 pt-24 pb-4",
+          pageScroll ? "fixed z-20 lg:absolute lg:z-auto" : "absolute"
+        )}
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom, transparent 0%, var(--background) 100%)",
+        }}
+      >
+        <div ref={dockRef} className="w-full max-w-[900px]">
+          <StudioPromptBox
+            {...dock}
+            skin="glass"
+            className="pointer-events-auto w-full"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export interface StudioTemplateProps {
+  /** Product name in the sidebar header. */
+  title?: string
+  /** Hero headline above the dock. */
+  headline?: string
+  /** Signed-in user from the server, or null. Generate/upload need one. */
+  user?: { email: string } | null
+  /** Which view opens first (/assets → all, /projects/[id] → that project). */
+  initialView?: StudioView
+  /** Open "New project" on arrival (MarketHive's Library menu, S584). */
+  initialCreate?: boolean
+}
+
+export function StudioTemplate({
+  title = "Studio",
+  headline = "What will you make today?",
+  user = null,
+  initialView = { kind: "home" },
+  initialCreate = false,
+}: StudioTemplateProps) {
+  const [view, setView] = useState<StudioView>(initialView)
+  // Inside MarketHive the toolbar's LIBRARY menu replaces the sidebar (S584).
+  const inMarketHive = useStudioMode().mode === "markethive"
+  const [createOpen, setCreateOpen] = useState(initialCreate)
+  useEffect(() => {
+    const onLibrary = (event: Event) => {
+      const target = (event as CustomEvent<string>).detail
+      if (target === "home") setView({ kind: "home" })
+      else if (target === "all") setView({ kind: "all" })
+      else if (target === "new") setCreateOpen(true)
+      else if (typeof target === "string" && target.startsWith("project:"))
+        setView({ kind: "project", projectId: target.slice(8) })
+    }
+    window.addEventListener(LIBRARY_EVENT, onLibrary)
+    return () => window.removeEventListener(LIBRARY_EVENT, onLibrary)
+  }, [])
+  // Keep the address bar shareable as the user moves between views.
+  useEffect(() => {
+    const path =
+      view.kind === "project" ? `/projects/${view.projectId}` : "/assets"
+    if (window.location.pathname !== path)
+      window.history.replaceState(null, "", path)
+  }, [view])
+  const [collapsed, setCollapsed] = useState(false)
+  const [prompt, setPrompt] = useState("")
+  const [media, setMedia] = useState<MediaItem[]>([])
+  const [canceling, setCanceling] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
+  const [authReason, setAuthReason] = useState<string | null>(null)
+
+  const surface = useActive((s) => s.surface)
+  const modelId = useActive((s) => s.model)
+  const setActiveModel = useActive((s) => s.setModel)
+  const settingsByModel = useSettings((s) => s.byModel)
+  const setSetting = useSettings((s) => s.set)
+  const projectsStore = useProjects()
+  const uploads = useUploads((s) => s.items)
+  const [upgradeReason, setUpgradeReason] = useState<string | null>(null)
+  const [balance, setBalance] = useState<number | null>(null)
+  const refreshBalance = useCallback(() => {
+    if (!user) return
+    void balanceAction().then((r) => {
+      if (r.ok) setBalance(r.data.subscription + r.data.topup)
+    })
+  }, [user])
+  useEffect(() => refreshBalance(), [refreshBalance])
+  const [pricing, setPricing] = useState<
+    Record<string, { rule: PriceRule | null; enabled: boolean }>
+  >({})
+  useEffect(() => {
+    void pricingAction().then((r) => {
+      if (r.ok) setPricing(r.data)
+    })
+  }, [])
+  const router = useRouter()
+  const runs = useRuns(Boolean(user), {
+    onInsufficientCredits: (message) => setUpgradeReason(message),
+    onSettled: refreshBalance,
+  })
+
+  // Projects and uploads live on the server; load them once signed in.
+  useEffect(() => {
+    if (!user) return
+    let alive = true
+    void listLibraryAction().then((result) => {
+      if (!alive || !result.ok) return
+      useProjects.getState().hydrate(result.data.projects)
+      useUploads
+        .getState()
+        .hydrate(
+          result.data.uploads.map((u) => ({ ...u, source: "upload" as const }))
+        )
+    })
+    return () => {
+      alive = false
+    }
+  }, [user])
+
+  // Restore what the user had in the dock before signing in (never auto-submit).
+  useEffect(() => {
+    if (!user) return
+    const draft = takeDockDraft()
+    if (!draft) return
+    // localStorage is unavailable during SSR, so this one-time restore must run
+    // after mount; it fires at most once per sign-in and the draft is cleared.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPrompt(draft.prompt)
+    setMedia(draft.media)
+    if (MODELS.some((m) => m.id === draft.modelId))
+      setActiveModel(draft.modelId)
+  }, [user, setActiveModel])
+
+  const surfaces = useMemo(
+    () =>
+      // A surface appears only when it has at least one verified model (audio has none yet).
+      (["video", "image", "audio"] as Surface[]).filter((s) =>
+        MODELS.some((m) => m.surface === s)
+      ),
+    []
+  )
+  const models = useMemo(
+    () => MODELS.filter((m) => m.surface === surface),
+    [surface]
+  )
+  const model = useMemo(() => {
+    try {
+      return getModel(modelId)
+    } catch {
+      return models[0] ?? MODELS[0]!
+    }
+  }, [modelId, models])
+  const settings = useMemo(
+    () => settingsByModel[model.id] ?? {},
+    [settingsByModel, model.id]
+  )
+  const inputMode = inferInputMode(model, media)
+  // Same pure function the server charges with; rules arrive in credit units.
+  const fmt = useFormatCredits()
+  const videoSeconds = useVideoSeconds(
+    media.filter((m) => m.kind === "video").map((m) => m.url)
+  )
+  const quote = priceFor(
+    pricing[model.id]?.rule,
+    settings,
+    { markup: 1, creditUsdValue: 1 },
+    priceInputsFor(pricing[model.id]?.rule, media, videoSeconds)
+  )
+  const prepared = useMemo(() => {
+    try {
+      const plane: GenerationPlane = {
+        model: model.id,
+        inputMode,
+        prompt: { text: prompt.trim() },
+        media: groupMedia(media),
+        settings: parseSettings(model, settings),
+      }
+      toPlatform(plane)
+      return { plane, error: null }
+    } catch (caught) {
+      return {
+        plane: null,
+        error: caught instanceof Error ? caught.message : String(caught),
+      }
+    }
+  }, [inputMode, media, model, prompt, settings])
+
+  const galleryItems = useMemo(
+    () => runs.records.flatMap(runToGalleryItems),
+    [runs.records]
+  )
+  const libraryItems = useMemo(
+    () => [...uploads, ...runs.records.flatMap(runToLibraryItems)],
+    [runs.records, uploads]
+  )
+  const byProject = useMemo(() => {
+    const map = new Map<string, GalleryItem[]>()
+    for (const item of galleryItems) {
+      if (!item.projectId) continue
+      map.set(item.projectId, [...(map.get(item.projectId) ?? []), item])
+    }
+    return map
+  }, [galleryItems])
+  const projects = useMemo<MyProjectsProject[]>(
+    () =>
+      projectsStore.projects.map((p) => {
+        const items = byProject.get(p.id) ?? []
+        const cover = items.find(
+          (i) => i.status === "ready" && i.src !== ""
+        )?.src
+        return {
+          id: p.id,
+          name: p.name,
+          generationCount: new Set(items.map((i) => i.runId)).size,
+          updatedAt: p.updatedAt,
+          ...(cover ? { cover } : {}),
+        }
+      }),
+    [byProject, projectsStore.projects]
+  )
+  const selectedProject =
+    view.kind === "project"
+      ? projects.find((p) => p.id === view.projectId)
+      : undefined
+  const visibleItems =
+    view.kind === "project"
+      ? (byProject.get(view.projectId) ?? [])
+      : galleryItems
+
+  const generating = runs.running.length > 0
+  const canGenerate =
+    prepared.plane !== null && (prompt.trim().length > 0 || media.length > 0)
+  const missingRequiredInput =
+    model.requiredRoles?.some(
+      (role) => !media.some((item) => item.role === role)
+    ) ||
+    (model.requirePrompt && !prompt.trim())
+
+  const askToSignIn = useCallback(
+    (reason: string) => {
+      saveDockDraft({ prompt, media, modelId: model.id })
+      setAuthReason(reason)
+    },
+    [media, model.id, prompt]
+  )
+
+  const handleGenerate = useCallback(() => {
+    if (!canGenerate || generating || !prepared.plane) return
+    if (!user) {
+      askToSignIn(
+        "Sign in to generate. Your prompt will be here when you're back."
+      )
+      return
+    }
+    setLocalError(null)
+    const projectId = view.kind === "project" ? view.projectId : undefined
+    void runs.submit(prepared.plane, projectId).then((record) => {
+      if (record && view.kind === "home") setView({ kind: "all" })
+      if (record && projectId) projectsStore.touch(projectId)
+    })
+  }, [
+    askToSignIn,
+    canGenerate,
+    generating,
+    prepared.plane,
+    projectsStore,
+    runs,
+    user,
+    view,
+  ])
+
+  const handleUpload = useCallback(
+    async (file: File) => {
+      if (!user) {
+        askToSignIn("Sign in to upload references.")
+        throw new Error("Sign in to upload references.")
+      }
+      return uploadAsset(file)
+    },
+    [askToSignIn, user]
+  )
+
+  const handleCancel = useCallback(() => {
+    if (!generating || canceling) return
+    setCanceling(true)
+    void Promise.all(runs.running.map((r) => runs.cancel(r.id))).finally(() =>
+      setCanceling(false)
+    )
+  }, [canceling, generating, runs])
+
+  const handleUseTemplate = (t: TemplateItem) => {
+    setPrompt(t.prompt)
+    if (t.modelId && MODELS.some((m) => m.id === t.modelId)) {
+      const target = getModel(t.modelId)
+      setActiveModel(target.id)
+      if (t.settings) setSetting(target.id, t.settings)
+    } else if (t.kind !== surface && surfaces.includes(t.kind)) {
+      changeSurface(t.kind)
+    }
+  }
+
+  // setModel derives the surface from the model, so switching surface = picking its first model.
+  const changeSurface = (next: Surface) => {
+    const first = MODELS.find((m) => m.surface === next)
+    if (first) setActiveModel(first.id)
+  }
+
+  const dock: DockProps = {
+    surfaces,
+    surface,
+    onSurfaceChange: changeSurface,
+    models,
+    model,
+    onModelChange: (id) => {
+      setLocalError(null)
+      setActiveModel(id)
+    },
+    settings,
+    onSettingChange: (key, value) => setSetting(model.id, { [key]: value }),
+    inputMode,
+    media,
+    onMediaAdd: (role: MediaRole | "auto", selection: AssetSelection[]) => {
+      const selected = selection.map((item) => ({
+        id: item.id,
+        url: item.src,
+        kind: item.kind,
+        name: item.name,
+      }))
+      const roles = inputRoles(model, inputMode)
+      const next =
+        role === "auto"
+          ? mergeReferences(media, selected, roles)
+          : mergeMedia(
+              media,
+              role,
+              selected.map((item) => ({ ...item, role })),
+              roles[role] ?? 0
+            )
+      setLocalError(null)
+      setMedia(next)
+    },
+    onMediaRemove: (id) => {
+      setLocalError(null)
+      setMedia((current) => current.filter((item) => item.id !== id))
+    },
+    onMediaRoleChange: (id, role) => {
+      try {
+        setMedia(changeImageRole(model, media, id, role))
+        setLocalError(null)
+      } catch (caught) {
+        setLocalError(
+          caught instanceof Error
+            ? caught.message
+            : "Could not change the image role."
+        )
+      }
+    },
+    library: { items: libraryItems, onUpload: handleUpload },
+    prompt,
+    onPromptChange: setPrompt,
+    onGenerate: handleGenerate,
+    onCancel: handleCancel,
+    generating,
+    canceling,
+    generateDisabled: !canGenerate,
+    cost: quote ? fmt(quote.credits) : undefined,
+    disabledReason: prepared.error ?? undefined,
+    error:
+      localError ??
+      runs.error ??
+      projectsStore.error ??
+      (!missingRequiredInput && media.length > 0 ? prepared.error : null) ??
+      undefined,
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex bg-background",
+        inMarketHive
+          ? "min-h-[calc(100dvh-var(--header-h))] lg:h-[calc(100dvh-var(--header-h))] lg:overflow-hidden"
+          : "h-[calc(100dvh-var(--header-h))] overflow-hidden"
+      )}
+    >
+      <ProjectCreateModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreate={(name) =>
+          setView({ kind: "project", projectId: projectsStore.create(name).id })
+        }
+      />
+      {inMarketHive ? null : (
+        <StudioSidebar
+          footer={(isCollapsed) => (
+            <AccountRow
+              email={user?.email ?? null}
+              balance={balance}
+              onBuyCredits={() =>
+                setUpgradeReason("Top up or pick a plan to keep generating.")
+              }
+              collapsed={isCollapsed}
+              onSignIn={() =>
+                setAuthReason("Enter your email and we'll send you a link.")
+              }
+            />
+          )}
+          title={title}
+          view={view}
+          onViewChange={setView}
+          projects={projects}
+          onCreateProject={(name) =>
+            setView({
+              kind: "project",
+              projectId: projectsStore.create(name).id,
+            })
+          }
+          onRenameProject={(id, name) => projectsStore.rename(id, name)}
+          onDeleteProject={(id) => {
+            projectsStore.remove(id)
+            if (view.kind === "project" && view.projectId === id)
+              setView({ kind: "all" })
+          }}
+          collapsed={collapsed}
+          onCollapsedChange={setCollapsed}
+        />
+      )}
+      <main className="relative flex min-w-0 flex-1 flex-col">
+        {view.kind === "home" ? (
+          <HomeState
+            title={headline}
+            items={galleryItems}
+            projects={projects}
+            dock={dock}
+            onCreateProject={(name) =>
+              setView({
+                kind: "project",
+                projectId: projectsStore.create(name).id,
+              })
+            }
+            onOpenAll={() => setView({ kind: "all" })}
+            onOpenProject={(p) => setView({ kind: "project", projectId: p.id })}
+            onUseTemplate={handleUseTemplate}
+            pageScroll={inMarketHive}
+          />
+        ) : (
+          <FeedState
+            items={visibleItems}
+            previewItems={galleryItems}
+            title={
+              selectedProject && inMarketHive ? (
+                <span className="inline-flex items-center gap-2">
+                  {selectedProject.name}
+                  <ProjectActions
+                    projectName={selectedProject.name}
+                    onRename={(name) =>
+                      projectsStore.rename(selectedProject.id, name)
+                    }
+                    onDelete={() => {
+                      projectsStore.remove(selectedProject.id)
+                      setView({ kind: "all" })
+                    }}
+                  />
+                </span>
+              ) : (
+                (selectedProject?.name ?? "All Generations")
+              )
+            }
+            dock={dock}
+            pageScroll={inMarketHive}
+            onDelete={(item) => runs.remove(item.runId)}
+            extraActions={{
+              onReuse: (item) =>
+                router.push(
+                  `/${item.kind}?model=${encodeURIComponent(item.modelId ?? "")}&prompt=${encodeURIComponent(item.prompt)}`
+                ),
+              onAnimate: (item) =>
+                router.push(
+                  `/video?start=${encodeURIComponent(item.src)}&prompt=${encodeURIComponent(item.prompt)}`
+                ),
+              onPublish: (item, value) =>
+                publishGenerationAction(item.runId, value).then((r) => {
+                  if (r.ok)
+                    runs.patch(item.runId, { isPublic: r.data.isPublic })
+                  else setLocalError(r.message)
+                }),
+            }}
+          />
+        )}
+      </main>
+      <UpgradeDialog
+        open={upgradeReason !== null}
+        onOpenChange={(open) => {
+          if (!open) setUpgradeReason(null)
+        }}
+        reason={upgradeReason ?? undefined}
+      />
+      <AuthDialog
+        open={authReason !== null}
+        onOpenChange={(open) => {
+          if (!open) setAuthReason(null)
+        }}
+        reason={authReason ?? undefined}
+      />
+    </div>
+  )
+}
