@@ -5,22 +5,23 @@ import { Sparkles } from "lucide-react"
 import { CommunityFeed } from "@/components/community/community-feed"
 import { Page } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
-import { decodeCursor, listPublicGenerations } from "@/lib/community"
+import { decodeCursor } from "@/lib/community"
+import { loadCommunityFeed } from "@/lib/community-feed"
+import type { FeedView } from "@/lib/community-feed"
 import { currentUser } from "@/lib/session"
-import type { CommunityPage as Feed } from "@/lib/community"
 
 export const metadata: Metadata = {
   title: "Hive Community · Hive Studio",
   description: "Images and videos published by Hive Studio creators.",
 }
 
-async function loadFeed(cursor: string | null): Promise<Feed> {
+async function loadFeed(cursor: string | null): Promise<FeedView> {
   try {
     const viewer = await currentUser().catch(() => null)
-    return await listPublicGenerations(cursor, undefined, viewer?.id ?? null)
+    return await loadCommunityFeed(cursor, viewer)
   } catch (error) {
     console.error("[community] feed failed", error)
-    return { items: [], nextCursor: null }
+    return { items: [], nextCursor: null, bar: null, watchLater: [] }
   }
 }
 
@@ -56,6 +57,8 @@ export default async function CommunityPage({
           key={cursor ?? "newest"}
           initialItems={feed.items}
           initialCursor={feed.nextCursor}
+          initialBar={feed.bar}
+          initialWatchLater={feed.watchLater}
         />
       ) : (
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-ink/10 bg-card px-6 py-16 text-center">

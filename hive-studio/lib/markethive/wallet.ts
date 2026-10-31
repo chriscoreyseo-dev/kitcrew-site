@@ -91,10 +91,20 @@ export function toCents(
 
 const SURFACES: Surface[] = ["image", "video", "audio"]
 
-async function call(
+/** One signed call to MarketHive's hive_studio_api.php. Exported for the Media
+    Feed's action bar (lib/markethive/media.ts), which rides the same channel. */
+export async function call(
   action:
-    "balance" | "prices" | "debit" | "refund" | "feed_post" | "boost_quote",
-  fields: Record<string, string | number | boolean>
+    | "balance"
+    | "prices"
+    | "debit"
+    | "refund"
+    | "feed_post"
+    | "boost_quote"
+    | "media_bar"
+    | "media_feedback"
+    | "media_lift",
+  fields: Record<string, unknown>
 ): Promise<WireOk> {
   const env = requireEnv("markethive")
   const body = JSON.stringify({ action, ...fields })

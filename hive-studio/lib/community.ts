@@ -72,7 +72,7 @@ function publicSettings(
   return out
 }
 
-type Author = { email?: string; name?: string }
+type Author = { email?: string; name?: string; memberId?: number }
 
 /** The MarketHive NAME the member already shows on MarketHive (the same name
     /watch/studio prints as "Shared by"); members without one get maskAuthor. */
@@ -107,28 +107,49 @@ export function toPublicDTO(
 type UserAuthorDoc = {
   _id: ObjectId
   email?: string
-  markethive?: { name?: string }
+  markethive?: { name?: string; memberId?: number }
 }
 
-async function authorsFor(userIds: ObjectId[]): Promise<Map<string, Author>> {
+export async function authorsFor(
+  userIds: ObjectId[]
+): Promise<Map<string, Author>> {
   if (!userIds.length) return new Map()
   const users = await db()
     .collection<UserAuthorDoc>("users")
     .find(
       { _id: { $in: userIds } },
-      { projection: { _id: 1, email: 1, "markethive.name": 1 } }
+      {
+        projection: {
+          _id: 1,
+          email: 1,
+          "markethive.name": 1,
+          "markethive.memberId": 1,
+        },
+      }
     )
     .toArray()
   return new Map(
     users.map((u) => [
       u._id.toHexString(),
-      { email: u.email, name: u.markethive?.name },
+      {
+        email: u.email,
+        name: u.markethive?.name,
+        memberId: u.markethive?.memberId,
+      },
     ])
   )
 }
 
-export function encodeCursor(doc: Pick<GenerationDoc, "_id" | "publishedAt">) {
-  return `${doc.publishedAt?.getTime() ?? 0}_${doc._id.toHexString()}`
+/** Where a post sits in the feed: when it was published, or when another
+    member gifted it a LIFT (D-079) - a lifted post rises back to the top. */
+export function feedAt(doc: Pick<GenerationDoc, "publishedAt" | "liftedAt">) {
+  return doc.liftedAt ?? doc.publishedAt
+}
+
+export function encodeCursor(
+  doc: Pick<GenerationDoc, "_id" | "publishedAt" | "liftedAt">
+) {
+  return `${feedAt(doc)?.getTime() ?? 0}_${doc._id.toHexString()}`
 }
 
 export function decodeCursor(
@@ -140,38 +161,80 @@ export function decodeCursor(
   return { at: new Date(Number(match[1])), id: new ObjectId(match[2]) }
 }
 
-/** Newest first, keyset-paginated on (publishedAt, _id) so ties never skip. */
-export async function listPublicGenerations(
+export type PublicPageDocs = {
+  docs: GenerationDoc[]
+  authors: Map<string, Author>
+  nextCursor: string | null
+}
+
+/** One page of published generations with their authors, newest first by
+    feedAt (lifted posts rise), keyset-paginated on (feedAt, _id) so ties never
+    skip. Server code that needs the author behind a post (the Media Feed's
+    action bar) uses this; everything public goes through toPublicDTO. */
+export async function publicPageDocs(
   cursor?: string | null,
-  limit = COMMUNITY_PAGE_SIZE,
-  viewerId?: string | null
-): Promise<CommunityPage> {
+  limit = COMMUNITY_PAGE_SIZE
+): Promise<PublicPageDocs> {
   const after = decodeCursor(cursor)
-  const filter: Filter<GenerationDoc> = after
-    ? {
-        ...PUBLIC,
-        $or: [
-          { publishedAt: { $lt: after.at } },
-          { publishedAt: after.at, _id: { $lt: after.id } },
-        ],
-      }
-    : PUBLIC
   const size = Math.min(Math.max(1, Math.floor(limit)), 60)
-  const docs = await generations()
-    .find(filter)
-    .sort({ publishedAt: -1, _id: -1 })
-    .limit(size + 1)
-    .toArray()
+  // Two keyset streams merged in feed order: lifted posts by liftedAt, the
+  // rest by publishedAt. (Plain finds, so it runs on any Mongo, fakes too.)
+  const before = (field: "liftedAt" | "publishedAt"): Filter<GenerationDoc> =>
+    after
+      ? {
+          $or: [
+            { [field]: { $lt: after.at } },
+            { [field]: after.at, _id: { $lt: after.id } },
+          ],
+        }
+      : {}
+  const [lifted, plain] = await Promise.all([
+    generations()
+      .find({ ...PUBLIC, liftedAt: { $exists: true }, ...before("liftedAt") })
+      .sort({ liftedAt: -1, _id: -1 })
+      .limit(size + 1)
+      .toArray(),
+    generations()
+      .find({
+        ...PUBLIC,
+        liftedAt: { $exists: false },
+        ...before("publishedAt"),
+      })
+      .sort({ publishedAt: -1, _id: -1 })
+      .limit(size + 1)
+      .toArray(),
+  ])
+  const at = (d: GenerationDoc) => feedAt(d)?.getTime() ?? 0
+  const docs = [...lifted, ...plain]
+    .sort(
+      (a, b) =>
+        at(b) - at(a) || b._id.toHexString().localeCompare(a._id.toHexString())
+    )
+    .slice(0, size + 1)
   const page = docs.slice(0, size).filter((d) => d.outputs?.length)
   const authors = await authorsFor([
     ...new Map(page.map((d) => [d.userId.toHexString(), d.userId])).values(),
   ])
   const last = docs[size - 1]
   return {
-    items: page.map((d) =>
+    docs: page,
+    authors,
+    nextCursor: docs.length > size && last ? encodeCursor(last) : null,
+  }
+}
+
+/** Newest first; see publicPageDocs. */
+export async function listPublicGenerations(
+  cursor?: string | null,
+  limit = COMMUNITY_PAGE_SIZE,
+  viewerId?: string | null
+): Promise<CommunityPage> {
+  const { docs, authors, nextCursor } = await publicPageDocs(cursor, limit)
+  return {
+    items: docs.map((d) =>
       toPublicDTO(d, authors.get(d.userId.toHexString()), viewerId)
     ),
-    nextCursor: docs.length > size && last ? encodeCursor(last) : null,
+    nextCursor,
   }
 }
 

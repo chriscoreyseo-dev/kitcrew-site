@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import type { MouseEvent } from "react"
+import type { MouseEvent, ReactNode } from "react"
 import { AudioLines } from "lucide-react"
 
 import type { PublicGenerationDTO } from "@/lib/community"
@@ -44,13 +44,19 @@ function opensInPlace(event: MouseEvent<HTMLAnchorElement>) {
     S611 (Tom's review): with no write-up the post text is the creation's prompt
     ("They made prompts. Put the prompts in there."), and the picture or video
     (and Open) opens the post in a window over the feed, like the News Feed's
-    post popup; the links still point at /g/<id> for a new tab. */
+    post popup; the links still point at /g/<id> for a new tab.
+    D-079 (Chris, 2026-10-30): the header carries the News Feed's action bar
+    (`bar`) after the creator, and the three-dot menu (`menu`) at the right. */
 export function CommunityPost({
   item,
   onOpen,
   onCaption,
+  bar,
+  menu,
 }: {
   item: PublicGenerationDTO
+  bar?: ReactNode
+  menu?: ReactNode
   /** Opens the post over the feed; `from` gets focus back when it closes. */
   onOpen?: (item: PublicGenerationDTO, from: HTMLElement) => void
   onCaption?: (id: string, caption: string) => void
@@ -69,11 +75,13 @@ export function CommunityPost({
       className="flex w-full flex-col gap-[10px] border bg-card p-[10px]"
       style={{ borderColor: NEWSFEED.border, fontFamily: NEWSFEED.font }}
     >
-      <header className="flex flex-wrap items-baseline gap-x-3">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="text-[15px] font-semibold text-[#2f4370]">
           {item.author}
         </p>
         <p className="text-xs text-muted-foreground">{item.modelLabel}</p>
+        {bar ? <div className="ml-[clamp(12px,2vw,28px)]">{bar}</div> : null}
+        {menu}
       </header>
 
       <div
