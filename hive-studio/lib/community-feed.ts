@@ -5,6 +5,8 @@ import { ObjectId } from "mongodb"
 
 import { authorsFor, publicPageDocs, toPublicDTO } from "@/lib/community"
 import type { PublicGenerationDTO } from "@/lib/community"
+import { commentsForPosts, toCommentDTO } from "@/lib/comments"
+import type { PostComments } from "@/lib/comments"
 import { generations } from "@/lib/generations/lifecycle"
 import type { GenerationDoc } from "@/lib/generations/model"
 import { memberIdOf } from "@/lib/billing/wallet"
@@ -12,6 +14,7 @@ import { mediaBar } from "@/lib/markethive/media"
 import type {
   MediaAssets,
   MediaBadge,
+  MediaPerson,
   MediaSignal,
 } from "@/lib/markethive/media"
 import { isMarketHive } from "@/lib/mode"
@@ -45,6 +48,8 @@ export type FeedView = {
   /** null: no bar (standalone studio, signed out, or MarketHive unreachable). */
   bar: FeedBar | null
   watchLater: string[]
+  /** Per post: how many comments, and the newest few to show under it. */
+  comments: Record<string, PostComments>
 }
 
 type Viewer = { id: string } | null
@@ -74,6 +79,17 @@ async function view(
 ): Promise<FeedView> {
   let bar: FeedBar | null = null
   let shown = docs
+  let people: Map<number, MediaPerson> | null = null
+  const commentDocs = await commentsForPosts(docs.map((d) => d._id)).catch(
+    () => new Map<string, { count: number; latest: never[] }>()
+  )
+  const commenters = [
+    ...new Set(
+      [...commentDocs.values()].flatMap((c) =>
+        c.latest.map((x) => x.memberId ?? 0).filter((id) => id > 0)
+      )
+    ),
+  ]
   const memberId = await viewerMemberId(viewer)
   if (memberId && docs.length) {
     const memberOf = (d: GenerationDoc) =>
@@ -86,7 +102,11 @@ async function view(
           authorMemberId: memberOf(d),
         }))
       // MarketHive answers for BAR_CHUNK posts at a time (a saved list can be longer).
-      const data = await mediaBar(memberId, asks.slice(0, BAR_CHUNK))
+      const data = await mediaBar(
+        memberId,
+        asks.slice(0, BAR_CHUNK),
+        commenters
+      )
       for (let i = BAR_CHUNK; i < asks.length; i += BAR_CHUNK) {
         const more = await mediaBar(memberId, asks.slice(i, i + BAR_CHUNK))
         more.badges.forEach((v, k) => data.badges.set(k, v))
@@ -94,6 +114,7 @@ async function view(
         more.lifted.forEach((id) => data.lifted.add(id))
       }
       shown = docs.filter((d) => !data.excluded.has(memberOf(d)))
+      people = data.people
       const posts: Record<string, PostBar> = {}
       for (const d of shown) {
         const id = d._id.toHexString()
@@ -126,7 +147,21 @@ async function view(
         items.map((i) => i.id)
       ).catch(() => [])
     : []
-  return { items, nextCursor, bar, watchLater }
+  const ownerOf = new Map(
+    shown.map((d) => [d._id.toHexString(), d.userId.toHexString()])
+  )
+  const comments: Record<string, PostComments> = {}
+  for (const d of shown) {
+    const id = d._id.toHexString()
+    const c = commentDocs.get(id)
+    const latest = (c?.latest ?? [])
+      .map((x) =>
+        toCommentDTO(x, { viewerId: viewer?.id ?? null, ownerOf, people })
+      )
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+    comments[id] = { count: c?.count ?? 0, latest }
+  }
+  return { items, nextCursor, bar, watchLater, comments }
 }
 
 /** One page of the Media Feed (newest first; lifted posts rise). */
@@ -144,7 +179,13 @@ export async function loadSavedFeed(
   viewer: Viewer
 ): Promise<FeedView> {
   if (!ids.length)
-    return { items: [], nextCursor: null, bar: null, watchLater: [] }
+    return {
+      items: [],
+      nextCursor: null,
+      bar: null,
+      watchLater: [],
+      comments: {},
+    }
   const found = await generations()
     .find({ _id: { $in: ids }, isPublic: true, status: "completed" })
     .toArray()

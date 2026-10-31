@@ -35,6 +35,7 @@ export async function SavedListPage({ which }: { which: Which }) {
     nextCursor: null,
     bar: null,
     watchLater: [],
+    comments: {},
   }
   try {
     feed = await loadSavedFeed(list.ids, viewer)
@@ -67,6 +68,7 @@ export async function SavedListPage({ which }: { which: Which }) {
           initialCursor={null}
           initialBar={feed.bar}
           initialWatchLater={feed.watchLater}
+          initialComments={feed.comments}
           list={which}
         />
       ) : (

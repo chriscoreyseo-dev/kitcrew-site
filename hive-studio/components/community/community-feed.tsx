@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 
 import { mediaFeedPageAction } from "@/generation/media-actions"
 import type { PublicGenerationDTO } from "@/lib/community"
+import type { PostComments as Summary } from "@/lib/comments"
 import type { FeedBar } from "@/lib/community-feed"
 import type { LiftOutcome, MediaSignal } from "@/lib/markethive/media"
 import { buttonVariants } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { CommunityPost } from "./community-post"
 import { CommunityPostDialog } from "./community-post-dialog"
 import { PostActionBar } from "./post-action-bar"
 import type { LiftWallet } from "./post-action-bar"
+import { PostComments } from "./post-comments"
 import { PostMenu } from "./post-menu"
 
 /** Which saved list this feed shows, if any: unsaving a post there drops it. */
@@ -34,12 +36,14 @@ export function CommunityFeed({
   initialCursor,
   initialBar = null,
   initialWatchLater = [],
+  initialComments = {},
   list = null,
 }: {
   initialItems: PublicGenerationDTO[]
   initialCursor: string | null
   initialBar?: FeedBar | null
   initialWatchLater?: string[]
+  initialComments?: Record<string, Summary>
   list?: FeedList
 }) {
   const [items, setItems] = useState(initialItems)
@@ -55,6 +59,7 @@ export function CommunityFeed({
       : null
   )
   const [watchLater, setWatchLater] = useState(() => new Set(initialWatchLater))
+  const [comments, setComments] = useState(initialComments)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -160,6 +165,7 @@ export function CommunityFeed({
         })
       }
       setWatchLater((prev) => new Set([...prev, ...page.watchLater]))
+      setComments((prev) => ({ ...page.comments, ...prev }))
     })
   }
 
@@ -202,6 +208,12 @@ export function CommunityFeed({
                     onLift={(o) => lifted(item.id, o)}
                   />
                 ) : null
+              }
+              comments={
+                <PostComments
+                  postId={item.id}
+                  initial={comments[item.id] ?? { count: 0, latest: [] }}
+                />
               }
               menu={
                 <PostMenu

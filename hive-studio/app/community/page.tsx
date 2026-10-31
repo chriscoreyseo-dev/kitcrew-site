@@ -21,7 +21,13 @@ async function loadFeed(cursor: string | null): Promise<FeedView> {
     return await loadCommunityFeed(cursor, viewer)
   } catch (error) {
     console.error("[community] feed failed", error)
-    return { items: [], nextCursor: null, bar: null, watchLater: [] }
+    return {
+      items: [],
+      nextCursor: null,
+      bar: null,
+      watchLater: [],
+      comments: {},
+    }
   }
 }
 
@@ -59,6 +65,7 @@ export default async function CommunityPage({
           initialCursor={feed.nextCursor}
           initialBar={feed.bar}
           initialWatchLater={feed.watchLater}
+          initialComments={feed.comments}
         />
       ) : (
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-ink/10 bg-card px-6 py-16 text-center">

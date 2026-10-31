@@ -7,6 +7,15 @@ import { RateLimitedError, run } from "@/lib/action-result"
 import type { ActionResult } from "@/lib/action-result"
 import { SignInRequiredError } from "@/lib/auth-guard"
 import { memberIdOf } from "@/lib/billing/wallet"
+import {
+  cleanComment,
+  COMMENT_MAX,
+  comments,
+  commentsForPost,
+  toCommentDTO,
+} from "@/lib/comments"
+import type { CommentDoc, CommentDTO } from "@/lib/comments"
+import { authorLabel } from "@/lib/community"
 import { loadCommunityFeed } from "@/lib/community-feed"
 import type { FeedView } from "@/lib/community-feed"
 import {
@@ -14,7 +23,12 @@ import {
   GenerationNotFoundError,
   generations,
 } from "@/lib/generations/lifecycle"
-import { mediaFeedback, mediaLift } from "@/lib/markethive/media"
+import {
+  mediaBar,
+  mediaComment,
+  mediaFeedback,
+  mediaLift,
+} from "@/lib/markethive/media"
 import type { LiftOutcome, MediaFeedback } from "@/lib/markethive/media"
 import { isMarketHive } from "@/lib/mode"
 import { hit } from "@/lib/rate-limit"
@@ -50,6 +64,8 @@ const CURSOR = z
 
 /** Per user per minute: bar clicks, and list edits. */
 const BAR_LIMIT = { max: 60, windowSec: 60 } as const
+const COMMENT_LIMIT = { max: 20, windowSec: 60 } as const
+const COMMENT = z.string().max(COMMENT_MAX * 2)
 const LIST_LIMIT = { max: 60, windowSec: 60 } as const
 
 async function requireSignedIn() {
@@ -58,7 +74,11 @@ async function requireSignedIn() {
   return user
 }
 
-async function limit(scope: string, id: string, l: typeof BAR_LIMIT) {
+async function limit(
+  scope: string,
+  id: string,
+  l: { max: number; windowSec: number }
+) {
   const result = await hit({ scope, id, max: l.max, windowSec: l.windowSec })
   if (!result.ok)
     throw new RateLimitedError("That's a lot of clicks. Try again in a moment.")
@@ -219,5 +239,133 @@ export async function mediaFeedPageAction(
     if (!parsed.success) throw new GenerationInputError("Invalid cursor.")
     const viewer = await currentUser()
     return loadCommunityFeed(parsed.data ?? null, viewer)
+  })
+}
+
+/** A published post (its owner too), or NOT_FOUND. */
+async function publicPost(rawId: unknown) {
+  const parsed = ID.safeParse(rawId)
+  if (!parsed.success) throw new GenerationNotFoundError()
+  const doc = await generations().findOne(
+    { _id: new ObjectId(parsed.data), isPublic: true, status: "completed" },
+    { projection: { _id: 1, userId: 1 } }
+  )
+  if (!doc) throw new GenerationNotFoundError()
+  return doc
+}
+
+/** All of a post's comments, oldest first, as the viewer sees them (a writer
+    in a full block with the viewer is left out, as on MarketHive). */
+export async function listCommentsAction(
+  id: unknown
+): Promise<ActionResult<CommentDTO[]>> {
+  return run(async () => {
+    const post = await publicPost(id)
+    const viewer = await currentUser()
+    const docs = await commentsForPost(post._id)
+    let people = null
+    if (viewer && isMarketHive()) {
+      const ids = [...new Set(docs.map((d) => d.memberId ?? 0))].filter(
+        (n) => n > 0
+      )
+      const me = await memberIdOf(new ObjectId(viewer.id)).catch(() => 0)
+      if (me && ids.length)
+        people = await mediaBar(me, [], ids)
+          .then((b) => b.people)
+          .catch(() => null)
+    }
+    const ownerOf = new Map([
+      [post._id.toHexString(), post.userId.toHexString()],
+    ])
+    return docs
+      .map((d) =>
+        toCommentDTO(d, { viewerId: viewer?.id ?? null, ownerOf, people })
+      )
+      .filter((c): c is CommentDTO => c !== null)
+  })
+}
+
+/** Comment on a post. Plain text; MarketHive applies Black Listing and tells
+    the post's owner. */
+export async function addCommentAction(
+  id: unknown,
+  text: unknown
+): Promise<ActionResult<CommentDTO>> {
+  return run(async () => {
+    const user = await requireSignedIn()
+    const parsed = COMMENT.safeParse(text)
+    if (!parsed.success)
+      throw new GenerationInputError(`Keep it under ${COMMENT_MAX} characters.`)
+    const body = cleanComment(parsed.data)
+    if (!body) throw new GenerationInputError("Write something first.")
+    if (body.length > COMMENT_MAX)
+      throw new GenerationInputError(`Keep it under ${COMMENT_MAX} characters.`)
+    await limit("comments", user.id, COMMENT_LIMIT)
+    const post = await publicPost(id)
+
+    let name = authorLabel({ email: user.email })
+    let pic = ""
+    let url = ""
+    let memberId: number | undefined
+    if (isMarketHive()) {
+      const [viewer, author] = await Promise.all([
+        memberIdOf(new ObjectId(user.id)),
+        memberIdOf(post.userId),
+      ]).catch(() => {
+        throw new GenerationInputError("Comments work for MarketHive members.")
+      })
+      const person = await mediaComment({
+        viewerMemberId: viewer,
+        authorMemberId: author,
+        mediaId: post._id.toHexString(),
+      })
+      memberId = viewer
+      if (person) ({ name, pic, url } = person)
+    }
+    const doc: CommentDoc = {
+      _id: new ObjectId(),
+      generationId: post._id,
+      userId: new ObjectId(user.id),
+      ...(memberId ? { memberId } : {}),
+      name,
+      text: body,
+      createdAt: new Date(),
+    }
+    await comments().insertOne(doc)
+    return {
+      id: doc._id.toHexString(),
+      text: body,
+      createdAt: doc.createdAt.getTime(),
+      name,
+      pic,
+      url,
+      mine: true,
+      canDelete: true,
+    }
+  })
+}
+
+/** Deletes a comment: its writer, or the owner of the post it is on. */
+export async function deleteCommentAction(
+  commentId: unknown
+): Promise<ActionResult<{ id: string }>> {
+  return run(async () => {
+    const user = await requireSignedIn()
+    const parsed = ID.safeParse(commentId)
+    if (!parsed.success) throw new GenerationNotFoundError()
+    await limit("comments", user.id, COMMENT_LIMIT)
+    const doc = await comments().findOne({ _id: new ObjectId(parsed.data) })
+    if (!doc) throw new GenerationNotFoundError()
+    const mine = doc.userId.toHexString() === user.id
+    if (!mine) {
+      const post = await generations().findOne(
+        { _id: doc.generationId },
+        { projection: { userId: 1 } }
+      )
+      if (!post || post.userId.toHexString() !== user.id)
+        throw new GenerationNotFoundError()
+    }
+    await comments().deleteOne({ _id: doc._id })
+    return { id: parsed.data }
   })
 }

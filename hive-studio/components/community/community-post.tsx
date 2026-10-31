@@ -53,10 +53,13 @@ export function CommunityPost({
   onCaption,
   bar,
   menu,
+  comments,
 }: {
   item: PublicGenerationDTO
   bar?: ReactNode
   menu?: ReactNode
+  /** The post's comments, under its links (D-079). */
+  comments?: ReactNode
   /** Opens the post over the feed; `from` gets focus back when it closes. */
   onOpen?: (item: PublicGenerationDTO, from: HTMLElement) => void
   onCaption?: (id: string, caption: string) => void
@@ -165,6 +168,7 @@ export function CommunityPost({
           UTC
         </time>
       </footer>
+      {comments}
     </article>
   )
 }

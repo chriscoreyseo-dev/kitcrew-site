@@ -103,7 +103,8 @@ export async function call(
     | "boost_quote"
     | "media_bar"
     | "media_feedback"
-    | "media_lift",
+    | "media_lift"
+    | "media_comment",
   fields: Record<string, unknown>
 ): Promise<WireOk> {
   const env = requireEnv("markethive")
@@ -148,6 +149,7 @@ export async function call(
       "not_shared",
       "not_owner",
       "unsupported",
+      "blocked",
     ].includes(code)
   )
     throw new WalletDeclinedError(
