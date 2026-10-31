@@ -43,6 +43,8 @@ export type FeedBar = {
   price: string
   balance: string
   posts: Record<string, PostBar>
+  /** The viewer's own MarketHive photo, for the comment box. */
+  mePic: string
 }
 
 export type FeedView = {
@@ -106,7 +108,11 @@ async function view(
         }))
       // MarketHive answers for BAR_CHUNK posts at a time (a saved list can be longer).
       const data = await mediaBar(memberId, asks.slice(0, BAR_CHUNK), [
-        ...new Set([...commenters, ...asks.map((a) => a.authorMemberId)]),
+        ...new Set([
+          memberId,
+          ...commenters,
+          ...asks.map((a) => a.authorMemberId),
+        ]),
       ])
       for (let i = BAR_CHUNK; i < asks.length; i += BAR_CHUNK) {
         const chunk = asks.slice(i, i + BAR_CHUNK)
@@ -141,6 +147,7 @@ async function view(
         price: data.price,
         balance: data.balance,
         posts,
+        mePic: data.people.get(memberId)?.pic ?? "",
       }
     } catch (error) {
       // The feed still shows; only the bar waits for MarketHive.

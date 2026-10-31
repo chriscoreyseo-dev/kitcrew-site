@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import type { FormEvent, KeyboardEvent } from "react"
 import { Loader2 } from "lucide-react"
 
@@ -9,42 +9,45 @@ import {
   deleteCommentAction,
   listCommentsAction,
 } from "@/generation/media-actions"
-import { Button } from "@/components/ui/button"
 import type { CommentDTO, PostComments as Summary } from "@/lib/comments"
 
-/** Comments under a Media Feed post (Chris, 2026-10-30, D-079), like the News
-    Feed's: the newest two show, "View all" opens the rest, and anyone signed
-    in can write one (Enter posts, Shift+Enter adds a line). A comment's
-    writer, or the post's owner, can delete it. Names link to the member's
-    MarketHive profile (out of the frame, in the whole window). */
+import { DictateButton } from "./dictate-button"
+import type { DictateHandle } from "./dictate-button"
+
+/** Comments under a Media Feed post (Chris, 2026-10-30, D-079), drawn like
+    the News Feed's comment area: a pale blue-grey panel, the viewer's photo
+    beside a "Write a comment..." box with the dictation mic in its top-right
+    corner, a small blue Send under it, then each comment as photo, blue name
+    with the text running on beside it, and the date under ("October 1 at
+    2:09 am"). The newest two show; "View all" opens the rest. Enter sends,
+    Shift+Enter adds a line. A comment's writer, or the post's owner, can
+    delete it. Names link to the member's MarketHive profile (out of the
+    frame, in the whole window). */
 
 const MAX = 2000
 
+/** "October 1 at 2:09 am", the News Feed's comment date. */
 function when(ms: number) {
-  return new Date(ms).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  })
+  const d = new Date(ms)
+  const day = d.toLocaleString("en-US", { month: "long", day: "numeric" })
+  const time = d
+    .toLocaleString("en-US", { hour: "numeric", minute: "2-digit" })
+    .toLowerCase()
+  return `${day} at ${time}`
 }
 
-function Avatar({ c }: { c: CommentDTO }) {
-  if (c.pic)
+function Photo({ pic, name }: { pic: string; name: string }) {
+  if (pic)
     return (
       // eslint-disable-next-line @next/next/no-img-element -- MarketHive profile photo
-      <img
-        src={c.pic}
-        alt=""
-        className="size-8 shrink-0 rounded-full object-cover"
-      />
+      <img src={pic} alt="" className="size-8 shrink-0 object-cover" />
     )
   return (
     <span
       aria-hidden
-      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#dfe3ee] text-xs font-semibold text-[#2f4370]"
+      className="flex size-8 shrink-0 items-center justify-center bg-[#dfe3ee] text-xs font-semibold text-[#2f4370]"
     >
-      {c.name.slice(0, 1).toUpperCase()}
+      {name.slice(0, 1).toUpperCase()}
     </span>
   )
 }
@@ -52,9 +55,12 @@ function Avatar({ c }: { c: CommentDTO }) {
 export function PostComments({
   postId,
   initial,
+  mePic = "",
 }: {
   postId: string
   initial: Summary
+  /** The viewer's own MarketHive photo, beside the box. */
+  mePic?: string
 }) {
   const [list, setList] = useState<CommentDTO[]>(initial.latest)
   const [count, setCount] = useState(initial.count)
@@ -62,6 +68,7 @@ export function PostComments({
   const [text, setText] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const mic = useRef<DictateHandle>(null)
 
   function viewAll() {
     setError(null)
@@ -80,6 +87,8 @@ export function PostComments({
     event?.preventDefault()
     const body = text.trim()
     if (!body || pending) return
+    // The mic turns off on send (Tom): what is on screen is what goes.
+    mic.current?.stop()
     setError(null)
     startTransition(async () => {
       const result = await addCommentAction(postId, body)
@@ -120,42 +129,87 @@ export function PostComments({
   return (
     <section
       aria-label={`Comments (${count})`}
-      className="flex flex-col gap-2 border-t border-[#dfdfdf] pt-2 text-[14px]"
+      className="flex flex-col gap-2 bg-[#eaedf5] p-[10px] text-[14px]"
     >
+      <form onSubmit={post} className="flex items-start gap-3">
+        <Photo pic={mePic} name="You" />
+        <div className="flex min-w-0 flex-1 flex-col items-end gap-2">
+          <div className="relative w-full">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={onKey}
+              maxLength={MAX}
+              rows={3}
+              placeholder="Write a comment..."
+              aria-label="Write a comment"
+              className="block w-full resize-y border border-[#aab3c9] bg-white py-2 pr-[46px] pl-2 text-[15px] text-foreground outline-none placeholder:text-[#666] focus-visible:border-[#5f78ab]"
+            />
+            <DictateButton
+              ref={mic}
+              value={text}
+              onChange={setText}
+              maxLength={MAX}
+              className="absolute top-2 right-2"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!text.trim() || pending}
+            className="inline-flex h-[21px] items-center gap-1 border border-[#4e6aa3] bg-[#6d83b4] px-3 text-[12px] font-bold text-white hover:bg-[#5c72a3] disabled:opacity-60"
+          >
+            {pending ? (
+              <Loader2 className="size-3 animate-spin" aria-hidden />
+            ) : null}
+            Send
+          </button>
+        </div>
+      </form>
+
+      {error ? (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
+
       {!all && count > list.length ? (
         <button
           type="button"
           onClick={viewAll}
           disabled={pending}
-          className="self-start text-xs text-[#2f4370] hover:underline"
+          className="self-start text-[13px] text-[#2f4370] hover:underline"
         >
           View all {count} comments
         </button>
       ) : null}
+
       {list.length ? (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col">
           {list.map((c) => (
-            <li key={c.id} className="flex items-start gap-2">
-              <Avatar c={c} />
-              <div className="min-w-0 flex-1 rounded-lg bg-[#f2f3f5] px-3 py-1.5">
-                <p className="flex flex-wrap items-baseline gap-x-2">
+            <li
+              key={c.id}
+              className="flex items-start gap-3 border-t border-[#d6dbe8] py-2"
+            >
+              <Photo pic={c.pic} name={c.name} />
+              <div className="min-w-0 flex-1">
+                <p className="break-words whitespace-pre-wrap">
                   {c.url ? (
                     <a
                       href={c.url}
                       target="_top"
-                      className="font-semibold text-[#2f4370] hover:underline"
+                      className="mr-2 text-[15px] text-[#1f5fa8] hover:underline"
                     >
                       {c.name}
                     </a>
                   ) : (
-                    <span className="font-semibold text-[#2f4370]">
+                    <span className="mr-2 text-[15px] text-[#1f5fa8]">
                       {c.name}
                     </span>
                   )}
-                  <time
-                    dateTime={new Date(c.createdAt).toISOString()}
-                    className="text-[11px] text-muted-foreground"
-                  >
+                  {c.text}
+                </p>
+                <p className="mt-1 flex gap-3 text-[13px] text-[#333]">
+                  <time dateTime={new Date(c.createdAt).toISOString()}>
                     {when(c.createdAt)}
                   </time>
                   {c.canDelete ? (
@@ -163,42 +217,16 @@ export function PostComments({
                       type="button"
                       onClick={() => remove(c.id)}
                       disabled={pending}
-                      className="ml-auto text-[11px] text-muted-foreground hover:text-destructive hover:underline"
+                      className="text-[#1f5fa8] hover:underline"
                     >
                       Delete
                     </button>
                   ) : null}
                 </p>
-                <p className="break-words whitespace-pre-wrap">{c.text}</p>
               </div>
             </li>
           ))}
         </ul>
-      ) : null}
-      <form onSubmit={post} className="flex items-end gap-2">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={onKey}
-          maxLength={MAX}
-          rows={1}
-          placeholder="Write a comment..."
-          aria-label="Write a comment"
-          className="min-h-9 flex-1 resize-y rounded-lg border border-[#dfdfdf] bg-white px-3 py-2 text-[14px] outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-        />
-        <Button
-          type="submit"
-          variant="outline"
-          disabled={!text.trim() || pending}
-        >
-          {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-          Post
-        </Button>
-      </form>
-      {error ? (
-        <p role="alert" className="text-xs text-destructive">
-          {error}
-        </p>
       ) : null}
     </section>
   )

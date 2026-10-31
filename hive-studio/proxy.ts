@@ -43,7 +43,9 @@ export function securityHeaders(): Record<string, string> {
     "Content-Security-Policy": `frame-ancestors ${ancestors}; base-uri 'self'; object-src 'none'; form-action 'self'`,
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "X-Content-Type-Options": "nosniff",
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    // D-079: the comment box's dictation mic needs the microphone on our own
+    // pages (and MarketHive's frame grants it with allow="microphone").
+    "Permissions-Policy": "camera=(), microphone=(self), geolocation=()",
   }
   if (ancestors === "'none'") headers["X-Frame-Options"] = "DENY"
   if ((process.env.APP_URL ?? "").startsWith("https://"))

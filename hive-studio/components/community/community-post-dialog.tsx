@@ -149,12 +149,15 @@ export function CommunityPostDialog({
   onRemoved,
   avatar = null,
   comments = null,
+  mePic = "",
 }: {
   item: PublicGenerationDTO | null
   /** The creator's MarketHive photo and profile link (D-079). */
   avatar?: { pic: string; url: string } | null
   /** The post's comments so far (D-079). */
   comments?: Summary | null
+  /** The viewer's own photo, beside the comment box. */
+  mePic?: string
   returnFocus: RefObject<HTMLElement | null>
   onClose: () => void
   onCaption: (id: string, caption: string) => void
@@ -176,6 +179,7 @@ export function CommunityPostDialog({
           item={shown}
           avatar={avatar}
           comments={comments}
+          mePic={mePic}
           returnFocus={returnFocus}
           onCaption={onCaption}
           onRemoved={onRemoved}
@@ -189,6 +193,7 @@ function PostWindow({
   item,
   avatar,
   comments,
+  mePic,
   returnFocus,
   onCaption,
   onRemoved,
@@ -196,6 +201,7 @@ function PostWindow({
   item: PublicGenerationDTO
   avatar: { pic: string; url: string } | null
   comments: Summary | null
+  mePic: string
   returnFocus: RefObject<HTMLElement | null>
   onCaption: (id: string, caption: string) => void
   onRemoved: (id: string) => void
@@ -231,7 +237,9 @@ function PostWindow({
           name on top, the creation large, its words, the links, the coloured
           share squares, then the comments. */}
       <DialogHeader>
-        <div className="flex items-center gap-3">
+        {/* flex-1: the photo and name fill the row, so the close X sits in
+            the far right corner like the News Feed popup's. */}
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           {avatar?.pic ? (
             <img
               src={avatar.pic}
@@ -405,6 +413,7 @@ function PostWindow({
             <PostComments
               postId={item.id}
               initial={comments ?? { count: 0, latest: [] }}
+              mePic={mePic}
             />
           </div>
         </div>

@@ -225,6 +225,7 @@ export function CommunityFeed({
               comments={
                 <PostComments
                   postId={item.id}
+                  mePic={bar?.mePic ?? ""}
                   initial={comments[item.id] ?? { count: 0, latest: [] }}
                 />
               }
@@ -282,6 +283,7 @@ export function CommunityFeed({
             : null
         }
         comments={open ? (comments[open.id] ?? null) : null}
+        mePic={bar?.mePic ?? ""}
         returnFocus={opener}
         onClose={() => setOpenId(null)}
         onCaption={setCaption}
