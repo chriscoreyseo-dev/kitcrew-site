@@ -299,3 +299,66 @@ describe("Watch Later and playlists", () => {
     expect(theirs.ok).toBe(false)
   })
 })
+
+describe("comments", () => {
+  it("posts a comment as the viewer's MarketHive name and shows it under the post", async () => {
+    const post = await seedPost(new Date(2026, 9, 2))
+    h.reply = {
+      person: {
+        name: "Viewer Name",
+        pic: "https://mh.test/v.png",
+        url: "https://mh.test/viewer",
+      },
+    }
+    const added = await actions.addCommentAction(
+      post._id.toHexString(),
+      "  Great   shot!\n\n\n\nLove it  "
+    )
+    expect(added.ok).toBe(true)
+    if (!added.ok) return
+    expect(added.data).toMatchObject({
+      name: "Viewer Name",
+      text: "Great   shot!\n\nLove it",
+      canDelete: true,
+    })
+    expect(h.calls.at(-1)).toEqual({
+      action: "media_comment",
+      fields: {
+        member_id: 11,
+        author_id: 77,
+        media_id: post._id.toHexString(),
+      },
+    })
+
+    h.reply = { ...BAR_REPLY, people: { "11": h.reply.person } }
+    const view = await feed.loadCommunityFeed(null, {
+      id: VIEWER.toHexString(),
+    })
+    const c = view.comments[post._id.toHexString()]
+    expect(c.count).toBe(1)
+    expect(c.latest[0]).toMatchObject({ name: "Viewer Name", mine: true })
+  })
+
+  it("refuses an empty comment", async () => {
+    const post = await seedPost(new Date(2026, 9, 2))
+    const empty = await actions.addCommentAction(post._id.toHexString(), "   ")
+    expect(empty.ok).toBe(false)
+  })
+
+  it("lets the writer or the post's owner delete a comment, nobody else", async () => {
+    const post = await seedPost(new Date(2026, 9, 2))
+    h.reply = { person: { name: "V", pic: "", url: "" } }
+    const added = await actions.addCommentAction(post._id.toHexString(), "hi")
+    if (!added.ok) throw new Error(added.message)
+
+    h.user = {
+      id: new ObjectId().toHexString(),
+      email: "x@example.com",
+      role: "user",
+    }
+    expect((await actions.deleteCommentAction(added.data.id)).ok).toBe(false)
+
+    h.user = { id: AUTHOR.toHexString(), email: "a@example.com", role: "user" }
+    expect((await actions.deleteCommentAction(added.data.id)).ok).toBe(true)
+  })
+})

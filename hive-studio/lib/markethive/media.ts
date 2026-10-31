@@ -19,6 +19,9 @@ export type MediaBadge = {
   body: string
 }
 
+/** A MarketHive member as a commenter is shown: name, photo, profile link. */
+export type MediaPerson = { name: string; pic: string; url: string }
+
 export type MediaAssets = {
   like: string
   dislike: string
@@ -38,6 +41,8 @@ export type MediaBarData = {
   signals: Map<string, MediaSignal[]>
   lifted: Set<string>
   excluded: Set<number>
+  /** Commenters the viewer may see (a full block leaves one out). */
+  people: Map<number, MediaPerson>
   lifts: number
   price: string
   balance: string
@@ -84,10 +89,19 @@ function badge(v: unknown): MediaBadge | null {
   }
 }
 
-/** Everything the bar needs for one page of posts. */
+function person(v: unknown): MediaPerson | null {
+  const p = record(v)
+  const pic = url(p.pic)
+  const link = url(p.url)
+  const name = text(p.name, 80)
+  return name ? { name, pic, url: link } : null
+}
+
+/** Everything the bar needs for one page of posts, and who its commenters are. */
 export async function mediaBar(
   viewerMemberId: number,
-  items: { mediaId: string; authorMemberId: number }[]
+  items: { mediaId: string; authorMemberId: number }[],
+  people: number[] = []
 ): Promise<MediaBarData> {
   const data = record(
     await call("media_bar", {
@@ -96,6 +110,7 @@ export async function mediaBar(
         media_id: i.mediaId,
         author_id: i.authorMemberId,
       })),
+      people,
     })
   )
   const assets = record(data.assets)
@@ -126,6 +141,12 @@ export async function mediaBar(
       (id): id is number => typeof id === "number" && Number.isInteger(id)
     )
   )
+  const known = new Map<number, MediaPerson>()
+  for (const [id, value] of Object.entries(record(data.people))) {
+    const memberId = Number(id)
+    const p = person(value)
+    if (Number.isInteger(memberId) && p) known.set(memberId, p)
+  }
   const price = money(data.price)
   if (!price) throw new WalletUnavailableError("media_bar: no price")
   return {
@@ -142,6 +163,7 @@ export async function mediaBar(
     signals,
     lifted,
     excluded,
+    people: known,
     lifts: count(data.lifts),
     price,
     balance: money(data.balance) ?? "0.00",
@@ -196,4 +218,22 @@ export async function mediaLift(input: {
     lifts: count(data.lifts),
     balance: money(data.balance),
   }
+}
+
+/** May the viewer comment on this post? MarketHive applies Black Listing
+    (WalletDeclinedError "blocked" when not), tells the post's owner, and
+    returns how the commenter is shown. */
+export async function mediaComment(input: {
+  viewerMemberId: number
+  authorMemberId: number
+  mediaId: string
+}): Promise<MediaPerson | null> {
+  const data = record(
+    await call("media_comment", {
+      member_id: input.viewerMemberId,
+      author_id: input.authorMemberId,
+      media_id: input.mediaId,
+    })
+  )
+  return person(data.person)
 }

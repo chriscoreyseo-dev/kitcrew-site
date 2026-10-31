@@ -218,6 +218,12 @@ export const INDEXES: readonly IndexDef[] = [
     key: { usedAt: 1 },
     options: { name: "used_ttl", expireAfterSeconds: 24 * 60 * 60 },
   },
+  // Comments on Media Feed posts (D-079), newest first per post.
+  {
+    collection: "comments",
+    key: { generationId: 1, createdAt: -1 },
+    options: { name: "post_created" },
+  },
   // Watch Later and playlists (D-079): a user's lists, and one Watch Later each.
   {
     collection: "saved_lists",
