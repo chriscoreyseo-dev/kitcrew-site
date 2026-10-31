@@ -26,13 +26,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { publishGenerationAction } from "@/generation/community-actions"
+import type { PostComments as Summary } from "@/lib/comments"
 import type { PublicGenerationDTO } from "@/lib/community"
 import { recreateHref, remixHref } from "@/lib/community-links"
+import { timeAgo, viewCount } from "@/lib/time-ago"
 import { cn } from "@/lib/utils"
 
 import { CaptionEditor } from "./caption-editor"
+import { PostComments } from "./post-comments"
 import { ReportDialog } from "./report-dialog"
 import { SettingsList } from "./settings-list"
+import { ShareButtons, shareLink } from "./share-buttons"
 import { UnpublishButton } from "./unpublish-button"
 
 const FONT = "Tahoma, 'Poppins', Geneva, sans-serif"
@@ -143,8 +147,14 @@ export function CommunityPostDialog({
   onClose,
   onCaption,
   onRemoved,
+  avatar = null,
+  comments = null,
 }: {
   item: PublicGenerationDTO | null
+  /** The creator's MarketHive photo and profile link (D-079). */
+  avatar?: { pic: string; url: string } | null
+  /** The post's comments so far (D-079). */
+  comments?: Summary | null
   returnFocus: RefObject<HTMLElement | null>
   onClose: () => void
   onCaption: (id: string, caption: string) => void
@@ -164,6 +174,8 @@ export function CommunityPostDialog({
         <PostWindow
           key={shown.id}
           item={shown}
+          avatar={avatar}
+          comments={comments}
           returnFocus={returnFocus}
           onCaption={onCaption}
           onRemoved={onRemoved}
@@ -175,11 +187,15 @@ export function CommunityPostDialog({
 
 function PostWindow({
   item,
+  avatar,
+  comments,
   returnFocus,
   onCaption,
   onRemoved,
 }: {
   item: PublicGenerationDTO
+  avatar: { pic: string; url: string } | null
+  comments: Summary | null
   returnFocus: RefObject<HTMLElement | null>
   onCaption: (id: string, caption: string) => void
   onRemoved: (id: string) => void
@@ -211,28 +227,59 @@ function PostWindow({
       data-slot="community-post-dialog"
       style={{ fontFamily: FONT, ...place }}
     >
+      {/* D-079 (Tom): the News Feed's post popup - the creator's photo and
+          name on top, the creation large, its words, the links, the coloured
+          share squares, then the comments. */}
       <DialogHeader>
-        <DialogTitle>{item.author}</DialogTitle>
-        <DialogDescription>
-          {item.modelLabel} ·{" "}
-          <time dateTime={published.toISOString()}>
-            {published.toLocaleString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-              timeZone: "UTC",
-            })}{" "}
-            UTC
-          </time>
-        </DialogDescription>
+        <div className="flex items-center gap-3">
+          {avatar?.pic ? (
+            <img
+              src={avatar.pic}
+              alt=""
+              className="size-[50px] shrink-0 border border-black object-cover"
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="flex size-[50px] shrink-0 items-center justify-center border border-black bg-[#dfe3ee] text-lg font-semibold text-[#2f4370]"
+            >
+              {item.author.slice(0, 1).toUpperCase()}
+            </span>
+          )}
+          <div className="flex min-w-0 flex-col">
+            <DialogTitle>
+              {avatar?.url ? (
+                <a
+                  href={avatar.url}
+                  target="_top"
+                  className="text-[17px] font-normal text-[#1f6fc0] hover:underline"
+                >
+                  {item.author}
+                </a>
+              ) : (
+                <span className="text-[17px] font-normal text-[#1f6fc0]">
+                  {item.author}
+                </span>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {item.title || item.modelLabel} &bull; {viewCount(item.views)}{" "}
+              &bull;{" "}
+              <time
+                dateTime={published.toISOString()}
+                title={published.toUTCString()}
+              >
+                {timeAgo(item.publishedAt)}
+              </time>
+            </DialogDescription>
+          </div>
+        </div>
       </DialogHeader>
 
       <DialogBody>
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="flex min-w-0 flex-col gap-2">
-            <div className="flex min-h-40 items-center justify-center border border-[#dfdfdf] bg-[#f5f5f5]">
+        <div className="flex flex-col gap-4">
+          <div className="flex min-w-0 flex-col items-center gap-2">
+            <div className="flex min-h-40 w-full items-center justify-center">
               {url ? <Stage item={item} url={url} label={label} /> : null}
             </div>
             {item.urls.length > 1 ? (
@@ -266,7 +313,7 @@ function PostWindow({
             ) : null}
           </div>
 
-          <div className="flex min-w-0 flex-col gap-5">
+          <div className="flex min-w-0 flex-col gap-4">
             {item.caption || item.mine ? (
               <div className="text-[18px]">
                 <CaptionEditor
@@ -348,6 +395,17 @@ function PostWindow({
                 <ReportDialog generationId={item.id} />
               )}
             </div>
+
+            <ShareButtons
+              link={shareLink(item.id)}
+              label={item.title || label}
+              image={item.kind === "image" ? url : undefined}
+            />
+
+            <PostComments
+              postId={item.id}
+              initial={comments ?? { count: 0, latest: [] }}
+            />
           </div>
         </div>
       </DialogBody>

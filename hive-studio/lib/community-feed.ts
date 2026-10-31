@@ -31,6 +31,9 @@ export type PostBar = {
   signals: MediaSignal[]
   lifted: boolean
   authorKey: string
+  /** The creator's MarketHive photo and profile link, "" when unknown. */
+  authorPic: string
+  authorUrl: string
 }
 
 export type FeedBar = {
@@ -102,13 +105,17 @@ async function view(
           authorMemberId: memberOf(d),
         }))
       // MarketHive answers for BAR_CHUNK posts at a time (a saved list can be longer).
-      const data = await mediaBar(
-        memberId,
-        asks.slice(0, BAR_CHUNK),
-        commenters
-      )
+      const data = await mediaBar(memberId, asks.slice(0, BAR_CHUNK), [
+        ...new Set([...commenters, ...asks.map((a) => a.authorMemberId)]),
+      ])
       for (let i = BAR_CHUNK; i < asks.length; i += BAR_CHUNK) {
-        const more = await mediaBar(memberId, asks.slice(i, i + BAR_CHUNK))
+        const chunk = asks.slice(i, i + BAR_CHUNK)
+        const more = await mediaBar(
+          memberId,
+          chunk,
+          chunk.map((c) => c.authorMemberId)
+        )
+        more.people.forEach((v, k) => data.people.set(k, v))
         more.badges.forEach((v, k) => data.badges.set(k, v))
         more.signals.forEach((v, k) => data.signals.set(k, v))
         more.lifted.forEach((id) => data.lifted.add(id))
@@ -123,6 +130,8 @@ async function view(
           signals: data.signals.get(id) ?? [],
           lifted: data.lifted.has(id) || Boolean(d.liftedAt),
           authorKey: authorKey(d.userId),
+          authorPic: data.people.get(memberOf(d))?.pic ?? "",
+          authorUrl: data.people.get(memberOf(d))?.url ?? "",
         }
       }
       bar = {

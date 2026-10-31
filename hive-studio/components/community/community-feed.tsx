@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react"
 import type { MouseEvent } from "react"
 import { Loader2 } from "lucide-react"
 
+import { countViewAction } from "@/generation/community-actions"
 import { mediaFeedPageAction } from "@/generation/media-actions"
 import type { PublicGenerationDTO } from "@/lib/community"
 import type { PostComments as Summary } from "@/lib/comments"
@@ -193,7 +194,19 @@ export function CommunityFeed({
               onOpen={(p, from) => {
                 opener.current = from
                 setOpenId(p.id)
+                // Opening a post is a view (one per viewer per post per 6h).
+                void countViewAction(p.id).then((r) => {
+                  if (r.ok)
+                    setItems((prev) =>
+                      prev.map((i) =>
+                        i.id === p.id ? { ...i, views: r.data.views } : i
+                      )
+                    )
+                })
               }}
+              avatar={
+                post ? { pic: post.authorPic, url: post.authorUrl } : null
+              }
               bar={
                 bar && post && wallet ? (
                   <PostActionBar
@@ -220,6 +233,7 @@ export function CommunityFeed({
                   postId={item.id}
                   label={label}
                   video={item.kind === "video"}
+                  mine={item.mine}
                   watchLater={watchLater.has(item.id)}
                   onWatchLater={(saved) => savedLater(item.id, saved)}
                   onPlaylistChange={(playlistId, inList) => {
@@ -259,6 +273,15 @@ export function CommunityFeed({
       ) : null}
       <CommunityPostDialog
         item={open}
+        avatar={
+          open && bar?.posts[open.id]
+            ? {
+                pic: bar.posts[open.id].authorPic,
+                url: bar.posts[open.id].authorUrl,
+              }
+            : null
+        }
+        comments={open ? (comments[open.id] ?? null) : null}
         returnFocus={opener}
         onClose={() => setOpenId(null)}
         onCaption={setCaption}

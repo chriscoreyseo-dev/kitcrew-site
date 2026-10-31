@@ -7,8 +7,11 @@ import { AudioLines } from "lucide-react"
 import type { PublicGenerationDTO } from "@/lib/community"
 import { recreateHref, remixHref } from "@/lib/community-links"
 
+import { timeAgo, viewCount } from "@/lib/time-ago"
+
 import { CaptionEditor } from "./caption-editor"
 import { FeedVideo } from "./feed-video"
+import { TitleEditor } from "./title-editor"
 
 /** S586 (Chris): "every feed should run from the same size as the newsfeed" -
     rows, the boxes inside them AND the images. Measured on MarketHive's
@@ -51,11 +54,14 @@ export function CommunityPost({
   item,
   onOpen,
   onCaption,
+  avatar,
   bar,
   menu,
   comments,
 }: {
   item: PublicGenerationDTO
+  /** The creator's MarketHive photo and profile link (D-079). */
+  avatar?: { pic: string; url: string } | null
   bar?: ReactNode
   menu?: ReactNode
   /** The post's comments, under its links (D-079). */
@@ -67,28 +73,77 @@ export function CommunityPost({
   const url = item.urls[0]
   const label = item.prompt ? item.prompt.slice(0, 120) : item.modelLabel
   const published = new Date(item.publishedAt)
+  const ago = timeAgo(item.publishedAt)
   const open = (event: MouseEvent<HTMLAnchorElement>) => {
     if (!onOpen || !opensInPlace(event)) return
     event.preventDefault()
     onOpen(item, event.currentTarget)
   }
+  const name = avatar?.url ? (
+    <a
+      href={avatar.url}
+      target="_top"
+      className="text-[15px] font-semibold text-[#2f4370] hover:underline"
+    >
+      {item.author}
+    </a>
+  ) : (
+    <span className="text-[15px] font-semibold text-[#2f4370]">
+      {item.author}
+    </span>
+  )
 
   return (
     <article
       className="flex w-full flex-col gap-[10px] border bg-card p-[10px]"
       style={{ borderColor: NEWSFEED.border, fontFamily: NEWSFEED.font }}
     >
+      {/* D-079 (Tom, YouTube's community post, full width): photo, name, how
+          long ago; then the action bar and the three-dot menu. */}
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <p className="text-[15px] font-semibold text-[#2f4370]">
-          {item.author}
-        </p>
-        <p className="text-xs text-muted-foreground">{item.modelLabel}</p>
+        {avatar?.pic ? (
+          // eslint-disable-next-line @next/next/no-img-element -- MarketHive profile photo
+          <img
+            src={avatar.pic}
+            alt=""
+            className="size-10 shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <span
+            aria-hidden
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#dfe3ee] text-sm font-semibold text-[#2f4370]"
+          >
+            {item.author.slice(0, 1).toUpperCase()}
+          </span>
+        )}
+        {name}
+        <time
+          dateTime={published.toISOString()}
+          title={published.toUTCString()}
+          className="text-xs text-muted-foreground"
+          suppressHydrationWarning
+        >
+          {ago}
+        </time>
         {bar ? <div className="ml-[clamp(12px,2vw,28px)]">{bar}</div> : null}
         {menu}
       </header>
 
+      {/* The creator's own words above the post, like YouTube's post text. */}
+      {item.caption || item.mine ? (
+        <div className="px-1 text-[18px]">
+          <CaptionEditor
+            key={item.caption}
+            id={item.id}
+            caption={item.caption}
+            mine={item.mine}
+            onSaved={(caption) => onCaption?.(item.id, caption)}
+          />
+        </div>
+      ) : null}
+
       <div
-        className="flex flex-col gap-[10px] border bg-[#f5f5f5] p-[10px]"
+        className="flex flex-col gap-[14px] border bg-[#f5f5f5] p-[10px] sm:flex-row sm:items-start"
         style={{ borderColor: NEWSFEED.border }}
       >
         <Link
@@ -123,16 +178,30 @@ export function CommunityPost({
             </span>
           )}
         </Link>
-        <div className="px-1 text-[18px]">
-          <CaptionEditor
-            key={item.caption}
+        {/* Beside it, YouTube's title / byline / description, run full width. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1 px-1">
+          <TitleEditor
+            key={item.title}
             id={item.id}
-            caption={item.caption}
+            title={item.title}
             mine={item.mine}
-            fallback={item.prompt}
-            fallbackClassName="line-clamp-6"
-            onSaved={(caption) => onCaption?.(item.id, caption)}
+            fallback={item.modelLabel}
           />
+          <p
+            className="text-[13px] text-muted-foreground"
+            suppressHydrationWarning
+          >
+            {item.author} &bull; {viewCount(item.views)} &bull; {ago}
+          </p>
+          {item.prompt?.trim() ? (
+            <p
+              data-slot="post-prompt"
+              className="line-clamp-4 text-[15px] leading-relaxed break-words whitespace-pre-line text-foreground"
+            >
+              {item.prompt.trim()}
+            </p>
+          ) : null}
+          <p className="text-xs text-muted-foreground">{item.modelLabel}</p>
         </div>
       </div>
 
@@ -153,20 +222,6 @@ export function CommunityPost({
             Recreate with my photos
           </Link>
         )}
-        <time
-          dateTime={published.toISOString()}
-          className="text-muted-foreground"
-        >
-          {published.toLocaleString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-            timeZone: "UTC",
-          })}{" "}
-          UTC
-        </time>
       </footer>
       {comments}
     </article>

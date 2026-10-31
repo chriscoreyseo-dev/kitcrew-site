@@ -30,8 +30,22 @@ const REASONS = [
 
 type Reason = (typeof REASONS)[number]["id"]
 
-export function ReportDialog({ generationId }: { generationId: string }) {
-  const [open, setOpen] = useState(false)
+/** `open` / `onOpenChange` make it controlled with no button of its own: the
+    Media Feed's three-dot menu opens it (D-079). */
+export function ReportDialog({
+  generationId,
+  open: openProp,
+  onOpenChange: onOpenProp,
+}: {
+  generationId: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}) {
+  const [openState, setOpenState] = useState(false)
+  const controlled = openProp !== undefined
+  const open = controlled ? openProp : openState
+  const setOpen = (next: boolean) =>
+    controlled ? onOpenProp?.(next) : setOpenState(next)
   const [reason, setReason] = useState<Reason | null>(null)
   const [note, setNote] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -68,14 +82,16 @@ export function ReportDialog({ generationId }: { generationId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger
-        render={
-          <Button variant="ghost" size="lg" className="text-muted-foreground">
-            <Flag aria-hidden />
-            Report
-          </Button>
-        }
-      />
+      {controlled ? null : (
+        <DialogTrigger
+          render={
+            <Button variant="ghost" size="lg" className="text-muted-foreground">
+              <Flag aria-hidden />
+              Report
+            </Button>
+          }
+        />
+      )}
       <DialogContent size="sm">
         <form onSubmit={submit} className="contents">
           <DialogHeader>

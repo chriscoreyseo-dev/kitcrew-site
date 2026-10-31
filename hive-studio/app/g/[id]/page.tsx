@@ -8,6 +8,7 @@ import { CaptionEditor } from "@/components/community/caption-editor"
 import { ReportDialog } from "@/components/community/report-dialog"
 import { SettingsList } from "@/components/community/settings-list"
 import { UnpublishButton } from "@/components/community/unpublish-button"
+import { ViewCounter } from "@/components/community/view-counter"
 import { Page, SectionTitle } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { getPublicGeneration, isPublicOwner } from "@/lib/community"
@@ -125,6 +126,7 @@ export default async function GenerationPage({ params }: Params) {
 
   return (
     <Page width="wide">
+      <ViewCounter id={item.id} />
       <Link
         href="/community"
         className={cn(
