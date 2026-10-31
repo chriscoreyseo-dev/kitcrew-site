@@ -108,3 +108,27 @@ export async function stillFrames(
   }
   return frames
 }
+
+/** One large JPEG still from a video, for its share preview (D-079: a video
+    shared to Facebook showed no picture). `at` seconds in, scaled to `width`.
+    Null when ffmpeg is missing or the frame can't be read. */
+export async function posterFrame(
+  videoUrl: string,
+  at = 1,
+  width = 1200
+): Promise<Buffer | null> {
+  const jpeg = await run(
+    [
+      "-ss", at.toFixed(2),
+      "-i", videoUrl,
+      "-frames:v", "1",
+      "-vf", `scale=${width}:-2`,
+      "-q:v", "3",
+      "-f", "image2pipe",
+      "-vcodec", "mjpeg",
+      "pipe:1",
+    ],
+    true
+  )
+  return jpeg && jpeg.length ? jpeg : null
+}

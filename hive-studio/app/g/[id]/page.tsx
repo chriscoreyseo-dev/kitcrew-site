@@ -12,6 +12,7 @@ import { ViewCounter } from "@/components/community/view-counter"
 import { Page, SectionTitle } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { getPublicGeneration, isPublicOwner } from "@/lib/community"
+import { env } from "@/lib/env"
 import type { PublicGenerationDTO } from "@/lib/community"
 import { recreateHref, remixHref } from "@/lib/community-links"
 import { currentUser } from "@/lib/session"
@@ -31,21 +32,57 @@ function shortPrompt(prompt: string, max = 70) {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
 }
 
+/** The share preview (D-079): what Facebook, X and LinkedIn show for /g/<id>.
+    A video carries a still of itself as its picture (/g/<id>/poster.jpg) and
+    its MP4 as og:video; the title is the creator's title (else the prompt),
+    the words their write-up (else the prompt). No share link can put the video
+    file itself on Facebook - Facebook builds a card from these tags. */
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params
   const item = await load(id)
   if (!item) return { title: "Not found · Hive Studio" }
-  const title = `${shortPrompt(item.prompt) || item.modelLabel} · Hive Studio`
-  const description = `Made with ${item.modelLabel} on Hive Studio.`
-  const image = item.kind === "image" ? item.urls[0] : undefined
+  const base = env().APP_URL.replace(/\/$/, "")
+  const pageUrl = `${base}/g/${item.id}`
+  const title = `${item.title || shortPrompt(item.prompt) || item.modelLabel} · Markethive`
+  const words = (item.caption || item.prompt || "").replace(/\s+/g, " ").trim()
+  const description =
+    shortPrompt(words, 200) || `Made with ${item.modelLabel} on Markethive.`
+  const video = item.kind === "video" ? item.urls[0] : undefined
+  const image =
+    item.kind === "image"
+      ? item.urls[0]
+      : video
+        ? `${base}/g/${item.id}/poster.jpg`
+        : undefined
+  // Big enough for Facebook's large card, in the creation's own shape.
+  const aspect =
+    item.aspect > 0 && Number.isFinite(item.aspect) ? item.aspect : 16 / 9
+  const width = 1200
+  const height = Math.round(width / aspect)
   return {
     title,
     description,
+    alternates: { canonical: pageUrl },
     openGraph: {
       title,
       description,
-      type: "article",
-      ...(image ? { images: [{ url: image }] } : {}),
+      url: pageUrl,
+      siteName: "Markethive",
+      type: video ? "video.other" : "article",
+      ...(image ? { images: [{ url: image, width, height }] } : {}),
+      ...(video
+        ? {
+            videos: [
+              {
+                url: video,
+                secureUrl: video.startsWith("https://") ? video : undefined,
+                type: "video/mp4",
+                width,
+                height,
+              },
+            ],
+          }
+        : {}),
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
