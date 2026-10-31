@@ -9,6 +9,8 @@ import {
   useSyncExternalStore,
 } from "react"
 
+import { cn } from "@/lib/utils"
+
 /** MarketHive's dictation mic (js/mh_dictate.js, S412) for a React field in
     the Media Feed (Chris, 2026-10-30: "inside the write a comment box ... we
     need to have a microphone"). MarketHive's script writes the field's value
@@ -210,7 +212,7 @@ export const DictateButton = forwardRef<
     ? "Stop dictating"
     : "Dictate — speak instead of typing"
   return (
-    <span className={`relative inline-flex shrink-0 ${className ?? ""}`}>
+    <span className={cn("relative inline-flex shrink-0", className)}>
       <button
         type="button"
         onClick={() => (listening ? stop() : begin())}
