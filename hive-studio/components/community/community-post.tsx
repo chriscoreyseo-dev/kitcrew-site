@@ -201,7 +201,9 @@ export function CommunityPost({
               {item.prompt.trim()}
             </p>
           ) : null}
-          <p className="text-xs text-muted-foreground">{item.modelLabel}</p>
+          {item.title ? (
+            <p className="text-xs text-muted-foreground">{item.modelLabel}</p>
+          ) : null}
         </div>
       </div>
 
