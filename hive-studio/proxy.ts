@@ -15,7 +15,15 @@ const SESSION_COOKIES = [
   "hive_mh_session",
 ]
 
-const PRIVATE = ["/assets", "/projects", "/account", "/admin"]
+const PRIVATE = [
+  "/assets",
+  "/projects",
+  "/account",
+  "/admin",
+  // D-079: Watch Later and playlists are the viewer's own.
+  "/watch-later",
+  "/playlists",
+]
 
 function frameAncestors(): string {
   if (process.env.STUDIO_MODE !== "markethive") return "'none'"

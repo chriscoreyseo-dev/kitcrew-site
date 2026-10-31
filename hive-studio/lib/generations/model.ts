@@ -83,6 +83,10 @@ export type GenerationDoc = {
   /** Set when the owner clicks Share (S581): the run's files become public and
       it gets a MarketHive share page (lib/sharing.ts). */
   sharedAt?: Date
+  /** THE LIFT (D-079): another MarketHive member spent a Lift on this post, so
+      the Media Feed orders it by this instead of publishedAt. MarketHive's
+      media_lifts row is the record of who paid; this is only the feed order. */
+  liftedAt?: Date
   presetId?: string
   createdAt: Date
   updatedAt: Date

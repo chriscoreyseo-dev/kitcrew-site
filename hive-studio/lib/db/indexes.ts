@@ -218,6 +218,21 @@ export const INDEXES: readonly IndexDef[] = [
     key: { usedAt: 1 },
     options: { name: "used_ttl", expireAfterSeconds: 24 * 60 * 60 },
   },
+  // Watch Later and playlists (D-079): a user's lists, and one Watch Later each.
+  {
+    collection: "saved_lists",
+    key: { userId: 1, kind: 1, createdAt: -1 },
+    options: { name: "user_kind_created" },
+  },
+  {
+    collection: "saved_lists",
+    key: { userId: 1, kind: 1 },
+    options: {
+      name: "one_watch_later",
+      unique: true,
+      partialFilterExpression: { kind: "watch_later" },
+    },
+  },
   // Undelivered MarketHive refunds, retried by the reconciler (D-057).
   {
     collection: "generations",
