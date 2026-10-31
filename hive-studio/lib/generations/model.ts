@@ -80,6 +80,10 @@ export type GenerationDoc = {
       D-070). Plain text; only the owner edits it. */
   caption?: string
   captionUpdatedAt?: Date
+  /** The creator's title for the post (D-079, Tom's YouTube-style card). */
+  title?: string
+  /** Times the post was opened (its window or /g/<id>); one per viewer per 6h. */
+  views?: number
   /** Set when the owner clicks Share (S581): the run's files become public and
       it gets a MarketHive share page (lib/sharing.ts). */
   sharedAt?: Date

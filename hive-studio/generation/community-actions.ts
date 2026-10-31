@@ -6,7 +6,7 @@ import { z } from "zod"
 import { RateLimitedError, run } from "@/lib/action-result"
 import type { ActionResult } from "@/lib/action-result"
 import { SignInRequiredError } from "@/lib/auth-guard"
-import { CAPTION_MAX, listPublicGenerations } from "@/lib/community"
+import { CAPTION_MAX, listPublicGenerations, TITLE_MAX } from "@/lib/community"
 import type { CommunityPage } from "@/lib/community"
 import {
   findOwned,
@@ -222,5 +222,82 @@ export async function listCommunityAction(
       undefined,
       viewer?.id ?? null
     )
+  })
+}
+
+const TITLE = z.string().max(TITLE_MAX * 2)
+/** Opens counted per viewer per post: one in this window (D-079). */
+const VIEW_WINDOW_SEC = 6 * 60 * 60
+
+/** Owner-only (D-079, Tom's YouTube-style card): the post's title, shown
+    beside the picture or video. Plain text, one line, TITLE_MAX characters;
+    empty clears it. */
+export async function updateTitleAction(
+  id: unknown,
+  title: unknown
+): Promise<ActionResult<{ id: string; title: string }>> {
+  return run(async () => {
+    const user = await requireSignedIn()
+    const parsedId = ID.safeParse(id)
+    const parsed = TITLE.safeParse(title)
+    if (!parsedId.success) throw new GenerationNotFoundError()
+    if (!parsed.success)
+      throw new GenerationInputError(`Keep it under ${TITLE_MAX} characters.`)
+    const text = parsed.data
+      .replace(/[\u0000-\u001F\u007F]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+    if (text.length > TITLE_MAX)
+      throw new GenerationInputError(`Keep it under ${TITLE_MAX} characters.`)
+    const limit = await hit({
+      scope: "caption",
+      id: user.id,
+      max: CAPTION_LIMIT.max,
+      windowSec: CAPTION_LIMIT.windowSec,
+    })
+    if (!limit.ok)
+      throw new RateLimitedError("Saving too fast. Try again in a moment.")
+    const doc = await findOwned(user.id, parsedId.data)
+    if (doc.status !== "completed")
+      throw new GenerationInputError(
+        "Only finished creations can have a title."
+      )
+    await generations().updateOne(
+      { _id: doc._id, userId: doc.userId },
+      text
+        ? { $set: { title: text, updatedAt: new Date() } }
+        : { $unset: { title: "" }, $set: { updatedAt: new Date() } }
+    )
+    return { id: parsedId.data, title: text }
+  })
+}
+
+/** Counts one view of a published post: the viewer opened it (its window or
+    /g/<id>). Signed-in viewers only, not the creator, once per viewer per post
+    per VIEW_WINDOW_SEC. Returns the post's views. */
+export async function countViewAction(
+  id: unknown
+): Promise<ActionResult<{ views: number }>> {
+  return run(async () => {
+    const parsedId = ID.safeParse(id)
+    if (!parsedId.success) throw new GenerationNotFoundError()
+    const _id = new ObjectId(parsedId.data)
+    const doc = await generations().findOne(
+      { _id, isPublic: true, status: "completed" },
+      { projection: { userId: 1, views: 1 } }
+    )
+    if (!doc) throw new GenerationNotFoundError()
+    const viewer = await currentUser()
+    const views = typeof doc.views === "number" ? doc.views : 0
+    if (!viewer || doc.userId.toHexString() === viewer.id) return { views }
+    const once = await hit({
+      scope: "view",
+      id: `${viewer.id}:${parsedId.data}`,
+      max: 1,
+      windowSec: VIEW_WINDOW_SEC,
+    })
+    if (!once.ok) return { views }
+    await generations().updateOne({ _id }, { $inc: { views: 1 } })
+    return { views: views + 1 }
   })
 }

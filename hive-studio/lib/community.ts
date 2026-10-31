@@ -31,6 +31,9 @@ export type PublicGenerationDTO = {
   author: string
   /** The creator's write-up (S584, D-070); plain text, "" when none. */
   caption: string
+  /** The creator's title (D-079); "" when none. */
+  title: string
+  views: number
   /** The viewer made it (shows Edit). Never reveals who did. */
   mine: boolean
 }
@@ -45,6 +48,9 @@ export const COMMUNITY_PAGE_SIZE = 24
 
 /** Longest write-up a creator can put beside a creation (S584). */
 export const CAPTION_MAX = 2000
+
+/** Longest post title (D-079). */
+export const TITLE_MAX = 100
 
 const PUBLIC: Filter<GenerationDoc> = { isPublic: true, status: "completed" }
 
@@ -100,6 +106,8 @@ export function toPublicDTO(
     publishedAt: (doc.publishedAt ?? doc.updatedAt).getTime(),
     author: authorLabel(author),
     caption: typeof doc.caption === "string" ? doc.caption : "",
+    title: typeof doc.title === "string" ? doc.title : "",
+    views: typeof doc.views === "number" ? doc.views : 0,
     mine: Boolean(viewerId && doc.userId.toHexString() === viewerId),
   }
 }

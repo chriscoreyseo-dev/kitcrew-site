@@ -4,9 +4,8 @@ import { useEffect, useState, useTransition } from "react"
 import type { FormEvent } from "react"
 import {
   Bookmark,
-  Check,
   Clock,
-  Copy,
+  Flag,
   Forward,
   Loader2,
   MoreVertical,
@@ -38,14 +37,19 @@ import {
 import { Input } from "@/components/ui/input"
 import type { PlaylistSummary } from "@/lib/saved-lists"
 
+import { ReportDialog } from "./report-dialog"
+import { ShareButtons, shareLink } from "./share-buttons"
+
 /** A Media Feed post's three-dot menu (Chris, 2026-10-30, D-079), YouTube's
     without Download or Add to queue: Save to Watch Later, Save to playlist,
-    Share - and on a picture, Share alone (nothing to watch later). The lists
-    are on the Library menu (Watch Later, Playlists). */
+    Share - and on a picture, Share alone (nothing to watch later) - plus
+    Report for anyone but the creator (a derogatory picture or video). The
+    lists are on the Library menu (Watch Later, Playlists). */
 export function PostMenu({
   postId,
   label,
   video,
+  mine,
   watchLater,
   onWatchLater,
   onPlaylistChange,
@@ -55,12 +59,16 @@ export function PostMenu({
   label: string
   /** Watch Later and playlists are for videos; a picture's menu is Share only. */
   video: boolean
+  /** The viewer made it: no Report. */
+  mine: boolean
   watchLater: boolean
   onWatchLater: (saved: boolean) => void
   /** A playlist gained or lost this post (the playlist page drops it). */
   onPlaylistChange?: (playlistId: string, inList: boolean) => void
 }) {
-  const [dialog, setDialog] = useState<"playlist" | "share" | null>(null)
+  const [dialog, setDialog] = useState<"playlist" | "share" | "report" | null>(
+    null
+  )
   const [status, setStatus] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -116,6 +124,12 @@ export function PostMenu({
             <Forward aria-hidden />
             Share
           </DropdownMenuItem>
+          {mine ? null : (
+            <DropdownMenuItem onClick={() => setDialog("report")}>
+              <Flag aria-hidden />
+              Report
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       {/* Mounted only while open, so each opening starts fresh. */}
@@ -124,6 +138,13 @@ export function PostMenu({
           postId={postId}
           onClose={() => setDialog(null)}
           onChange={onPlaylistChange}
+        />
+      ) : null}
+      {dialog === "report" ? (
+        <ReportDialog
+          generationId={postId}
+          open
+          onOpenChange={(next) => !next && setDialog(null)}
         />
       ) : null}
       {dialog === "share" ? (
@@ -281,35 +302,6 @@ function PlaylistDialog({
   )
 }
 
-const SHARE_TARGETS = [
-  {
-    name: "Facebook",
-    href: (u: string) => `https://www.facebook.com/sharer/sharer.php?u=${u}`,
-  },
-  {
-    name: "X",
-    href: (u: string, t: string) =>
-      `https://twitter.com/intent/tweet?url=${u}&text=${t}`,
-  },
-  {
-    name: "LinkedIn",
-    href: (u: string) =>
-      `https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
-  },
-  {
-    name: "Telegram",
-    href: (u: string, t: string) => `https://t.me/share/url?url=${u}&text=${t}`,
-  },
-  {
-    name: "WhatsApp",
-    href: (u: string, t: string) => `https://wa.me/?text=${t}%20${u}`,
-  },
-  {
-    name: "Email",
-    href: (u: string, t: string) => `mailto:?subject=${t}&body=${u}`,
-  },
-] as const
-
 function ShareDialog({
   postId,
   label,
@@ -321,22 +313,7 @@ function ShareDialog({
 }) {
   // The post's public page on this studio: anyone can open it, signed in or
   // not. Mounted only after a click, so window is there.
-  const [link] = useState(() => `${window.location.origin}/g/${postId}`)
-  const [copied, setCopied] = useState(false)
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(link)
-      setCopied(true)
-    } catch {
-      setCopied(false)
-      const field = document.getElementById(`share-link-${postId}`)
-      if (field instanceof HTMLInputElement) field.select()
-    }
-  }
-
-  const u = encodeURIComponent(link)
-  const t = encodeURIComponent(label.slice(0, 120) || "Made on Hive Studio")
+  const [link] = useState(() => shareLink(postId))
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -349,33 +326,13 @@ function ShareDialog({
         </DialogHeader>
         <DialogBody>
           <div className="flex flex-col gap-4">
-            <ul className="flex flex-wrap gap-2">
-              {SHARE_TARGETS.map((target) => (
-                <li key={target.name}>
-                  <a
-                    href={target.href(u, t)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-8 items-center rounded-lg border border-border px-3 text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                  >
-                    {target.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <div className="flex items-center gap-2">
-              <Input
-                id={`share-link-${postId}`}
-                value={link}
-                readOnly
-                aria-label="Link to this post"
-                onFocus={(e) => e.currentTarget.select()}
-              />
-              <Button type="button" variant="outline" onClick={copy}>
-                {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
-                {copied ? "Copied" : "Copy"}
-              </Button>
-            </div>
+            <ShareButtons link={link} label={label} />
+            <Input
+              value={link}
+              readOnly
+              aria-label="Link to this post"
+              onFocus={(e) => e.currentTarget.select()}
+            />
           </div>
         </DialogBody>
         <DialogFooter>
