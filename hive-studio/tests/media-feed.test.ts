@@ -242,10 +242,32 @@ describe("the action bar", () => {
   })
 })
 
+const VIDEO = {
+  surface: "video",
+  outputs: [{ kind: "video", url: "https://media.test/0.mp4", r2Key: "v" }],
+} as Partial<GenerationDoc>
+
 describe("Watch Later and playlists", () => {
+  it("keeps pictures out: their menu is Share only", async () => {
+    const picture = await seedPost(new Date(2026, 9, 2))
+    const result = await actions.watchLaterAction(
+      picture._id.toHexString(),
+      true
+    )
+    expect(result.ok).toBe(false)
+    const made = await actions.createPlaylistAction(
+      "Mine",
+      picture._id.toHexString()
+    )
+    expect(made.ok).toBe(false)
+  })
+
   it("saves and removes a published post, and refuses an unpublished one", async () => {
-    const post = await seedPost(new Date(2026, 9, 2))
-    const hidden = await seedPost(new Date(2026, 9, 3), { isPublic: false })
+    const post = await seedPost(new Date(2026, 9, 2), VIDEO)
+    const hidden = await seedPost(new Date(2026, 9, 3), {
+      ...VIDEO,
+      isPublic: false,
+    })
     const id = post._id.toHexString()
 
     expect((await actions.watchLaterAction(id, true)).ok).toBe(true)
@@ -264,8 +286,8 @@ describe("Watch Later and playlists", () => {
   })
 
   it("makes a playlist with the post in it and ticks posts in and out", async () => {
-    const a = await seedPost(new Date(2026, 9, 2))
-    const b = await seedPost(new Date(2026, 9, 3))
+    const a = await seedPost(new Date(2026, 9, 2), VIDEO)
+    const b = await seedPost(new Date(2026, 9, 3), VIDEO)
     const made = await actions.createPlaylistAction(
       "  Road   trips ",
       a._id.toHexString()

@@ -219,6 +219,7 @@ export function CommunityFeed({
                 <PostMenu
                   postId={item.id}
                   label={label}
+                  video={item.kind === "video"}
                   watchLater={watchLater.has(item.id)}
                   onWatchLater={(saved) => savedLater(item.id, saved)}
                   onPlaylistChange={(playlistId, inList) => {

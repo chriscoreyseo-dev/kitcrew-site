@@ -7,7 +7,8 @@ import { GenerationInputError, generations } from "@/lib/generations/lifecycle"
 
 /** Watch Later and playlists (Chris, 2026-10-30, D-079): the Media Feed's
     three-dot menu, like YouTube's - Save to Watch Later, Save to playlist,
-    Share; no Download, no queue. A list holds published generations only, per
+    Share; no Download, no queue. Videos only: a picture's menu is Share alone.
+    A list holds published videos only, per
     user; Watch Later is the one list of kind "watch_later" (created on first
     save), playlists are named. Items keep the order they were added in; the
     pages show the newest first and skip anything since unpublished. */
@@ -41,13 +42,18 @@ export function savedLists() {
   return db().collection<SavedListDoc>("saved_lists")
 }
 
-/** Only a published, finished generation can be saved. */
+/** Only a published, finished VIDEO can be saved (Chris: a picture has
+    nothing to watch later - its menu is Share only). */
 async function requirePublic(generationId: ObjectId) {
   const doc = await generations().findOne(
     { _id: generationId, isPublic: true, status: "completed" },
-    { projection: { _id: 1 } }
+    { projection: { _id: 1, outputs: 1 } }
   )
   if (!doc) throw new GenerationInputError("That post is no longer published.")
+  if (doc.outputs?.[0]?.kind !== "video")
+    throw new GenerationInputError(
+      "Only videos go in Watch Later and playlists."
+    )
 }
 
 export function cleanPlaylistName(raw: string): string {

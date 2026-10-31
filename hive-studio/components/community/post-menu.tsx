@@ -40,10 +40,12 @@ import type { PlaylistSummary } from "@/lib/saved-lists"
 
 /** A Media Feed post's three-dot menu (Chris, 2026-10-30, D-079), YouTube's
     without Download or Add to queue: Save to Watch Later, Save to playlist,
-    Share. The lists are on the Library menu (Watch Later, Playlists). */
+    Share - and on a picture, Share alone (nothing to watch later). The lists
+    are on the Library menu (Watch Later, Playlists). */
 export function PostMenu({
   postId,
   label,
+  video,
   watchLater,
   onWatchLater,
   onPlaylistChange,
@@ -51,6 +53,8 @@ export function PostMenu({
   postId: string
   /** What the post is, for the share text and the dialogs. */
   label: string
+  /** Watch Later and playlists are for videos; a picture's menu is Share only. */
+  video: boolean
   watchLater: boolean
   onWatchLater: (saved: boolean) => void
   /** A playlist gained or lost this post (the playlist page drops it). */
@@ -96,14 +100,18 @@ export function PostMenu({
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={6} className="min-w-56">
-          <DropdownMenuItem onClick={toggleWatchLater}>
-            <Clock aria-hidden />
-            {watchLater ? "Remove from Watch Later" : "Save to Watch Later"}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setDialog("playlist")}>
-            <Bookmark aria-hidden />
-            Save to playlist
-          </DropdownMenuItem>
+          {video ? (
+            <>
+              <DropdownMenuItem onClick={toggleWatchLater}>
+                <Clock aria-hidden />
+                {watchLater ? "Remove from Watch Later" : "Save to Watch Later"}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDialog("playlist")}>
+                <Bookmark aria-hidden />
+                Save to playlist
+              </DropdownMenuItem>
+            </>
+          ) : null}
           <DropdownMenuItem onClick={() => setDialog("share")}>
             <Forward aria-hidden />
             Share
