@@ -175,6 +175,27 @@ describe("the action bar", () => {
     expect(JSON.stringify(view)).not.toContain('"77"')
   })
 
+  it("carries everyone's Like / Dislike totals only when MarketHive sends them (S624)", async () => {
+    const counted = await seedPost(new Date(2026, 9, 2))
+    const silent = await seedPost(new Date(2026, 9, 3))
+    h.reply = {
+      ...BAR_REPLY,
+      counts: {
+        [counted._id.toHexString()]: { like: 4, dislike: 1 },
+        "not-an-id": { like: 9, dislike: 9 },
+      },
+    }
+    const view = await feed.loadCommunityFeed(null, {
+      id: VIEWER.toHexString(),
+    })
+    const shown = view.bar!.posts[counted._id.toHexString()]
+    expect([shown.likes, shown.dislikes]).toEqual([4, 1])
+    // No number from MarketHive: none is made up.
+    const quiet = view.bar!.posts[silent._id.toHexString()]
+    expect(quiet.likes).toBeUndefined()
+    expect(quiet.dislikes).toBeUndefined()
+  })
+
   it("still shows the feed when MarketHive does not answer", async () => {
     await seedPost(new Date(2026, 9, 2))
     h.reply = { price: "nope" }
