@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef, useState, useTransition } from "react"
-import type { FormEvent, KeyboardEvent } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
+import type { FormEvent, KeyboardEvent, Ref } from "react"
 import { Loader2 } from "lucide-react"
 
 import {
@@ -22,7 +22,11 @@ import type { DictateHandle } from "./dictate-button"
     2:09 am"). The newest two show; "View all" opens the rest. Enter sends,
     Shift+Enter adds a line. A comment's writer, or the post's owner, can
     delete it. Names link to the member's MarketHive profile (out of the
-    frame, in the whole window). */
+    frame, in the whole window).
+    S624 (Tom, 2026-11-07): comments live only in the post window, never
+    under a feed row ("The comments doesn't show up in the news feed. It tells
+    you how many comments there are."). The window loads them all
+    (`loadAll`) and tells the feed the new count (`onCount`). */
 
 const MAX = 2000
 
@@ -56,11 +60,20 @@ export function PostComments({
   postId,
   initial,
   mePic = "",
+  loadAll = false,
+  onCount,
+  boxRef,
 }: {
   postId: string
   initial: Summary
   /** The viewer's own MarketHive photo, beside the box. */
   mePic?: string
+  /** Fetch every comment on mount instead of offering "View all". */
+  loadAll?: boolean
+  /** Told the post's comment count after every add or delete. */
+  onCount?: (count: number) => void
+  /** The "Write a comment..." box, for focusing it from outside. */
+  boxRef?: Ref<HTMLTextAreaElement>
 }) {
   const [list, setList] = useState<CommentDTO[]>(initial.latest)
   const [count, setCount] = useState(initial.count)
@@ -83,6 +96,15 @@ export function PostComments({
     })
   }
 
+  // The post window shows the whole thread, like the News Feed's popup.
+  const fetched = useRef(false)
+  useEffect(() => {
+    if (!loadAll || fetched.current || all) return
+    fetched.current = true
+    viewAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, [])
+
   function post(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault()
     const body = text.trim()
@@ -97,7 +119,8 @@ export function PostComments({
         return
       }
       setList((prev) => [...prev, result.data])
-      setCount((n) => n + 1)
+      setCount(count + 1)
+      onCount?.(count + 1)
       setText("")
     })
   }
@@ -122,7 +145,8 @@ export function PostComments({
         return
       }
       setList((prev) => prev.filter((c) => c.id !== id))
-      setCount((n) => Math.max(0, n - 1))
+      setCount(Math.max(0, count - 1))
+      onCount?.(Math.max(0, count - 1))
     })
   }
 
@@ -136,6 +160,7 @@ export function PostComments({
         <div className="flex min-w-0 flex-1 flex-col items-end gap-2">
           <div className="relative w-full">
             <textarea
+              ref={boxRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={onKey}

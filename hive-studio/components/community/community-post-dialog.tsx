@@ -2,59 +2,47 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
+import { useEffect, useRef, useState } from "react"
 import type { CSSProperties, RefObject } from "react"
-import {
-  AudioLines,
-  Copy,
-  ExternalLink,
-  Repeat2,
-  Share2,
-  Users,
-} from "lucide-react"
+import { AudioLines, CircleX } from "lucide-react"
 
 import { ShareDialog } from "@/components/studio/share-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { publishGenerationAction } from "@/generation/community-actions"
 import type { PostComments as Summary } from "@/lib/comments"
 import type { PublicGenerationDTO } from "@/lib/community"
+import type { FeedBar, PostBar } from "@/lib/community-feed"
 import { recreateHref, remixHref } from "@/lib/community-links"
-import { timeAgo, viewCount } from "@/lib/time-ago"
-import { cn } from "@/lib/utils"
+import type { MediaSignal } from "@/lib/markethive/media"
+import { popupPlace } from "@/lib/media-feed-frame"
+import type { Visible } from "@/lib/media-feed-frame"
+import { viewCount } from "@/lib/time-ago"
 
 import { CaptionEditor } from "./caption-editor"
+import type { OpenFocus } from "./community-post"
+import { PostBottomRow } from "./post-bottom-row"
 import { PostComments } from "./post-comments"
 import { ReportDialog } from "./report-dialog"
 import { SettingsList } from "./settings-list"
 import { ShareButtons, shareLink } from "./share-buttons"
+import { TitleEditor } from "./title-editor"
 import { UnpublishButton } from "./unpublish-button"
 
 const FONT = "Tahoma, 'Poppins', Geneva, sans-serif"
 
 /**
- * Inside MarketHive on a phone, /hivestudio makes the frame a screen tall under
- * its toolbar, so part of the frame is often below the fold, and a window
- * centred in the frame would put its Close button and actions off screen. A
- * framed page can't scroll its parent (cross-origin), but it can see which part
- * of it is on screen: an IntersectionObserver on a frame-sized probe reports
- * the visible rectangle, and the window centres itself in that part instead.
- * Not framed, or the whole frame on screen: no change.
+ * Inside MarketHive the frame is as tall as the whole feed (S624: one scroll,
+ * MarketHive's page), so a fixed window would centre in the middle of the
+ * frame - thousands of pixels off screen. A framed page can't scroll its
+ * parent or read its scroll (cross-origin), but it can see which part of it is
+ * on screen: an IntersectionObserver on a frame-sized probe reports the
+ * visible rectangle (its implicit root is the top-level viewport, even across
+ * origins). A fresh observer is made each time the window opens, so its first
+ * report is where the member is looking right now; later reports follow the
+ * frame's edges as they move. null: not framed (the window uses 92vh).
  */
-function useVisiblePlace(): CSSProperties | undefined {
-  const [visible, setVisible] = useState<{
-    top: number
-    height: number
-  } | null>(null)
+function useVisiblePart(): Visible | null {
+  const [visible, setVisible] = useState<Visible | null>(null)
   useEffect(() => {
     if (window.parent === window || typeof IntersectionObserver === "undefined")
       return
@@ -66,11 +54,14 @@ function useVisiblePlace(): CSSProperties | undefined {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return
+        const frame = window.innerHeight
         const { top, height } = entry.intersectionRect
+        // Nothing of the frame on screen (it shouldn't be: the member just
+        // clicked in it): use the whole frame rather than a zero-height window.
         setVisible(
-          height <= 0 || height >= window.innerHeight - 1
-            ? null
-            : { top: Math.round(top), height: Math.round(height) }
+          height <= 0
+            ? { top: 0, height: frame, frame }
+            : { top: Math.round(top), height: Math.round(height), frame }
         )
       },
       { threshold: Array.from({ length: 51 }, (_, i) => i / 50) }
@@ -81,22 +72,62 @@ function useVisiblePlace(): CSSProperties | undefined {
       probe.remove()
     }
   }, [])
-  if (!visible) return undefined
-  const frameH = window.innerHeight
-  const gap = 8
-  // Never squeeze it into a sliver: at least 360px (or the frame, if smaller).
-  const height = Math.min(
-    frameH - 2 * gap,
-    Math.max(visible.height - 2 * gap, 360)
-  )
-  const centre = Math.min(
-    Math.max(visible.top + visible.height / 2, gap + height / 2),
-    frameH - gap - height / 2
-  )
-  return { top: centre, maxHeight: height }
+  return visible
 }
 
-/** One output at its own shape, as large as the window allows. */
+/**
+ * While the window is open in a frame, a wheel or swipe that nothing inside
+ * can scroll (the backdrop, the Link bar, the end of the window's own scroll)
+ * would carry on into MarketHive's page and slide the window away with the
+ * frame. Such a move is cancelled; anything that can still scroll that way
+ * (the window's body, a comment box, a dialog on top) scrolls as usual.
+ */
+function useHoldPage(active: boolean) {
+  useEffect(() => {
+    if (!active || window.parent === window) return
+    const canScroll = (from: EventTarget | null, dy: number) => {
+      for (
+        let el = from instanceof Element ? from : null;
+        el && el !== document.body && el !== document.documentElement;
+        el = el.parentElement
+      ) {
+        const { overflowY } = getComputedStyle(el)
+        if (overflowY !== "auto" && overflowY !== "scroll") continue
+        if (el.scrollHeight <= el.clientHeight + 1) continue
+        if (dy < 0 && el.scrollTop > 0) return true
+        if (dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1)
+          return true
+      }
+      return false
+    }
+    let startY = 0
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !canScroll(e.target, e.deltaY)) e.preventDefault()
+    }
+    const onTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0]?.clientY ?? 0
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY ?? startY
+      if (e.touches.length === 1 && !canScroll(e.target, startY - y))
+        e.preventDefault()
+    }
+    const opts = { capture: true, passive: false } as const
+    document.addEventListener("wheel", onWheel, opts)
+    document.addEventListener("touchstart", onTouchStart, opts)
+    document.addEventListener("touchmove", onTouchMove, opts)
+    return () => {
+      document.removeEventListener("wheel", onWheel, opts)
+      document.removeEventListener("touchstart", onTouchStart, opts)
+      document.removeEventListener("touchmove", onTouchMove, opts)
+    }
+  }, [active])
+}
+
+/** One output fitted inside the window at its own shape - never cropped
+    (Tom: "it doesn't matter what the size of his picture is, it has to fit
+    inside of this popup window"). MarketHive's S587 cap: the window's height
+    less 210px for the Link bar, the name and the text, 260px at least. */
 function Stage({
   item,
   url,
@@ -114,7 +145,7 @@ function Stage({
       </div>
     )
   const media =
-    "block max-h-[50dvh] max-w-full object-contain lg:max-h-[max(240px,min(calc(100dvh-290px),900px))]"
+    "mx-auto block h-auto max-h-[max(260px,calc(var(--mh-popup-h)-210px))] w-auto max-w-full object-contain"
   return item.kind === "video" ? (
     <video
       key={url}
@@ -133,16 +164,21 @@ function Stage({
 }
 
 /**
- * A Hive Community post opened over the feed (S611, Tom's review of
- * /hivestudio: "like the News Feed opens a post"). The full picture or video
- * at its own shape, the creator, the write-up, the prompt, the settings and
- * the same actions as the share page /g/<id> (Recreate, Recreate with my
- * photos, the owner's Share panel and Unpublish, everyone else's Report).
- * Only what /g/<id> already shows is shown. Close button, the backdrop and
- * Escape close it; focus goes back to the post that opened it.
+ * A Media Feed post opened over the feed: MarketHive's News Feed post popup
+ * (Tom, 2026-11-07: "When I click on the comment or click on the permalink, it
+ * opens ... the standard window ... same size, same width, same height";
+ * S624). The Link bar with the post's permalink and the round X; then, in the
+ * one scroll of the window's body, the creator's photo and name, the post
+ * text, the creation fitted at its shape, the News Feed's Like / Dislike /
+ * Comment (n) / Permalink row, the studio's own links (Recreate, Recreate with
+ * my photos, Copy prompt, and Share / Unpublish for the creator or Report for
+ * everyone else), the share squares, the post's details (title, views, the
+ * prompt, the settings) folded away, and the comment box with every comment.
+ * The X, the backdrop and Escape close it; focus goes back to what opened it.
  */
 export function CommunityPostDialog({
   item,
+  focus = "post",
   returnFocus,
   onClose,
   onCaption,
@@ -150,14 +186,24 @@ export function CommunityPostDialog({
   avatar = null,
   comments = null,
   mePic = "",
+  feedBar = null,
+  post = null,
+  onSignal,
+  onCommentCount,
 }: {
   item: PublicGenerationDTO | null
+  /** "comment": the cursor starts in the comment box (Comment (n)). */
+  focus?: OpenFocus
   /** The creator's MarketHive photo and profile link (D-079). */
   avatar?: { pic: string; url: string } | null
   /** The post's comments so far (D-079). */
   comments?: Summary | null
   /** The viewer's own photo, beside the comment box. */
   mePic?: string
+  feedBar?: FeedBar | null
+  post?: PostBar | null
+  onSignal?: (signal: MediaSignal) => void
+  onCommentCount?: (count: number) => void
   returnFocus: RefObject<HTMLElement | null>
   onClose: () => void
   onCaption: (id: string, caption: string) => void
@@ -168,7 +214,7 @@ export function CommunityPostDialog({
   const [shown, setShown] = useState(item)
   if (item && item !== shown) setShown(item)
   return (
-    <Dialog
+    <DialogPrimitive.Root
       open={item !== null}
       onOpenChange={(open) => !open && onClose()}
       onOpenChangeComplete={(open) => !open && setShown(null)}
@@ -177,44 +223,84 @@ export function CommunityPostDialog({
         <PostWindow
           key={shown.id}
           item={shown}
+          focus={focus}
           avatar={avatar}
           comments={comments}
           mePic={mePic}
+          feedBar={feedBar}
+          post={post}
+          onSignal={onSignal}
+          onCommentCount={onCommentCount}
+          open={item !== null}
           returnFocus={returnFocus}
           onCaption={onCaption}
           onRemoved={onRemoved}
         />
       ) : null}
-    </Dialog>
+    </DialogPrimitive.Root>
   )
 }
 
 function PostWindow({
   item,
+  focus,
   avatar,
   comments,
   mePic,
+  feedBar,
+  post,
+  onSignal,
+  onCommentCount,
+  open,
   returnFocus,
   onCaption,
   onRemoved,
 }: {
   item: PublicGenerationDTO
+  focus: OpenFocus
   avatar: { pic: string; url: string } | null
   comments: Summary | null
   mePic: string
+  feedBar: FeedBar | null
+  post: PostBar | null
+  onSignal?: (signal: MediaSignal) => void
+  onCommentCount?: (count: number) => void
+  open: boolean
   returnFocus: RefObject<HTMLElement | null>
   onCaption: (id: string, caption: string) => void
   onRemoved: (id: string) => void
 }) {
   const [index, setIndex] = useState(0)
   const [sharing, setSharing] = useState(false)
+  const [reporting, setReporting] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [count, setCount] = useState(comments?.count ?? 0)
+  const popupRef = useRef<HTMLDivElement>(null)
+  const boxRef = useRef<HTMLTextAreaElement>(null)
   const url = item.urls[index] ?? item.urls[0]
 
-  const place = useVisiblePlace()
+  const visible = useVisiblePart()
+  useHoldPage(open)
+  const place = visible ? popupPlace(visible) : null
   const label = item.prompt ? item.prompt.slice(0, 120) : item.modelLabel
-  const published = new Date(item.publishedAt)
   const remix = remixHref(item)
+  const link = typeof window === "undefined" ? "" : shareLink(item.id)
+  // Framed and not measured yet (the observer reports on the next frame):
+  // stay transparent rather than flash 92% of a feed-tall frame at its top
+  // (transparent, not hidden, so focus can still move into it).
+  const waiting =
+    !place && typeof window !== "undefined" && window.parent !== window
+  const style = {
+    fontFamily: FONT,
+    ...(waiting ? { opacity: 0 } : null),
+    ...(place
+      ? {
+          top: place.top,
+          height: place.height,
+          "--mh-popup-h": `${place.height}px`,
+        }
+      : null),
+  } as CSSProperties
 
   const copyPrompt = () => {
     void navigator.clipboard
@@ -227,69 +313,84 @@ function PostWindow({
   }
 
   return (
-    <DialogContent
-      size="2xl"
-      finalFocus={returnFocus}
-      data-slot="community-post-dialog"
-      style={{ fontFamily: FONT, ...place }}
-    >
-      {/* D-079 (Tom): the News Feed's post popup - the creator's photo and
-          name on top, the creation large, its words, the links, the coloured
-          share squares, then the comments. */}
-      <DialogHeader>
-        {/* flex-1: the photo and name fill the row, so the close X sits in
-            the far right corner like the News Feed popup's. */}
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          {avatar?.pic ? (
-            <img
-              src={avatar.pic}
-              alt=""
-              className="size-[50px] shrink-0 border border-black object-cover"
-            />
-          ) : (
-            <span
-              aria-hidden
-              className="flex size-[50px] shrink-0 items-center justify-center border border-black bg-[#dfe3ee] text-lg font-semibold text-[#2f4370]"
-            >
-              {item.author.slice(0, 1).toUpperCase()}
-            </span>
-          )}
-          <div className="flex min-w-0 flex-col">
-            <DialogTitle>
+    <DialogPrimitive.Portal>
+      <DialogPrimitive.Backdrop className="mh-post-backdrop q-modal-backdrop" />
+      <DialogPrimitive.Popup
+        ref={popupRef}
+        initialFocus={focus === "comment" ? boxRef : popupRef}
+        finalFocus={returnFocus}
+        data-slot="community-post-dialog"
+        style={style}
+        className="mh-post-popup fixed top-[min(37px,8vh)] left-1/2 z-[var(--hf-z-index-modal)] flex h-[92vh] w-full max-w-[960px] -translate-x-1/2 flex-col rounded-[4px] border border-ink/10 bg-background px-[10px] text-foreground shadow-[0_4px_8px_0_rgba(0,0,0,0.2),0_6px_20px_0_rgba(0,0,0,0.19)] outline-none [--mh-popup-h:92vh] data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 motion-safe:transition-opacity"
+      >
+        {/* The News Feed popup's head: "Link:" and the permalink, the round X. */}
+        <div className="flex shrink-0 items-center gap-2 pt-[10px] pb-[6px]">
+          <span className="shrink-0 text-[14px] font-light text-[#b5b5b5]">
+            Link:
+          </span>
+          <a
+            href={link || `/g/${item.id}`}
+            target="_blank"
+            rel="noopener"
+            className="block w-[72%] min-w-0 truncate border border-[#dfdfdf] bg-[#f1f3f4] px-[10px] pt-[2px] pb-[4px] text-[12px] font-bold text-[#7e6a81] no-underline"
+          >
+            {link || `/g/${item.id}`}
+          </a>
+          <DialogPrimitive.Close
+            aria-label="Close"
+            className="ml-auto shrink-0 rounded-full text-[#333] hover:text-black focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            <CircleX className="size-[27px]" strokeWidth={1.4} aria-hidden />
+          </DialogPrimitive.Close>
+        </div>
+
+        {/* The window's one scroll (MarketHive: 86vh, overflow-y scroll). */}
+        <div
+          data-slot="post-popup-body"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[10px]"
+        >
+          <div className="flex items-start gap-[10px]">
+            {avatar?.pic ? (
+              <img
+                src={avatar.pic}
+                alt=""
+                className="size-[50px] shrink-0 border border-black object-cover"
+              />
+            ) : (
+              <span
+                aria-hidden
+                className="flex size-[50px] shrink-0 items-center justify-center border border-black bg-[#dfe3ee] text-lg font-semibold text-[#104980]"
+              >
+                {item.author.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <DialogPrimitive.Title className="min-w-0 text-[16px] font-bold">
               {avatar?.url ? (
                 <a
                   href={avatar.url}
                   target="_top"
-                  className="text-[17px] font-normal text-[#1f6fc0] hover:underline"
+                  className="text-[#104980] no-underline hover:underline"
                 >
                   {item.author}
                 </a>
               ) : (
-                <span className="text-[17px] font-normal text-[#1f6fc0]">
-                  {item.author}
-                </span>
+                <span className="text-[#104980]">{item.author}</span>
               )}
-            </DialogTitle>
-            <DialogDescription>
-              {item.title || item.modelLabel} &bull; {viewCount(item.views)}{" "}
-              &bull;{" "}
-              <time
-                dateTime={published.toISOString()}
-                title={published.toUTCString()}
-              >
-                {timeAgo(item.publishedAt)}
-              </time>
-            </DialogDescription>
+            </DialogPrimitive.Title>
           </div>
-        </div>
-      </DialogHeader>
 
-      <DialogBody>
-        <div className="flex flex-col gap-4">
-          <div className="flex min-w-0 flex-col items-center gap-2">
-            <div className="flex min-h-40 w-full items-center justify-center">
-              {url ? <Stage item={item} url={url} label={label} /> : null}
-            </div>
+          <div className="mt-[10px] text-[18px] text-[#333]">
+            <CaptionEditor
+              id={item.id}
+              caption={item.caption}
+              mine={item.mine}
+              fallback={item.prompt}
+              onSaved={(caption) => onCaption(item.id, caption)}
+            />
+          </div>
+
+          <div className="mt-[10px] flex min-w-0 flex-col items-center gap-2">
+            {url ? <Stage item={item} url={url} label={label} /> : null}
             {item.urls.length > 1 ? (
               <div
                 className="flex flex-wrap gap-2"
@@ -321,137 +422,147 @@ function PostWindow({
             ) : null}
           </div>
 
-          <div className="flex min-w-0 flex-col gap-4">
-            {item.caption || item.mine ? (
-              <div className="text-[18px]">
-                <CaptionEditor
-                  id={item.id}
-                  caption={item.caption}
-                  mine={item.mine}
-                  onSaved={(caption) => onCaption(item.id, caption)}
-                />
-              </div>
-            ) : null}
+          <PostBottomRow
+            postId={item.id}
+            mine={item.mine}
+            bar={feedBar}
+            post={post}
+            commentCount={count}
+            publishedAt={item.publishedAt}
+            onSignal={onSignal}
+            onComment={() => boxRef.current?.focus()}
+          />
 
+          {/* The studio's own links, in the bottom row's type (S624: they
+              left the feed row for the window). */}
+          <div
+            data-slot="post-popup-actions"
+            className="mt-[6px] flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-[#3b5998]"
+          >
+            <Link href={recreateHref(item)} className="hover:underline">
+              Recreate
+            </Link>
+            {remix ? (
+              <Link href={remix} className="hover:underline">
+                Recreate with my photos
+              </Link>
+            ) : null}
             {item.prompt ? (
-              <section className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={copyPrompt}
+                aria-live="polite"
+                className="hover:underline"
+              >
+                {copied ? "Copied" : "Copy prompt"}
+              </button>
+            ) : null}
+            {item.mine && url ? (
+              <button
+                type="button"
+                onClick={() => setSharing(true)}
+                className="hover:underline"
+              >
+                Share
+              </button>
+            ) : null}
+            {item.mine ? (
+              <UnpublishButton
+                generationId={item.id}
+                onDone={() => onRemoved(item.id)}
+                link
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setReporting(true)}
+                className="hover:underline"
+              >
+                Report
+              </button>
+            )}
+          </div>
+
+          <ShareButtons
+            link={link}
+            label={item.title || label}
+            image={item.kind === "image" ? url : undefined}
+          />
+
+          <details className="mb-[10px] text-[14px] text-[#333]">
+            <summary className="cursor-pointer text-[#3b5998] select-none hover:underline">
+              Details
+            </summary>
+            <div className="mt-2 flex flex-col gap-3">
+              <TitleEditor
+                key={item.title}
+                id={item.id}
+                title={item.title}
+                mine={item.mine}
+                fallback={item.modelLabel}
+              />
+              <p className="text-[13px] text-muted-foreground">
+                {item.modelLabel} &bull; {viewCount(item.views)}
+              </p>
+              {item.caption && item.prompt ? (
+                <section className="flex flex-col gap-1">
                   <h3 className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
                     Prompt
                   </h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={copyPrompt}
-                    aria-live="polite"
-                  >
-                    <Copy aria-hidden />
-                    {copied ? "Copied" : "Copy prompt"}
-                  </Button>
-                </div>
-                <p className="max-h-60 overflow-y-auto border border-[#dfdfdf] bg-[#f5f5f5] p-3 text-[15px] leading-relaxed break-words whitespace-pre-wrap">
-                  {item.prompt}
-                </p>
-              </section>
-            ) : null}
-
-            {Object.keys(item.settings).length ? (
-              <section className="flex flex-col gap-2">
-                <h3 className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-                  Settings
-                </h3>
-                <SettingsList settings={item.settings} />
-              </section>
-            ) : null}
-
-            <div className="flex flex-wrap items-start gap-2">
-              <Link
-                href={recreateHref(item)}
-                className={cn(buttonVariants({ size: "lg" }), "px-5")}
-              >
-                <Repeat2 aria-hidden />
-                Recreate
-              </Link>
-              {remix ? (
-                <Link
-                  href={remix}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "px-5"
-                  )}
-                >
-                  <Users aria-hidden />
-                  Recreate with my photos
-                </Link>
+                  <p className="border border-[#dfdfdf] bg-[#f5f5f5] p-3 text-[15px] leading-relaxed break-words whitespace-pre-wrap">
+                    {item.prompt}
+                  </p>
+                </section>
               ) : null}
-              {item.mine && url ? (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setSharing(true)}
-                >
-                  <Share2 aria-hidden />
-                  Share
-                </Button>
+              {Object.keys(item.settings).length ? (
+                <section className="flex flex-col gap-1">
+                  <h3 className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                    Settings
+                  </h3>
+                  <SettingsList settings={item.settings} />
+                </section>
               ) : null}
-              {item.mine ? (
-                <UnpublishButton
-                  generationId={item.id}
-                  onDone={() => onRemoved(item.id)}
-                />
-              ) : (
-                <ReportDialog generationId={item.id} />
-              )}
             </div>
+          </details>
 
-            <ShareButtons
-              link={shareLink(item.id)}
-              label={item.title || label}
-              image={item.kind === "image" ? url : undefined}
-            />
-
-            <PostComments
-              postId={item.id}
-              initial={comments ?? { count: 0, latest: [] }}
-              mePic={mePic}
-            />
-          </div>
+          <PostComments
+            postId={item.id}
+            initial={comments ?? { count: 0, latest: [] }}
+            mePic={mePic}
+            loadAll
+            boxRef={boxRef}
+            onCount={(n) => {
+              setCount(n)
+              onCommentCount?.(n)
+            }}
+          />
         </div>
-      </DialogBody>
 
-      <DialogFooter
-        caption={
-          <Link
-            href={`/g/${item.id}`}
-            className="inline-flex items-center gap-1 text-xs text-[#2f4370] hover:underline"
-          >
-            <ExternalLink className="size-3.5" aria-hidden />
-            Open full page
-          </Link>
-        }
-      >
-        <DialogClose render={<Button variant="outline" size="lg" />}>
-          Close
-        </DialogClose>
-      </DialogFooter>
-
-      {item.mine && url ? (
-        <ShareDialog
-          target={sharing ? { runId: item.id, index, mediaUrl: url } : null}
-          onOpenChange={(open) => !open && setSharing(false)}
-          community={{
-            published: true,
-            onChange: async (publish) => {
-              if (publish) return
-              const result = await publishGenerationAction(item.id, false)
-              if (result.ok) {
-                setSharing(false)
-                onRemoved(item.id)
-              }
-            },
-          }}
-        />
-      ) : null}
-    </DialogContent>
+        {item.mine && url ? (
+          <ShareDialog
+            target={sharing ? { runId: item.id, index, mediaUrl: url } : null}
+            onOpenChange={(next) => !next && setSharing(false)}
+            community={{
+              published: true,
+              onChange: async (publish) => {
+                if (publish) return
+                const result = await publishGenerationAction(item.id, false)
+                if (result.ok) {
+                  setSharing(false)
+                  onRemoved(item.id)
+                }
+              },
+            }}
+          />
+        ) : null}
+        {!item.mine ? (
+          <ReportDialog
+            generationId={item.id}
+            open={reporting}
+            onOpenChange={setReporting}
+          />
+        ) : null}
+      </DialogPrimitive.Popup>
+    </DialogPrimitive.Portal>
   )
 }

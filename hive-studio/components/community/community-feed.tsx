@@ -14,10 +14,10 @@ import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 import { CommunityPost } from "./community-post"
+import type { OpenFocus } from "./community-post"
 import { CommunityPostDialog } from "./community-post-dialog"
 import { PostActionBar } from "./post-action-bar"
 import type { LiftWallet } from "./post-action-bar"
-import { PostComments } from "./post-comments"
 import { PostMenu } from "./post-menu"
 
 /** Which saved list this feed shows, if any: unsaving a post there drops it. */
@@ -31,7 +31,10 @@ export type FeedList =
     window over the feed (S611, Tom's review); its links stay /g/<id>.
     D-079 (Chris, 2026-10-30): each post carries the News Feed's action bar
     (MarketHive members) and a three-dot menu - Watch Later, playlist, Share.
-    The same feed draws the Watch Later and playlist pages (`list`). */
+    The same feed draws the Watch Later and playlist pages (`list`).
+    S624 (Tom, 2026-11-07): rows are News Feed rows - no comment box and no
+    comments under a post, just Comment (n); the comments, Recreate and the
+    rest are in the post window, which Comment (n) and Permalink open too. */
 export function CommunityFeed({
   initialItems,
   initialCursor,
@@ -65,6 +68,7 @@ export function CommunityFeed({
   const [notice, setNotice] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const [openId, setOpenId] = useState<string | null>(null)
+  const [openFocus, setOpenFocus] = useState<OpenFocus>("post")
   const opener = useRef<HTMLElement | null>(null)
   const open = items.find((i) => i.id === openId) ?? null
 
@@ -89,7 +93,30 @@ export function CommunityFeed({
         ...post.signals.filter((s) => s !== opposite && s !== signal),
         signal,
       ]
-      return { ...prev, posts: { ...prev.posts, [id]: { ...post, signals } } }
+      // Everyone's totals (when MarketHive sends them) follow the change.
+      const had = post.signals.includes(signal)
+      const dropped = opposite !== null && post.signals.includes(opposite)
+      const shift = (n: number | undefined, by: number) =>
+        n === undefined ? undefined : Math.max(0, n + by)
+      const likes =
+        signal === "like" && !had
+          ? shift(post.likes, 1)
+          : signal === "dislike" && dropped
+            ? shift(post.likes, -1)
+            : post.likes
+      const dislikes =
+        signal === "dislike" && !had
+          ? shift(post.dislikes, 1)
+          : signal === "like" && dropped
+            ? shift(post.dislikes, -1)
+            : post.dislikes
+      return {
+        ...prev,
+        posts: {
+          ...prev.posts,
+          [id]: { ...post, signals, likes, dislikes },
+        },
+      }
     })
 
   const exclude = (id: string, author: string) => {
@@ -126,6 +153,12 @@ export function CommunityFeed({
         return item ? [item, ...prev.filter((i) => i.id !== id)] : prev
       })
   }
+
+  const setCommentCount = (id: string, count: number) =>
+    setComments((prev) => ({
+      ...prev,
+      [id]: { latest: prev[id]?.latest ?? [], count },
+    }))
 
   const savedLater = (id: string, saved: boolean) => {
     setWatchLater((prev) => {
@@ -190,9 +223,9 @@ export function CommunityFeed({
             <CommunityPost
               key={item.id}
               item={item}
-              onCaption={setCaption}
-              onOpen={(p, from) => {
+              onOpen={(p, from, focus) => {
                 opener.current = from
+                setOpenFocus(focus)
                 setOpenId(p.id)
                 // Opening a post is a view (one per viewer per post per 6h).
                 void countViewAction(p.id).then((r) => {
@@ -222,13 +255,10 @@ export function CommunityFeed({
                   />
                 ) : null
               }
-              comments={
-                <PostComments
-                  postId={item.id}
-                  mePic={bar?.mePic ?? ""}
-                  initial={comments[item.id] ?? { count: 0, latest: [] }}
-                />
-              }
+              feedBar={bar}
+              post={post ?? null}
+              onSignal={(s) => setSignal(item.id, s)}
+              commentCount={comments[item.id]?.count ?? 0}
               menu={
                 <PostMenu
                   postId={item.id}
@@ -274,6 +304,7 @@ export function CommunityFeed({
       ) : null}
       <CommunityPostDialog
         item={open}
+        focus={openFocus}
         avatar={
           open && bar?.posts[open.id]
             ? {
@@ -284,6 +315,10 @@ export function CommunityFeed({
         }
         comments={open ? (comments[open.id] ?? null) : null}
         mePic={bar?.mePic ?? ""}
+        feedBar={bar}
+        post={open ? (bar?.posts[open.id] ?? null) : null}
+        onSignal={(s) => open && setSignal(open.id, s)}
+        onCommentCount={(n) => open && setCommentCount(open.id, n)}
         returnFocus={opener}
         onClose={() => setOpenId(null)}
         onCaption={setCaption}

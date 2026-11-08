@@ -217,6 +217,17 @@ html[data-mh-chrome="page"] .mh-page-hide {
 html[data-mh-chrome="page"] .mh-page-tight {
   padding-top: 10px;
 }
+/* The Media Feed's post window is the News Feed popup (S624): MarketHive's
+   white veil behind it (#page_centered_content_container_inner) and its card
+   (.newsfeed-post-permalink-popup-container). */
+:root[data-theme="markethive-light"] .mh-post-backdrop {
+  background-color: #ffffffc2;
+}
+:root[data-theme="markethive-light"] .mh-post-popup {
+  border-color: #ededed;
+  background-color: #ffffff;
+  color: #212529;
+}
 
 /* ── Panels: white, not frosted glass (S584, Chris: "this should be white and
       consistent with markethive white and font not grey"). The model picker and
