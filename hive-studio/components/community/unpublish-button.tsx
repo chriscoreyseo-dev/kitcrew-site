@@ -12,9 +12,12 @@ import { Button } from "@/components/ui/button"
 export function UnpublishButton({
   generationId,
   onDone,
+  link = false,
 }: {
   generationId: string
   onDone?: () => void
+  /** A small text link, for the Media Feed post window's row (S624). */
+  link?: boolean
 }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
@@ -33,6 +36,25 @@ export function UnpublishButton({
       router.refresh()
     })
   }
+
+  if (link)
+    return (
+      <>
+        <button
+          type="button"
+          onClick={unpublish}
+          disabled={pending}
+          className="hover:underline disabled:opacity-60"
+        >
+          {pending ? "Unpublishing…" : "Unpublish"}
+        </button>
+        {error ? (
+          <span role="alert" className="text-xs text-destructive">
+            {error}
+          </span>
+        ) : null}
+      </>
+    )
 
   return (
     <div className="flex flex-col gap-1">
