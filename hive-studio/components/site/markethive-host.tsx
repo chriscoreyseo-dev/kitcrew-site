@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 import { balanceAction } from "@/generation/billing-actions"
 import { listLibraryAction } from "@/generation/library-actions"
@@ -10,6 +10,7 @@ import {
   BALANCE_EVENT,
   LIBRARY_EVENT,
 } from "@/lib/client-events"
+import { contentHeight, fitsContent } from "@/lib/media-feed-frame"
 import { useProjects } from "@/lib/studio/projects"
 
 /** MarketHive's LIBRARY menu (S584): home | all | new | project:<id>. */
@@ -49,6 +50,24 @@ function originOf(url: string): string | null {
  * "Add credits" links (href = creditsUrl) post {type: "hive-studio:add-credits"}
  * and the page opens MarketHive's Wallet on the Vault section in place; when it
  * closes the page sends {type: "hive-studio:refresh-balance"}.
+ *
+ * One scroll on the Media Feed (S624; Tom, 2026-11-07: "Why do we have the
+ * scroll inside the scroll? ... get rid of it"): in page mode on /community
+ * (and its paging) the studio reports its content height,
+ * {type: "hive-studio:height", height, path}, and MarketHive makes the frame
+ * that tall, so MarketHive's page is the only scroll. A ResizeObserver on the
+ * page sends at most one message per animation frame, and only when the
+ * height changed. html[data-mh-fit="content"] drops the body's screen-height
+ * minimum there (styles/markethive.css) so the frame can shrink as well as
+ * grow. Generator pages keep MarketHive's screen-height frame.
+ * In a frame that tall, anything fixed to the frame's middle (every dialog)
+ * would open thousands of pixels off screen, so the part of the frame on
+ * screen is kept in --mh-vis-top / --mh-vis-h on <html> (an
+ * IntersectionObserver on a frame-sized probe; its root is the top-level
+ * viewport, even cross-origin) and dialogs centre on it. While the frame
+ * covers the whole screen the observer has nothing new to report as the page
+ * scrolls, so it is asked afresh on every press (pointerdown, keydown) - just
+ * before a dialog can open.
  */
 export function MarketHiveHost({
   homeUrl,
@@ -60,6 +79,7 @@ export function MarketHiveHost({
   const router = useRouter()
   const pathname = usePathname()
   const origin = originOf(homeUrl)
+  const [pageMode, setPageMode] = useState(false)
 
   useEffect(() => {
     if (!origin || window.parent === window) return
@@ -75,6 +95,7 @@ export function MarketHiveHost({
       } | null
       if (data?.type === "hive-studio:host" && data.chrome === "page") {
         document.documentElement.dataset.mhChrome = "page"
+        setPageMode(true)
         post({ type: "hive-studio:route", path: window.location.pathname })
       } else if (
         data?.type === "hive-studio:library" &&
@@ -157,6 +178,78 @@ export function MarketHiveHost({
       origin
     )
   }, [origin, pathname])
+
+  useEffect(() => {
+    if (
+      !origin ||
+      window.parent === window ||
+      !pageMode ||
+      !fitsContent(pathname) ||
+      typeof ResizeObserver === "undefined"
+    )
+      return
+    const root = document.documentElement
+    root.dataset.mhFit = "content"
+    let frame = 0
+    let last = -1
+    const send = () => {
+      frame = 0
+      const height = contentHeight(document.body)
+      if (height === last) return
+      last = height
+      window.parent.postMessage(
+        {
+          type: "hive-studio:height",
+          height,
+          path: window.location.pathname,
+        },
+        origin
+      )
+    }
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(send)
+    }
+    const observer = new ResizeObserver(schedule)
+    observer.observe(document.body)
+    schedule()
+
+    const probe = document.createElement("div")
+    probe.setAttribute("aria-hidden", "true")
+    probe.style.cssText =
+      "position:fixed;inset:0;pointer-events:none;visibility:hidden"
+    document.body.appendChild(probe)
+    const seen =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(
+            ([entry]) => {
+              const r = entry?.intersectionRect
+              if (!r || r.height <= 0) return
+              root.style.setProperty("--mh-vis-top", `${Math.round(r.top)}px`)
+              root.style.setProperty("--mh-vis-h", `${Math.round(r.height)}px`)
+            },
+            { threshold: Array.from({ length: 51 }, (_, i) => i / 50) }
+          )
+    seen?.observe(probe)
+    const refresh = () => {
+      seen?.unobserve(probe)
+      seen?.observe(probe)
+    }
+    document.addEventListener("pointerdown", refresh, true)
+    document.addEventListener("keydown", refresh, true)
+
+    return () => {
+      observer.disconnect()
+      if (frame) window.cancelAnimationFrame(frame)
+      seen?.disconnect()
+      probe.remove()
+      document.removeEventListener("pointerdown", refresh, true)
+      document.removeEventListener("keydown", refresh, true)
+      root.style.removeProperty("--mh-vis-top")
+      root.style.removeProperty("--mh-vis-h")
+      delete root.dataset.mhFit
+    }
+  }, [origin, pageMode, pathname])
 
   return null
 }

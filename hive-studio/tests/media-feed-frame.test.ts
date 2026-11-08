@@ -1,9 +1,37 @@
 import { describe, expect, it } from "vitest"
 
-import { permalinkDate, popupPlace } from "@/lib/media-feed-frame"
+import {
+  contentHeight,
+  fitsContent,
+  permalinkDate,
+  popupPlace,
+} from "@/lib/media-feed-frame"
 
-/** S624 (Tom's video, 2026-11-07): the News Feed popup kept on screen in a
-    feed-tall MarketHive frame. */
+/** S624 (Tom's video, 2026-11-07): the Media Feed inside MarketHive's frame -
+    one scroll (the frame takes the feed's height) and the News Feed popup
+    kept on screen in that tall frame. */
+
+describe("which routes size the frame to the feed", () => {
+  it("is the Media Feed and its paging, nothing else", () => {
+    expect(fitsContent("/community")).toBe(true)
+    expect(fitsContent("/community/anything")).toBe(true)
+    expect(fitsContent("/communityx")).toBe(false)
+    expect(fitsContent("/image")).toBe(false)
+    expect(fitsContent("/g/abc")).toBe(false)
+    expect(fitsContent("/watch-later")).toBe(false)
+  })
+})
+
+describe("the height the studio reports", () => {
+  const body = (scrollHeight: number, height: number) => ({
+    scrollHeight,
+    getBoundingClientRect: () => ({ height }),
+  })
+  it("is the content, rounded up, overflow included", () => {
+    expect(contentHeight(body(1200, 1199.2))).toBe(1200)
+    expect(contentHeight(body(900, 1450.4))).toBe(1451)
+  })
+})
 
 describe("the post window in a frame", () => {
   it("unframed-like: the whole frame on screen takes 92% of it, 37px down", () => {

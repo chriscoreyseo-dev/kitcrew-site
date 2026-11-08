@@ -67,6 +67,7 @@ export function CookieConsent() {
       <div
         role="region"
         aria-label="Cookie consent"
+        data-slot="cookie-consent"
         className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-3xl flex-col gap-3 rounded-2xl border border-ink/10 bg-card/95 p-4 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-center"
       >
         <p className="flex-1 text-sm text-muted-foreground">

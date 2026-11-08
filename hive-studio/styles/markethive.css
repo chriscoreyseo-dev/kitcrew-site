@@ -217,6 +217,30 @@ html[data-mh-chrome="page"] .mh-page-hide {
 html[data-mh-chrome="page"] .mh-page-tight {
   padding-top: 10px;
 }
+/* S624 (Tom, 2026-11-07: "Why do we have the scroll inside the scroll?"): on
+   the Media Feed MarketHive sizes the frame to the studio's content
+   (hive-studio:height, MarketHiveHost), so the body must be as tall as its
+   content and no taller - its usual screen-height minimum would stop the frame
+   from ever shrinking. */
+html[data-mh-chrome="page"][data-mh-fit="content"] body {
+  display: flow-root; /* no child margin escapes the body it is measured by */
+  min-height: 0;
+}
+/* In that feed-tall frame a dialog centred in the frame would open far off
+   screen: every dialog centres on the part of the frame on screen instead
+   (--mh-vis-top / --mh-vis-h, kept by MarketHiveHost), and is never taller.
+   The cookie notice, pinned to the bottom of the frame, would sit over the
+   feed's last post and Load more: there it is the page's last line instead. */
+html[data-mh-chrome="page"][data-mh-fit="content"] .q-modal {
+  top: calc(var(--mh-vis-top, 0px) + var(--mh-vis-h, 100vh) / 2);
+  max-height: calc(var(--mh-vis-h, 100vh) - 32px);
+}
+html[data-mh-chrome="page"][data-mh-fit="content"]
+  [data-slot="cookie-consent"] {
+  position: static;
+  margin: 0 auto 12px;
+}
+
 /* The Media Feed's post window is the News Feed popup (S624): MarketHive's
    white veil behind it (#page_centered_content_container_inner) and its card
    (.newsfeed-post-permalink-popup-container). */
