@@ -1,6 +1,25 @@
 /** The Media Feed inside MarketHive's /hivestudio frame (S624; Tom's video of
-    2026-11-07): the sums behind "the window stays on screen".
+    2026-11-07): the sums behind "one scroll" and "the window stays on screen".
     Pure functions, safe on the server and in tests. */
+
+/** The Media Feed and its paging (?cursor=): the routes whose frame MarketHive
+    sizes to the studio's content (code/hivestudio_page.js isFeedRoute). */
+export function fitsContent(path: string): boolean {
+  return path === "/community" || path.startsWith("/community/")
+}
+
+/** The page's content height in CSS px: the body's box or what overflows it,
+    whichever is taller. Not documentElement.scrollHeight, which is never less
+    than the frame itself, so a feed that got shorter (a post unpublished, a
+    member excluded) could never shrink the frame back. */
+export function contentHeight(body: {
+  scrollHeight: number
+  getBoundingClientRect: () => { height: number }
+}): number {
+  return Math.ceil(
+    Math.max(body.scrollHeight, body.getBoundingClientRect().height)
+  )
+}
 
 /** MarketHive's post popup (css/style.css .newsfeed-post-permalink-popup-
     container): 960px wide at most, 92% of the window tall, 37px from the top
