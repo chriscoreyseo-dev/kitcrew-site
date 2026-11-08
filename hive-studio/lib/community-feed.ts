@@ -34,6 +34,9 @@ export type PostBar = {
   /** The creator's MarketHive photo and profile link, "" when unknown. */
   authorPic: string
   authorUrl: string
+  /** Everyone's Likes / Dislikes, only when MarketHive reports them (S624). */
+  likes?: number
+  dislikes?: number
 }
 
 export type FeedBar = {
@@ -125,12 +128,14 @@ async function view(
         more.badges.forEach((v, k) => data.badges.set(k, v))
         more.signals.forEach((v, k) => data.signals.set(k, v))
         more.lifted.forEach((id) => data.lifted.add(id))
+        more.counts.forEach((v, k) => data.counts.set(k, v))
       }
       shown = docs.filter((d) => !data.excluded.has(memberOf(d)))
       people = data.people
       const posts: Record<string, PostBar> = {}
       for (const d of shown) {
         const id = d._id.toHexString()
+        const tally = data.counts.get(id)
         posts[id] = {
           badges: data.badges.get(memberOf(d)) ?? [],
           signals: data.signals.get(id) ?? [],
@@ -138,6 +143,7 @@ async function view(
           authorKey: authorKey(d.userId),
           authorPic: data.people.get(memberOf(d))?.pic ?? "",
           authorUrl: data.people.get(memberOf(d))?.url ?? "",
+          ...(tally ? { likes: tally.like, dislikes: tally.dislike } : {}),
         }
       }
       bar = {

@@ -40,6 +40,11 @@ export type MediaBarData = {
   /** Per media id: the viewer's signals already given. */
   signals: Map<string, MediaSignal[]>
   lifted: Set<string>
+  /** Per media id: everyone's Likes and Dislikes, the numbers in the News
+      Feed's "Like n Dislike n" row. Only when MarketHive sends them
+      (`counts: {"<media id>": {"like": n, "dislike": n}}`); the studio never
+      guesses a number (S624). */
+  counts: Map<string, { like: number; dislike: number }>
   excluded: Set<number>
   /** Commenters the viewer may see (a full block leaves one out). */
   people: Map<number, MediaPerson>
@@ -136,6 +141,12 @@ export async function mediaBar(
       (id): id is string => typeof id === "string"
     )
   )
+  const counts = new Map<string, { like: number; dislike: number }>()
+  for (const [id, value] of Object.entries(record(data.counts))) {
+    const c = record(value)
+    if (!/^[0-9a-f]{24}$/.test(id)) continue
+    counts.set(id, { like: count(c.like), dislike: count(c.dislike) })
+  }
   const excluded = new Set(
     (Array.isArray(data.excluded) ? data.excluded : []).filter(
       (id): id is number => typeof id === "number" && Number.isInteger(id)
@@ -162,6 +173,7 @@ export async function mediaBar(
     badges,
     signals,
     lifted,
+    counts,
     excluded,
     people: known,
     lifts: count(data.lifts),
