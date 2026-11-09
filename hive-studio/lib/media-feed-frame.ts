@@ -58,3 +58,44 @@ export function permalinkDate(ms: number): string {
   const p = (n: number) => String(n).padStart(2, "0")
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
 }
+
+/** The controls inside a Media Feed row that keep their own click and never
+    open the post window: links (the photo, the name, the opener links, which
+    open it themselves), buttons (the D-079 bar, the three-dot menu, Like,
+    Dislike, Comment (n)), form fields, players and anything acting as a
+    button or menu. Mirrors MarketHive's whole-card rule for Blog Feed rows
+    (js/blog_post_popup.js: `closest('a, .nf-post-action-bar, ...')`). */
+export const ROW_CONTROLS =
+  "a, button, input, textarea, select, option, label, summary, video, audio, iframe, [role='button'], [role='menu'], [role='menuitem'], [role='menuitemcheckbox'], [role='menuitemradio'], [role='option'], [role='checkbox'], [role='switch'], [role='dialog'], [contenteditable=''], [contenteditable='true'], [data-row-control]"
+
+/** Chris, 2026-11-09: "I should be able to click anywhere inside of our
+    table and have it open up the next window" - a plain click on any part of
+    a Media Feed row (text, empty space, picture) opens the post window, the
+    way a News Feed row does. Not when a control inside the row already
+    handled it (or would), not a modified or non-primary click, and not a
+    click that only bubbled up through React from a portal (a menu or dialog
+    drawn outside the row). */
+export function rowClickOpens(
+  event: {
+    defaultPrevented: boolean
+    button: number
+    metaKey: boolean
+    ctrlKey: boolean
+    shiftKey: boolean
+    altKey: boolean
+  },
+  target: { closest: (selector: string) => unknown } | null,
+  row: { contains: (node: never) => boolean }
+): boolean {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
+    return false
+  if (!target || !row.contains(target as never)) return false
+  return !target.closest(ROW_CONTROLS)
+}

@@ -1,13 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import type { MouseEvent, ReactNode } from "react"
+import { useRef, type MouseEvent, type ReactNode } from "react"
 import { AudioLines } from "lucide-react"
 
 import type { PublicGenerationDTO } from "@/lib/community"
 import type { FeedBar, PostBar } from "@/lib/community-feed"
 import type { MediaSignal } from "@/lib/markethive/media"
+import { rowClickOpens } from "@/lib/media-feed-frame"
 import { timeAgo } from "@/lib/time-ago"
+import { cn } from "@/lib/utils"
 
 import { FeedVideo } from "./feed-video"
 import { opensInPlace, PostBottomRow } from "./post-bottom-row"
@@ -42,7 +44,10 @@ export type OpenFocus = "post" | "comment"
     the picture, the text, Comment (n) or Permalink opens the post window,
     where they are. Every opener is a real /g/<id> link, so a middle or Ctrl
     click still opens the share page. Recreate and the rest live in the
-    window. */
+    window. Chris, 2026-11-09: a plain click anywhere else on the row - the
+    header's empty space, the post box around the text, the bottom row -
+    opens the window too; the row's links and buttons keep their own click
+    (rowClickOpens). */
 export function CommunityPost({
   item,
   onOpen,
@@ -81,12 +86,31 @@ export function CommunityPost({
     event.preventDefault()
     onOpen(item, event.currentTarget, "post")
   }
+  // Focus returns to the picture link when a window opened from the row's
+  // empty space closes (the row itself is not focusable).
+  const opener = useRef<HTMLAnchorElement>(null)
+  const openFromRow = (event: MouseEvent<HTMLElement>) => {
+    if (!onOpen || !opener.current) return
+    if (
+      !rowClickOpens(
+        event,
+        event.target instanceof Element ? event.target : null,
+        event.currentTarget
+      )
+    )
+      return
+    onOpen(item, opener.current, "post")
+  }
   const nameClass = "text-[16px] font-bold text-[#104980] hover:underline"
 
   return (
     <article
       data-slot="media-feed-post"
-      className="flex w-full items-start gap-[10px] border bg-card p-[10px]"
+      onClick={openFromRow}
+      className={cn(
+        "flex w-full items-start gap-[10px] border bg-card p-[10px]",
+        onOpen && "cursor-pointer"
+      )}
       style={{ borderColor: NEWSFEED.border, fontFamily: NEWSFEED.font }}
     >
       {avatar?.url ? (
@@ -116,7 +140,14 @@ export function CommunityPost({
           >
             {timeAgo(item.publishedAt)}
           </time>
-          {bar ? <div className="ml-[clamp(12px,2vw,28px)]">{bar}</div> : null}
+          {bar ? (
+            // The action bar is the row's control strip (badges, BOOST,
+            // PUSH, LIFT): no click in it opens the window, as on the Blog
+            // Feed's rows (.nf-post-action-bar).
+            <div data-row-control className="ml-[clamp(12px,2vw,28px)]">
+              {bar}
+            </div>
+          ) : null}
           {menu}
         </header>
 
@@ -128,6 +159,7 @@ export function CommunityPost({
           }}
         >
           <Link
+            ref={opener}
             href={`/g/${item.id}`}
             onClick={open}
             aria-haspopup={onOpen ? "dialog" : undefined}
