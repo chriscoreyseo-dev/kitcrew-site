@@ -8,7 +8,9 @@ import { listLibraryAction } from "@/generation/library-actions"
 import {
   announceBalance,
   BALANCE_EVENT,
+  FRAME_PLACED_EVENT,
   LIBRARY_EVENT,
+  POST_WINDOW_EVENT,
 } from "@/lib/client-events"
 import { contentHeight, fitsContent } from "@/lib/media-feed-frame"
 import { useProjects } from "@/lib/studio/projects"
@@ -68,6 +70,15 @@ function originOf(url: string): string | null {
  * covers the whole screen the observer has nothing new to report as the page
  * scrolls, so it is asked afresh on every press (pointerdown, keydown) - just
  * before a dialog can open.
+ *
+ * The post window at one size (S628; Chris: "I want it just to be the same
+ * size all the time when I open it up"): the window is sized to the part of
+ * the frame on screen, and at the top of the page MarketHive's bars take the
+ * first 250px of the screen, so it opened small and grew as the page scrolled.
+ * The studio now says when the window opens and closes,
+ * {type: "hive-studio:popup", open}; MarketHive brings the frame to the top
+ * of the screen (and puts the page back on close) and answers
+ * {type: "hive-studio:popup-placed"}, after which the window measures once.
  */
 export function MarketHiveHost({
   homeUrl,
@@ -120,7 +131,13 @@ export function MarketHiveHost({
         SAFE_PATH.test(data.path)
       ) {
         router.push(data.path)
+      } else if (data?.type === "hive-studio:popup-placed") {
+        window.dispatchEvent(new Event(FRAME_PLACED_EVENT))
       }
+    }
+    const onPostWindow = (event: Event) => {
+      const open = (event as CustomEvent<boolean>).detail
+      if (typeof open === "boolean") post({ type: "hive-studio:popup", open })
     }
     const onBalance = (event: Event) => {
       const credits = (event as CustomEvent<number>).detail
@@ -139,11 +156,13 @@ export function MarketHiveHost({
 
     window.addEventListener("message", onMessage)
     window.addEventListener(BALANCE_EVENT, onBalance)
+    window.addEventListener(POST_WINDOW_EVENT, onPostWindow)
     document.addEventListener("click", onClick, true)
     post({ type: "hive-studio:ready" })
     return () => {
       window.removeEventListener("message", onMessage)
       window.removeEventListener(BALANCE_EVENT, onBalance)
+      window.removeEventListener(POST_WINDOW_EVENT, onPostWindow)
       document.removeEventListener("click", onClick, true)
     }
   }, [origin, router, creditsUrl])
