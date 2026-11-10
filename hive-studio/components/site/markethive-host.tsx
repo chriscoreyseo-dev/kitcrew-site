@@ -10,8 +10,10 @@ import {
   BALANCE_EVENT,
   FRAME_PLACED_EVENT,
   LIBRARY_EVENT,
+  placedPart,
   POST_WINDOW_EVENT,
 } from "@/lib/client-events"
+import type { PlacedPart } from "@/lib/client-events"
 import { contentHeight, fitsContent } from "@/lib/media-feed-frame"
 import { useProjects } from "@/lib/studio/projects"
 
@@ -103,6 +105,8 @@ export function MarketHiveHost({
         type?: unknown
         chrome?: unknown
         path?: unknown
+        top?: unknown
+        height?: unknown
       } | null
       if (data?.type === "hive-studio:host" && data.chrome === "page") {
         document.documentElement.dataset.mhChrome = "page"
@@ -132,7 +136,11 @@ export function MarketHiveHost({
       ) {
         router.push(data.path)
       } else if (data?.type === "hive-studio:popup-placed") {
-        window.dispatchEvent(new Event(FRAME_PLACED_EVENT))
+        window.dispatchEvent(
+          new CustomEvent<PlacedPart | null>(FRAME_PLACED_EVENT, {
+            detail: placedPart(data.top, data.height),
+          })
+        )
       }
     }
     const onPostWindow = (event: Event) => {

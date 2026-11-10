@@ -10,6 +10,7 @@ import { AudioLines, CircleX } from "lucide-react"
 import { ShareDialog } from "@/components/studio/share-dialog"
 import { publishGenerationAction } from "@/generation/community-actions"
 import { announcePostWindow, FRAME_PLACED_EVENT } from "@/lib/client-events"
+import type { PlacedPart } from "@/lib/client-events"
 import type { PostComments as Summary } from "@/lib/comments"
 import type { PublicGenerationDTO } from "@/lib/community"
 import type { FeedBar, PostBar } from "@/lib/community-feed"
@@ -97,19 +98,47 @@ function useVisiblePart(): { visible: Visible | null; settled: boolean } {
       observer.observe(probe)
     }
     let again = 0
-    const onPlaced = () => {
+    // S629: MarketHive says which part of the frame is on screen (fractions of
+    // the frame's height). That is used as it is - no measuring. Measuring
+    // after the answer could still return the rectangle from BEFORE MarketHive
+    // scrolled (the observer reports across origins a beat late), and the
+    // first window opened from the top of the page came up half height and
+    // stayed that way.
+    let told: PlacedPart | null = null
+    const applyTold = () => {
+      if (!told) return
+      const frame = window.innerHeight
+      setVisible({
+        top: Math.round(told.top * frame),
+        height: Math.round(told.height * frame),
+        frame,
+      })
+    }
+    const onPlaced = (event: Event) => {
       held = true
-      measure()
-      // Once more when the page's scroll has been painted.
+      told = (event as CustomEvent<PlacedPart | null>).detail ?? null
       window.clearTimeout(again)
+      if (told) {
+        wanted = 0
+        applyTold()
+        setSettled(true)
+        return
+      }
+      // An older MarketHive page: measure, and once more when the page's
+      // scroll has been painted.
+      measure()
       again = window.setTimeout(measure, 150)
     }
+    // The frame itself changed height (a short feed made a screen tall).
+    const onResize = () => applyTold()
     const unanswered = window.setTimeout(() => setSettled(true), ANSWER_MS)
     window.addEventListener(FRAME_PLACED_EVENT, onPlaced)
+    window.addEventListener("resize", onResize)
     announcePostWindow(true)
     return () => {
       announcePostWindow(false)
       window.removeEventListener(FRAME_PLACED_EVENT, onPlaced)
+      window.removeEventListener("resize", onResize)
       window.clearTimeout(unanswered)
       window.clearTimeout(again)
       observer.disconnect()

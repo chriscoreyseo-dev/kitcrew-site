@@ -28,3 +28,16 @@ export function announcePostWindow(open: boolean): void {
 /** MarketHive's answer: the frame is where it will stay while the post window
     is open, so the window can measure the screen once and keep that size. */
 export const FRAME_PLACED_EVENT = "hive:frame-placed"
+
+/** Which part of the frame is on screen, as fractions of the frame's height
+    (S629). MarketHive sends it with its answer, because it is the page that
+    moved the frame; a page that sends none (an older one) leaves the window to
+    measure for itself. */
+export type PlacedPart = { top: number; height: number }
+
+export function placedPart(top: unknown, height: unknown): PlacedPart | null {
+  if (typeof top !== "number" || typeof height !== "number") return null
+  if (!Number.isFinite(top) || !Number.isFinite(height)) return null
+  if (top < 0 || height <= 0 || top + height > 1.0001) return null
+  return { top, height: Math.min(height, 1 - top) }
+}
