@@ -37,6 +37,8 @@ export type PostBar = {
   /** Everyone's Likes / Dislikes, only when MarketHive reports them (S624). */
   likes?: number
   dislikes?: number
+  /** The total tipped on this post, in MHV, when MarketHive reports tips (S627). */
+  tips?: string
 }
 
 export type FeedBar = {
@@ -45,6 +47,9 @@ export type FeedBar = {
   lifts: number
   price: string
   balance: string
+  /** What the viewer may tip with (their Coin Clip, the site's limit), in MHV;
+      null when MarketHive does not report it - the row then shows no Tip. */
+  tip: { balance: string; max: string | null } | null
   posts: Record<string, PostBar>
   /** The viewer's own MarketHive photo, for the comment box. */
   mePic: string
@@ -129,6 +134,7 @@ async function view(
         more.signals.forEach((v, k) => data.signals.set(k, v))
         more.lifted.forEach((id) => data.lifted.add(id))
         more.counts.forEach((v, k) => data.counts.set(k, v))
+        more.tips.forEach((v, k) => data.tips.set(k, v))
       }
       shown = docs.filter((d) => !data.excluded.has(memberOf(d)))
       people = data.people
@@ -144,6 +150,7 @@ async function view(
           authorPic: data.people.get(memberOf(d))?.pic ?? "",
           authorUrl: data.people.get(memberOf(d))?.url ?? "",
           ...(tally ? { likes: tally.like, dislikes: tally.dislike } : {}),
+          ...(data.tip ? { tips: data.tips.get(id) ?? "0" } : {}),
         }
       }
       bar = {
@@ -152,6 +159,7 @@ async function view(
         lifts: data.lifts,
         price: data.price,
         balance: data.balance,
+        tip: data.tip,
         posts,
         mePic: data.people.get(memberId)?.pic ?? "",
       }

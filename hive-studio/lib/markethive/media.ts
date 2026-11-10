@@ -45,6 +45,13 @@ export type MediaBarData = {
       (`counts: {"<media id>": {"like": n, "dislike": n}}`); the studio never
       guesses a number (S624). */
   counts: Map<string, { like: number; dislike: number }>
+  /** Per media id: the total tipped, in MHV ("1.5"), for posts that have any
+      (S627). A post not listed has been tipped nothing. */
+  tips: Map<string, string>
+  /** What the viewer may tip with: their Coin Clip balance and the site's
+      limit per tip, in MHV. null when MarketHive does not report it (an older
+      MarketHive: the row then shows no Tip). */
+  tip: { balance: string; max: string | null } | null
   excluded: Set<number>
   /** Commenters the viewer may see (a full block leaves one out). */
   people: Map<number, MediaPerson>
@@ -65,6 +72,10 @@ export type LiftOutcome = {
 }
 
 const MONEY = /^\d{1,6}\.\d{2}$/
+/** MHV as MarketHive prints a tip: up to three decimals, no trailing zeros. */
+const MHV = /^\d{1,9}(\.\d{1,3})?$/
+const mhv = (v: unknown): string | null =>
+  typeof v === "string" && MHV.test(v) ? v : null
 const money = (v: unknown): string | null =>
   typeof v === "string" && MONEY.test(v) ? v : null
 const text = (v: unknown, max = 400): string =>
@@ -147,6 +158,13 @@ export async function mediaBar(
     if (!/^[0-9a-f]{24}$/.test(id)) continue
     counts.set(id, { like: count(c.like), dislike: count(c.dislike) })
   }
+  const tips = new Map<string, string>()
+  for (const [id, value] of Object.entries(record(data.tips))) {
+    const total = mhv(value)
+    if (/^[0-9a-f]{24}$/.test(id) && total) tips.set(id, total)
+  }
+  const tipInfo = record(data.tip)
+  const tipBalance = mhv(tipInfo.balance)
   const excluded = new Set(
     (Array.isArray(data.excluded) ? data.excluded : []).filter(
       (id): id is number => typeof id === "number" && Number.isInteger(id)
@@ -174,6 +192,8 @@ export async function mediaBar(
     signals,
     lifted,
     counts,
+    tips,
+    tip: tipBalance ? { balance: tipBalance, max: mhv(tipInfo.max) } : null,
     excluded,
     people: known,
     lifts: count(data.lifts),
@@ -229,6 +249,55 @@ export async function mediaLift(input: {
     price: money(data.price),
     lifts: count(data.lifts),
     balance: money(data.balance),
+  }
+}
+
+export type TipStatus =
+  "tipped" | "own_post" | "insufficient" | "over_limit" | "repeat" | "failed"
+
+export type TipOutcome = {
+  status: TipStatus
+  message: string
+  /** The post's tip total after a tip that went through. */
+  total: string | null
+  /** The tipper's Coin Clip balance now. */
+  balance: string | null
+}
+
+const TIP_STATUSES: TipStatus[] = [
+  "tipped",
+  "own_post",
+  "insufficient",
+  "over_limit",
+  "repeat",
+  "failed",
+]
+
+/** Tip another member's post (S627): MHV from the viewer's Coin Clip to the
+    author's, by MarketHive's own tip rules - never your own post, never more
+    than you hold, never more than the site's limit. MarketHive moves the
+    coins; the studio only asks and shows the answer. */
+export async function mediaTip(input: {
+  viewerMemberId: number
+  authorMemberId: number
+  mediaId: string
+  amount: string
+}): Promise<TipOutcome> {
+  const data = record(
+    await call("media_tip", {
+      member_id: input.viewerMemberId,
+      author_id: input.authorMemberId,
+      media_id: input.mediaId,
+      amount: input.amount,
+    })
+  )
+  const status = TIP_STATUSES.find((s) => s === data.status)
+  if (!status) throw new WalletUnavailableError("media_tip: no status")
+  return {
+    status,
+    message: text(data.message),
+    total: mhv(data.total),
+    balance: mhv(data.balance),
   }
 }
 

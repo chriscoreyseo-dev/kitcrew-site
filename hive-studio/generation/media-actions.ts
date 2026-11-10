@@ -28,8 +28,13 @@ import {
   mediaComment,
   mediaFeedback,
   mediaLift,
+  mediaTip,
 } from "@/lib/markethive/media"
-import type { LiftOutcome, MediaFeedback } from "@/lib/markethive/media"
+import type {
+  LiftOutcome,
+  MediaFeedback,
+  TipOutcome,
+} from "@/lib/markethive/media"
 import { isMarketHive } from "@/lib/mode"
 import { hit } from "@/lib/rate-limit"
 import {
@@ -56,6 +61,8 @@ const LIFT = z.object({
     .regex(/^\d{1,6}\.\d{2}$/)
     .nullable(),
 })
+/** A tip in MHV: digits with at most three decimals (MarketHive's own check). */
+const TIP = z.string().regex(/^\d{1,7}(\.\d{1,3})?$/)
 const NAME = z.string().max(400)
 const CURSOR = z
   .string()
@@ -65,6 +72,8 @@ const CURSOR = z
 /** Per user per minute: bar clicks, and list edits. */
 const BAR_LIMIT = { max: 60, windowSec: 60 } as const
 const COMMENT_LIMIT = { max: 20, windowSec: 60 } as const
+/** Tips move a member's coins: ten a minute is plenty for a person. */
+const TIP_LIMIT = { max: 10, windowSec: 60 } as const
 const COMMENT = z.string().max(COMMENT_MAX * 2)
 const LIST_LIMIT = { max: 60, windowSec: 60 } as const
 
@@ -153,6 +162,31 @@ export async function mediaLiftAction(
         { $set: { liftedAt: new Date() } }
       )
     return outcome
+  })
+}
+
+/** Tip another member's post from the viewer's Coin Clip (S627). MarketHive
+    checks the balance and the limit and moves the coins; a refusal comes back
+    as an outcome to show, not an error. */
+export async function mediaTipAction(
+  id: unknown,
+  amount: unknown
+): Promise<ActionResult<TipOutcome>> {
+  return run(async () => {
+    const user = await requireSignedIn()
+    const parsed = TIP.safeParse(
+      typeof amount === "string" ? amount.trim() : amount
+    )
+    if (!parsed.success || Number(parsed.data) <= 0)
+      throw new GenerationInputError("Enter an amount, like 1 or 0.5.")
+    await limit("media-tip", user.id, TIP_LIMIT)
+    const m = await membersFor(user.id, id)
+    return mediaTip({
+      viewerMemberId: m.viewer,
+      authorMemberId: m.author,
+      mediaId: m.mediaId,
+      amount: parsed.data,
+    })
   })
 }
 
