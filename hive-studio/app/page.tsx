@@ -3,14 +3,12 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
 import { CommunityTile } from "@/components/community/community-tile"
-import { EffectCard } from "@/components/effects/effect-card"
 import { SectionTitle } from "@/components/site/page"
 import { MODELS } from "@/generation/catalog"
 import { modelMeta } from "@/generation/catalog/metadata"
 import { BRAND } from "@/lib/brand"
 import { listPublicGenerations } from "@/lib/community"
 import type { PublicGenerationDTO } from "@/lib/community"
-import { listActivePresets } from "@/lib/presets"
 
 /** Featured models, in order, when installed. */
 const FEATURED = [
@@ -32,15 +30,9 @@ export default async function ExplorePage() {
   const featured = FEATURED.map((id) => MODELS.find((m) => m.id === id)).filter(
     (m): m is (typeof MODELS)[number] => Boolean(m)
   )
-  const installed = new Set(MODELS.map((m) => m.id))
-  const [effects, community] = await Promise.all([
-    listActivePresets().then((list) =>
-      list.filter((p) => installed.has(p.modelId)).slice(0, 8)
-    ),
-    listPublicGenerations(null, 12)
-      .then((page) => page.items)
-      .catch((): PublicGenerationDTO[] => []),
-  ])
+  const community = await listPublicGenerations(null, 12)
+    .then((page) => page.items)
+    .catch((): PublicGenerationDTO[] => [])
 
   return (
     <main>
@@ -134,26 +126,6 @@ export default async function ExplorePage() {
             })}
           </div>
         </section>
-
-        {/* Effects */}
-        {effects.length ? (
-          <section>
-            <div className="flex items-baseline justify-between">
-              <SectionTitle>Effects</SectionTitle>
-              <Link
-                href="/effects"
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                All effects
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {effects.map((p) => (
-                <EffectCard key={p.id} preset={p} />
-              ))}
-            </div>
-          </section>
-        ) : null}
 
         {/* Community teaser */}
         <section>
