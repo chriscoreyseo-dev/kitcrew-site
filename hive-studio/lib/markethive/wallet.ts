@@ -104,7 +104,8 @@ export async function call(
     | "media_bar"
     | "media_feedback"
     | "media_lift"
-    | "media_comment",
+    | "media_comment"
+    | "media_tip",
   fields: Record<string, unknown>
 ): Promise<WireOk> {
   const env = requireEnv("markethive")

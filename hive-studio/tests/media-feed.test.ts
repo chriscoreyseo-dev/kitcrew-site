@@ -196,6 +196,85 @@ describe("the action bar", () => {
     expect(quiet.dislikes).toBeUndefined()
   })
 
+  it("carries tip totals and what the viewer may tip with, only when MarketHive reports tips (S627)", async () => {
+    const tipped = await seedPost(new Date(2026, 9, 2))
+    const untipped = await seedPost(new Date(2026, 9, 3))
+    // An older MarketHive says nothing about tips: the row shows no Tip.
+    h.reply = { ...BAR_REPLY }
+    let view = await feed.loadCommunityFeed(null, { id: VIEWER.toHexString() })
+    expect(view.bar!.tip).toBeNull()
+    expect(view.bar!.posts[tipped._id.toHexString()].tips).toBeUndefined()
+
+    h.reply = {
+      ...BAR_REPLY,
+      tips: {
+        [tipped._id.toHexString()]: "1.25",
+        "not-an-id": "9",
+        [untipped._id.toHexString()]: "<b>9</b>",
+      },
+      tip: { balance: "100", max: "50" },
+    }
+    view = await feed.loadCommunityFeed(null, { id: VIEWER.toHexString() })
+    expect(view.bar!.tip).toEqual({ balance: "100", max: "50" })
+    expect(view.bar!.posts[tipped._id.toHexString()].tips).toBe("1.25")
+    // Nothing tipped, or not a number: 0, never the raw text.
+    expect(view.bar!.posts[untipped._id.toHexString()].tips).toBe("0")
+  })
+
+  it("sends a tip as the viewer to the post's author, never on their own post or for a bad amount (S627)", async () => {
+    const post = await seedPost(new Date(2026, 9, 2))
+    h.reply = {
+      status: "tipped",
+      message: "Tip sent.",
+      total: "2.5",
+      balance: "97.5",
+    }
+    const result = await actions.mediaTipAction(post._id.toHexString(), " 2.5 ")
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        status: "tipped",
+        message: "Tip sent.",
+        total: "2.5",
+        balance: "97.5",
+      },
+    })
+    expect(h.calls.at(-1)).toEqual({
+      action: "media_tip",
+      fields: {
+        member_id: 11,
+        author_id: 77,
+        media_id: post._id.toHexString(),
+        amount: "2.5",
+      },
+    })
+
+    // A refusal from MarketHive is an outcome to show, not an error.
+    h.reply = {
+      status: "insufficient",
+      message: "Cannot tip more than your Coin Clip balance.",
+      balance: "1",
+    }
+    const refused = await actions.mediaTipAction(post._id.toHexString(), "900")
+    expect(refused.ok && refused.data.status).toBe("insufficient")
+
+    const sent = h.calls.length
+    for (const bad of ["0", "-1", "1.2345", "abc", "1e3", "", 5, null]) {
+      const r = await actions.mediaTipAction(post._id.toHexString(), bad)
+      expect(r.ok).toBe(false)
+    }
+    const mine = await seedPost(new Date(2026, 9, 3), { userId: VIEWER })
+    const own = await actions.mediaTipAction(mine._id.toHexString(), "1")
+    expect(own.ok).toBe(false)
+    // None of those reached MarketHive.
+    expect(h.calls.length).toBe(sent)
+
+    h.user = null
+    const anon = await actions.mediaTipAction(post._id.toHexString(), "1")
+    expect(anon.ok).toBe(false)
+    expect(h.calls.length).toBe(sent)
+  })
+
   it("still shows the feed when MarketHive does not answer", async () => {
     await seedPost(new Date(2026, 9, 2))
     h.reply = { price: "nope" }
