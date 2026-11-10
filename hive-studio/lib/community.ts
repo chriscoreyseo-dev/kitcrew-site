@@ -1,0 +1,274 @@
+import "server-only"
+
+import { ObjectId } from "mongodb"
+import type { Filter } from "mongodb"
+
+import type { Surface } from "@/generation/catalog/types"
+import { db } from "@/lib/db/mongo"
+import { generations } from "@/lib/generations/lifecycle"
+import type { GenerationDoc } from "@/lib/generations/model"
+import type { OutputKind } from "@/lib/higgsfield/types"
+
+/** Public community data. Only completed, published generations are visible;
+    everything else (unpublished, failed, someone's private run) looks exactly
+    like a missing id. The DTO is an allowlist: userId, email, hfRequestId,
+    r2Key, modelPath, cost and input media never leave the server. The author
+    is the member's MarketHive display name (D-065), else a masked email. */
+
+export type PublicGenerationDTO = {
+  id: string
+  surface: Surface
+  /** Kind of the first output; drives <img> vs <video>. */
+  kind: OutputKind
+  urls: string[]
+  prompt: string
+  modelId: string
+  modelLabel: string
+  settings: Record<string, unknown>
+  aspect: number
+  publishedAt: number
+  /** MarketHive display name, else a masked email ("chr…"). */
+  author: string
+  /** The creator's write-up (S584, D-070); plain text, "" when none. */
+  caption: string
+  /** The creator's title (D-079); "" when none. */
+  title: string
+  views: number
+  /** The viewer made it (shows Edit). Never reveals who did. */
+  mine: boolean
+}
+
+export type CommunityPage = {
+  items: PublicGenerationDTO[]
+  /** Opaque cursor for the next page, or null at the end. */
+  nextCursor: string | null
+}
+
+export const COMMUNITY_PAGE_SIZE = 24
+
+/** Longest write-up a creator can put beside a creation (S584). */
+export const CAPTION_MAX = 2000
+
+/** Longest post title (D-079). */
+export const TITLE_MAX = 100
+
+const PUBLIC: Filter<GenerationDoc> = { isPublic: true, status: "completed" }
+
+/** "christopher@example.com" -> "chr…". Never more than three characters. */
+export function maskAuthor(email: string | undefined | null): string {
+  const local = (email ?? "").split("@")[0]?.trim() ?? ""
+  if (!local) return "creator"
+  return `${local.slice(0, Math.min(3, local.length))}…`
+}
+
+/** Settings are model options (aspect, duration…). Keep only plain scalars so
+    nothing nested or unexpected is ever echoed to the public. */
+function publicSettings(
+  settings: Record<string, unknown>
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(settings ?? {})) {
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean"
+    )
+      out[key] = value
+  }
+  return out
+}
+
+type Author = { email?: string; name?: string; memberId?: number }
+
+/** The MarketHive NAME the member already shows on MarketHive (the same name
+    /watch/studio prints as "Shared by"); members without one get maskAuthor. */
+export function authorLabel(author: Author | undefined | null): string {
+  const name = author?.name?.trim().slice(0, 60)
+  return name || maskAuthor(author?.email)
+}
+
+export function toPublicDTO(
+  doc: GenerationDoc,
+  author?: Author | null,
+  viewerId?: string | null
+): PublicGenerationDTO {
+  const outputs = doc.outputs ?? []
+  return {
+    id: doc._id.toHexString(),
+    surface: doc.surface,
+    kind: outputs[0]?.kind ?? (doc.surface === "video" ? "video" : "image"),
+    urls: outputs.map((o) => o.url),
+    prompt: doc.prompt,
+    modelId: doc.modelId,
+    modelLabel: doc.modelLabel,
+    settings: publicSettings(doc.settings),
+    aspect: doc.aspect || 1,
+    publishedAt: (doc.publishedAt ?? doc.updatedAt).getTime(),
+    author: authorLabel(author),
+    caption: typeof doc.caption === "string" ? doc.caption : "",
+    title: typeof doc.title === "string" ? doc.title : "",
+    views: typeof doc.views === "number" ? doc.views : 0,
+    mine: Boolean(viewerId && doc.userId.toHexString() === viewerId),
+  }
+}
+
+type UserAuthorDoc = {
+  _id: ObjectId
+  email?: string
+  markethive?: { name?: string; memberId?: number }
+}
+
+export async function authorsFor(
+  userIds: ObjectId[]
+): Promise<Map<string, Author>> {
+  if (!userIds.length) return new Map()
+  const users = await db()
+    .collection<UserAuthorDoc>("users")
+    .find(
+      { _id: { $in: userIds } },
+      {
+        projection: {
+          _id: 1,
+          email: 1,
+          "markethive.name": 1,
+          "markethive.memberId": 1,
+        },
+      }
+    )
+    .toArray()
+  return new Map(
+    users.map((u) => [
+      u._id.toHexString(),
+      {
+        email: u.email,
+        name: u.markethive?.name,
+        memberId: u.markethive?.memberId,
+      },
+    ])
+  )
+}
+
+/** Where a post sits in the feed: when it was published, or when another
+    member gifted it a LIFT (D-079) - a lifted post rises back to the top. */
+export function feedAt(doc: Pick<GenerationDoc, "publishedAt" | "liftedAt">) {
+  return doc.liftedAt ?? doc.publishedAt
+}
+
+export function encodeCursor(
+  doc: Pick<GenerationDoc, "_id" | "publishedAt" | "liftedAt">
+) {
+  return `${feedAt(doc)?.getTime() ?? 0}_${doc._id.toHexString()}`
+}
+
+export function decodeCursor(
+  cursor: string | null | undefined
+): { at: Date; id: ObjectId } | null {
+  if (!cursor) return null
+  const match = /^(\d{1,15})_([0-9a-f]{24})$/.exec(cursor)
+  if (!match) return null
+  return { at: new Date(Number(match[1])), id: new ObjectId(match[2]) }
+}
+
+export type PublicPageDocs = {
+  docs: GenerationDoc[]
+  authors: Map<string, Author>
+  nextCursor: string | null
+}
+
+/** One page of published generations with their authors, newest first by
+    feedAt (lifted posts rise), keyset-paginated on (feedAt, _id) so ties never
+    skip. Server code that needs the author behind a post (the Media Feed's
+    action bar) uses this; everything public goes through toPublicDTO. */
+export async function publicPageDocs(
+  cursor?: string | null,
+  limit = COMMUNITY_PAGE_SIZE
+): Promise<PublicPageDocs> {
+  const after = decodeCursor(cursor)
+  const size = Math.min(Math.max(1, Math.floor(limit)), 60)
+  // Two keyset streams merged in feed order: lifted posts by liftedAt, the
+  // rest by publishedAt. (Plain finds, so it runs on any Mongo, fakes too.)
+  const before = (field: "liftedAt" | "publishedAt"): Filter<GenerationDoc> =>
+    after
+      ? {
+          $or: [
+            { [field]: { $lt: after.at } },
+            { [field]: after.at, _id: { $lt: after.id } },
+          ],
+        }
+      : {}
+  const [lifted, plain] = await Promise.all([
+    generations()
+      .find({ ...PUBLIC, liftedAt: { $exists: true }, ...before("liftedAt") })
+      .sort({ liftedAt: -1, _id: -1 })
+      .limit(size + 1)
+      .toArray(),
+    generations()
+      .find({
+        ...PUBLIC,
+        liftedAt: { $exists: false },
+        ...before("publishedAt"),
+      })
+      .sort({ publishedAt: -1, _id: -1 })
+      .limit(size + 1)
+      .toArray(),
+  ])
+  const at = (d: GenerationDoc) => feedAt(d)?.getTime() ?? 0
+  const docs = [...lifted, ...plain]
+    .sort(
+      (a, b) =>
+        at(b) - at(a) || b._id.toHexString().localeCompare(a._id.toHexString())
+    )
+    .slice(0, size + 1)
+  const page = docs.slice(0, size).filter((d) => d.outputs?.length)
+  const authors = await authorsFor([
+    ...new Map(page.map((d) => [d.userId.toHexString(), d.userId])).values(),
+  ])
+  const last = docs[size - 1]
+  return {
+    docs: page,
+    authors,
+    nextCursor: docs.length > size && last ? encodeCursor(last) : null,
+  }
+}
+
+/** Newest first; see publicPageDocs. */
+export async function listPublicGenerations(
+  cursor?: string | null,
+  limit = COMMUNITY_PAGE_SIZE,
+  viewerId?: string | null
+): Promise<CommunityPage> {
+  const { docs, authors, nextCursor } = await publicPageDocs(cursor, limit)
+  return {
+    items: docs.map((d) =>
+      toPublicDTO(d, authors.get(d.userId.toHexString()), viewerId)
+    ),
+    nextCursor,
+  }
+}
+
+/** One published generation, or null (unpublished and missing look the same). */
+export async function getPublicGeneration(
+  id: string,
+  viewerId?: string | null
+): Promise<PublicGenerationDTO | null> {
+  if (!/^[0-9a-f]{24}$/.test(id)) return null
+  const doc = await generations().findOne({ ...PUBLIC, _id: new ObjectId(id) })
+  if (!doc || !doc.outputs?.length) return null
+  const authors = await authorsFor([doc.userId])
+  return toPublicDTO(doc, authors.get(doc.userId.toHexString()), viewerId)
+}
+
+/** Whether `userId` owns the published generation `id` (for the owner-only
+    Unpublish control on the detail page). */
+export async function isPublicOwner(
+  id: string,
+  userId: string
+): Promise<boolean> {
+  if (!/^[0-9a-f]{24}$/.test(id) || !ObjectId.isValid(userId)) return false
+  const doc = await generations().findOne({
+    ...PUBLIC,
+    _id: new ObjectId(id),
+    userId: new ObjectId(userId),
+  })
+  return Boolean(doc)
+}
