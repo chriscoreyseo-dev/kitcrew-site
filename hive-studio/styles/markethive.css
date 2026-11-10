@@ -217,6 +217,20 @@ html[data-mh-chrome="page"] .mh-page-hide {
 html[data-mh-chrome="page"] .mh-page-tight {
   padding-top: 10px;
 }
+/* S627 (Chris: "Inside the media feed, we have a table inside a table"): the
+   feed sat inside the page's own side padding, inside MarketHive's framed box,
+   so every row was a box in a box. In page mode on the feed (the frame is
+   content-tall there, data-mh-fit) the page has no side padding and no width
+   cap: a row runs to the frame's edges, which are MarketHive's toolbar edges,
+   exactly as a News Feed row does. MarketHive drops its frame border there
+   (css/hivestudio.css .hs-frame-wrap--feed). */
+html[data-mh-chrome="page"][data-mh-fit="content"] .mh-page-tight {
+  max-width: none;
+  padding-top: 0;
+  padding-right: 0;
+  padding-bottom: 10px;
+  padding-left: 0;
+}
 /* S624 (Tom, 2026-11-07: "Why do we have the scroll inside the scroll?"): on
    the Media Feed MarketHive sizes the frame to the studio's content
    (hive-studio:height, MarketHiveHost), so the body must be as tall as its

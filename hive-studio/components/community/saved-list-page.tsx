@@ -83,8 +83,8 @@ export async function SavedListPage({ which }: { which: Which }) {
           title="Nothing saved yet"
           body={
             which.kind === "watch_later"
-              ? "Open a post's three-dot menu in the Media Feed and choose Save to Watch Later."
-              : "Open a post's three-dot menu in the Media Feed and choose Save to playlist."
+              ? "Open a video in the Media Feed and choose Save to Watch Later."
+              : "Open a video in the Media Feed and choose Save to playlist."
           }
         />
       )}
