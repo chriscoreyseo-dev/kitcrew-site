@@ -9,6 +9,7 @@ import { AudioLines, CircleX } from "lucide-react"
 
 import { ShareDialog } from "@/components/studio/share-dialog"
 import { publishGenerationAction } from "@/generation/community-actions"
+import { announcePostWindow, FRAME_PLACED_EVENT } from "@/lib/client-events"
 import type { PostComments as Summary } from "@/lib/comments"
 import type { PublicGenerationDTO } from "@/lib/community"
 import type { FeedBar, PostBar } from "@/lib/community-feed"
@@ -37,12 +38,25 @@ const FONT = "Tahoma, 'Poppins', Geneva, sans-serif"
  * parent or read its scroll (cross-origin), but it can see which part of it is
  * on screen: an IntersectionObserver on a frame-sized probe reports the
  * visible rectangle (its implicit root is the top-level viewport, even across
- * origins). A fresh observer is made each time the window opens, so its first
- * report is where the member is looking right now; later reports follow the
- * frame's edges as they move. null: not framed (the window uses 92vh).
+ * origins). null: not framed (the window uses 92vh).
+ *
+ * One size, every time (S628; Chris: "it should open up a full size"). The
+ * part on screen is not the screen: at the top of the page MarketHive's bars
+ * cover the first 250px, so the window opened that much shorter and grew, in
+ * jumps, as the page scrolled. Now the window tells MarketHive it has opened
+ * (announcePostWindow); MarketHive brings the frame to the top of the screen
+ * and answers (FRAME_PLACED_EVENT); the window measures then and keeps that
+ * size - later reports are ignored, so scrolling the page no longer resizes
+ * it. `settled` is false until that measure is in (the window stays
+ * transparent rather than open small and jump). A MarketHive page that never
+ * answers (an older one) gets the old behaviour after ANSWER_MS: every report
+ * counts.
  */
-function useVisiblePart(): Visible | null {
+const ANSWER_MS = 300
+
+function useVisiblePart(): { visible: Visible | null; settled: boolean } {
   const [visible, setVisible] = useState<Visible | null>(null)
+  const [settled, setSettled] = useState(false)
   useEffect(() => {
     if (window.parent === window || typeof IntersectionObserver === "undefined")
       return
@@ -51,9 +65,17 @@ function useVisiblePart(): Visible | null {
     probe.style.cssText =
       "position:fixed;inset:0;pointer-events:none;visibility:hidden"
     document.body.appendChild(probe)
+    // held: MarketHive answered, the size is fixed. wanted: reports still to
+    // take while held (one per fresh measure).
+    let held = false
+    let wanted = 0
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return
+        if (held) {
+          if (wanted <= 0) return
+          wanted -= 1
+        }
         const frame = window.innerHeight
         const { top, height } = entry.intersectionRect
         // Nothing of the frame on screen (it shouldn't be: the member just
@@ -63,16 +85,38 @@ function useVisiblePart(): Visible | null {
             ? { top: 0, height: frame, frame }
             : { top: Math.round(top), height: Math.round(height), frame }
         )
+        if (held) setSettled(true)
       },
       { threshold: Array.from({ length: 51 }, (_, i) => i / 50) }
     )
     observer.observe(probe)
+    // A fresh observe always reports once, whatever thresholds were crossed.
+    const measure = () => {
+      wanted += 1
+      observer.unobserve(probe)
+      observer.observe(probe)
+    }
+    let again = 0
+    const onPlaced = () => {
+      held = true
+      measure()
+      // Once more when the page's scroll has been painted.
+      window.clearTimeout(again)
+      again = window.setTimeout(measure, 150)
+    }
+    const unanswered = window.setTimeout(() => setSettled(true), ANSWER_MS)
+    window.addEventListener(FRAME_PLACED_EVENT, onPlaced)
+    announcePostWindow(true)
     return () => {
+      announcePostWindow(false)
+      window.removeEventListener(FRAME_PLACED_EVENT, onPlaced)
+      window.clearTimeout(unanswered)
+      window.clearTimeout(again)
       observer.disconnect()
       probe.remove()
     }
   }, [])
-  return visible
+  return { visible, settled }
 }
 
 /**
@@ -286,17 +330,20 @@ function PostWindow({
   const boxRef = useRef<HTMLTextAreaElement>(null)
   const url = item.urls[index] ?? item.urls[0]
 
-  const visible = useVisiblePart()
+  const { visible, settled } = useVisiblePart()
   useHoldPage(open)
   const place = visible ? popupPlace(visible) : null
   const label = item.prompt ? item.prompt.slice(0, 120) : item.modelLabel
   const remix = remixHref(item)
   const link = typeof window === "undefined" ? "" : shareLink(item.id)
-  // Framed and not measured yet (the observer reports on the next frame):
-  // stay transparent rather than flash 92% of a feed-tall frame at its top
+  // Framed and not measured yet (the observer reports on the next frame, and
+  // MarketHive is still bringing the frame up): stay transparent rather than
+  // flash 92% of a feed-tall frame at its top, or open small and jump
   // (transparent, not hidden, so focus can still move into it).
   const waiting =
-    !place && typeof window !== "undefined" && window.parent !== window
+    (!place || !settled) &&
+    typeof window !== "undefined" &&
+    window.parent !== window
   const style = {
     fontFamily: FONT,
     ...(waiting ? { opacity: 0 } : null),
