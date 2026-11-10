@@ -216,9 +216,6 @@ export function CommunityFeed({
       <div className="flex w-full flex-col gap-[10px]">
         {items.map((item) => {
           const post = bar?.posts[item.id]
-          const label = item.prompt
-            ? item.prompt.slice(0, 120)
-            : item.modelLabel
           return (
             <CommunityPost
               key={item.id}
@@ -259,24 +256,6 @@ export function CommunityFeed({
               post={post ?? null}
               onSignal={(s) => setSignal(item.id, s)}
               commentCount={comments[item.id]?.count ?? 0}
-              menu={
-                <PostMenu
-                  postId={item.id}
-                  label={label}
-                  video={item.kind === "video"}
-                  mine={item.mine}
-                  watchLater={watchLater.has(item.id)}
-                  onWatchLater={(saved) => savedLater(item.id, saved)}
-                  onPlaylistChange={(playlistId, inList) => {
-                    if (
-                      !inList &&
-                      list?.kind === "playlist" &&
-                      list.id === playlistId
-                    )
-                      remove(item.id)
-                  }}
-                />
-              }
             />
           )
         })}
@@ -319,6 +298,29 @@ export function CommunityFeed({
         post={open ? (bar?.posts[open.id] ?? null) : null}
         onSignal={(s) => open && setSignal(open.id, s)}
         onCommentCount={(n) => open && setCommentCount(open.id, n)}
+        saved={
+          // S627 (Chris): the row's three dots are gone - the News Feed has
+          // none. What only that menu offered is here, as links in the window.
+          open ? (
+            <PostMenu
+              links
+              postId={open.id}
+              label={open.prompt ? open.prompt.slice(0, 120) : open.modelLabel}
+              video={open.kind === "video"}
+              mine={open.mine}
+              watchLater={watchLater.has(open.id)}
+              onWatchLater={(saved) => savedLater(open.id, saved)}
+              onPlaylistChange={(playlistId, inList) => {
+                if (
+                  !inList &&
+                  list?.kind === "playlist" &&
+                  list.id === playlistId
+                )
+                  remove(open.id)
+              }}
+            />
+          ) : null
+        }
         returnFocus={opener}
         onClose={() => setOpenId(null)}
         onCaption={setCaption}

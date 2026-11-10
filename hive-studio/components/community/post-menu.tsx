@@ -44,7 +44,12 @@ import { ShareButtons, shareLink } from "./share-buttons"
     without Download or Add to queue: Save to Watch Later, Save to playlist,
     Share - and on a picture, Share alone (nothing to watch later) - plus
     Report for anyone but the creator (a derogatory picture or video). The
-    lists are on the Library menu (Watch Later, Playlists). */
+    lists are on the Library menu (Watch Later, Playlists).
+    `links` (Chris, S627: "the three dots ... does not match the news feed"):
+    the feed row no longer carries the three dots. In the post window the two
+    things only this menu offered - Save to Watch Later and Save to playlist,
+    on a video - are plain links in the window's own line of links; Share and
+    Report are already there. */
 export function PostMenu({
   postId,
   label,
@@ -53,7 +58,10 @@ export function PostMenu({
   watchLater,
   onWatchLater,
   onPlaylistChange,
+  links = false,
 }: {
+  /** Draw Save to Watch Later / Save to playlist as links, with no three dots. */
+  links?: boolean
   postId: string
   /** What the post is, for the share text and the dialogs. */
   label: string
@@ -87,6 +95,39 @@ export function PostMenu({
       )
     })
   }
+
+  if (links)
+    return video ? (
+      <>
+        <button
+          type="button"
+          onClick={toggleWatchLater}
+          disabled={pending}
+          className="hover:underline"
+        >
+          {watchLater ? "Remove from Watch Later" : "Save to Watch Later"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setDialog("playlist")}
+          className="hover:underline"
+        >
+          Save to playlist
+        </button>
+        {status ? (
+          <span role="status" className="text-[#333]">
+            {status}
+          </span>
+        ) : null}
+        {dialog === "playlist" ? (
+          <PlaylistDialog
+            postId={postId}
+            onClose={() => setDialog(null)}
+            onChange={onPlaylistChange}
+          />
+        ) : null}
+      </>
+    ) : null
 
   return (
     <div className="relative ml-auto flex items-center gap-2">

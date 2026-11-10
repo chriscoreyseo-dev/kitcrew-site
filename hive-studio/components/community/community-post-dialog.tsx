@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { useEffect, useRef, useState } from "react"
-import type { CSSProperties, RefObject } from "react"
+import type { CSSProperties, ReactNode, RefObject } from "react"
 import { AudioLines, CircleX } from "lucide-react"
 
 import { ShareDialog } from "@/components/studio/share-dialog"
@@ -190,7 +190,11 @@ export function CommunityPostDialog({
   post = null,
   onSignal,
   onCommentCount,
+  saved = null,
 }: {
+  /** Save to Watch Later / Save to playlist, as links (S627: they left the
+      feed row's three dots for the window's line of links). */
+  saved?: ReactNode
   item: PublicGenerationDTO | null
   /** "comment": the cursor starts in the comment box (Comment (n)). */
   focus?: OpenFocus
@@ -231,6 +235,7 @@ export function CommunityPostDialog({
           post={post}
           onSignal={onSignal}
           onCommentCount={onCommentCount}
+          saved={saved}
           open={item !== null}
           returnFocus={returnFocus}
           onCaption={onCaption}
@@ -251,11 +256,13 @@ function PostWindow({
   post,
   onSignal,
   onCommentCount,
+  saved,
   open,
   returnFocus,
   onCaption,
   onRemoved,
 }: {
+  saved: ReactNode
   item: PublicGenerationDTO
   focus: OpenFocus
   avatar: { pic: string; url: string } | null
@@ -457,6 +464,7 @@ function PostWindow({
                 {copied ? "Copied" : "Copy prompt"}
               </button>
             ) : null}
+            {saved}
             {item.mine && url ? (
               <button
                 type="button"

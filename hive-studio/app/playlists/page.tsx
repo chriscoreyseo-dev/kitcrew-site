@@ -66,8 +66,8 @@ export default async function PlaylistsPage() {
           ))}
           {lists.length ? null : (
             <li className="text-sm text-muted-foreground">
-              No playlists yet. Open a post&apos;s three-dot menu in the Media
-              Feed and choose Save to playlist.
+              No playlists yet. Open a video in the Media Feed and choose Save
+              to playlist.
             </li>
           )}
           <li>
