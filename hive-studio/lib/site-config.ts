@@ -11,7 +11,6 @@ export const NAV: NavItem[] = [
   { href: "/image", label: "Image", surface: "image" },
   { href: "/video", label: "Video", surface: "video" },
   { href: "/audio", label: "Audio", surface: "audio" },
-  { href: "/effects", label: "Effects" },
   { href: "/community", label: "Community" },
   { href: "/pricing", label: "Pricing" },
 ]
