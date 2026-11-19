@@ -78,7 +78,7 @@
   [data-slot="button"][data-variant="default"],
 :root[data-theme="markethive-light"] [data-mh="large-button"] {
   border: 1px solid #121c31;
-  border-radius: 4px;
+  border-radius: var(--mh-r-btn); /* S660-DRL-01: 8px buttons */
   background: #6d83b4;
   color: #ffffff;
   font-family: "Tahoma", "Poppins", Geneva, sans-serif;
@@ -111,7 +111,7 @@
 :root[data-theme="markethive-light"]
   [data-slot="button"][data-variant="secondary"] {
   border: 1px solid #121c31;
-  border-radius: 4px;
+  border-radius: var(--mh-r-btn);
   background: #ffffff;
   color: #1a1a2e;
   font-family: "Tahoma", "Poppins", Geneva, sans-serif;
@@ -126,12 +126,13 @@
   color: #1a1a2e;
 }
 
-/* ── Dropdown triggers: the Blog Feed toolbar's .bh-btn ──────────────────── */
+/* ── Dropdown triggers: the Settings field (S660-DRL-02 #1, Chris: "Settings
+      look everywhere" - 8px, #c9cfe0 line, gold focus; was the toolbar's .bh-btn) */
 :root[data-theme="markethive-light"] .q-select-trigger,
 :root[data-theme="markethive-light"] .q-dropdown-trigger {
-  border: 2px solid #000000;
-  border-radius: 4px;
-  background: #e9eaf3;
+  border: 1px solid var(--mh-field-line);
+  border-radius: var(--mh-field-r);
+  background: #ffffff;
   color: #1a1a2e;
   font-family: "Tahoma", "Poppins", Geneva, sans-serif;
   font-size: 13px;
@@ -140,7 +141,13 @@
 }
 :root[data-theme="markethive-light"] .q-select-trigger:hover,
 :root[data-theme="markethive-light"] .q-dropdown-trigger:hover {
-  background: #dcdef0;
+  background: #f3f5f9;
+}
+:root[data-theme="markethive-light"] .q-select-trigger:focus-visible,
+:root[data-theme="markethive-light"] .q-dropdown-trigger:focus-visible {
+  outline: none;
+  border-color: var(--mh-field-focus-line);
+  box-shadow: var(--mh-field-focus-ring);
 }
 :root[data-theme="markethive-light"] .q-select-trigger .q-select-value {
   font-weight: 700;
@@ -154,8 +161,9 @@
 
 /* ── Dropdown menus: .bh-dd-menu / .bh-dd-item ───────────────────────────── */
 :root[data-theme="markethive-light"] .q-dropdown-content {
-  border: 2px solid #000000;
-  border-radius: 4px;
+  border: 1px solid var(--mh-line);
+  border-radius: var(--mh-r-inner);
+  overflow: hidden;
   background: #ffffff;
   color: #1a1a2e;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
@@ -183,21 +191,23 @@
   color: #c62828;
 }
 
-/* ── Inputs: white, light border, blue focus ─────────────────────────────── */
+/* ── Inputs: the Settings field (S660) ─────────────────────────────── */
 :root[data-theme="markethive-light"] textarea,
 :root[data-theme="markethive-light"] input[type="text"],
 :root[data-theme="markethive-light"] input[type="search"],
 :root[data-theme="markethive-light"] input[type="email"],
 :root[data-theme="markethive-light"] input[type="number"],
 :root[data-theme="markethive-light"] input:not([type]) {
-  border-color: #a1b1d1;
+  border-color: var(--mh-field-line); /* S660-DRL-01 #3: the Settings field */
+  border-radius: var(--mh-field-r);
   background-color: #ffffff;
   color: #1a1a2e;
 }
 :root[data-theme="markethive-light"] textarea:focus-visible,
 :root[data-theme="markethive-light"] input:focus-visible {
-  border-color: #6d83b4;
-  box-shadow: 0 0 0 2px rgba(109, 131, 180, 0.35);
+  outline: none;
+  border-color: var(--mh-field-focus-line);
+  box-shadow: var(--mh-field-focus-ring);
 }
 
 /* ── Page mode: inside MarketHive's /hivestudio page, MarketHive's toolbar is
@@ -262,7 +272,9 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
   background-color: #ffffffc2;
 }
 :root[data-theme="markethive-light"] .mh-post-popup {
-  border-color: #ededed;
+  border-color: var(--mh-line); /* S660: the house window, as MarketHive's post window */
+  border-radius: var(--mh-r);
+  box-shadow: var(--mh-shadow-window);
   background-color: #ffffff;
   color: #212529;
 }
@@ -273,8 +285,9 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
       Quanta glass: a translucent fill plus a 40px blur, which reads grey over
       MarketHive's white. ───────────────────────────────────────────────────── */
 :root[data-theme="markethive-light"] .q-modal {
-  border: 1px solid #121c31;
-  border-radius: 4px;
+  border: 1px solid var(--mh-line); /* S660: the house window */
+  border-radius: var(--mh-r);
+  box-shadow: var(--mh-shadow-window);
   background-color: #ffffff;
   color: #1a1a2e;
   backdrop-filter: none;
@@ -288,14 +301,14 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
   color: #383c43;
 }
 :root[data-theme="markethive-light"] .q-modal-search {
-  border: 1px solid #a1b1d1;
-  border-radius: 4px;
+  border: 1px solid var(--mh-field-line);
+  border-radius: var(--mh-field-r);
   background-color: #ffffff;
   color: #1a1a2e;
 }
 :root[data-theme="markethive-light"] .q-modal-search:focus-within {
-  border-color: #6d83b4;
-  box-shadow: 0 0 0 2px rgba(109, 131, 180, 0.35);
+  border-color: var(--mh-field-focus-line);
+  box-shadow: var(--mh-field-focus-ring);
 }
 :root[data-theme="markethive-light"] .q-modal-search input,
 :root[data-theme="markethive-light"] .q-modal-search input:focus-visible {
@@ -304,7 +317,8 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
   background: transparent;
 }
 :root[data-theme="markethive-light"] .studio-detail-panel {
-  border-color: #a1b1d1;
+  border-color: var(--mh-line); /* S660: the house card edge */
+  border-radius: var(--mh-r);
   background-color: #ffffff;
   color: #1a1a2e;
   backdrop-filter: none;
@@ -317,17 +331,17 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
       GENERATE as LARGE.BUTTON - no neon gradient, no glow. ─────────────── */
 :root[data-theme="markethive-light"] .q-prompt-box-dock,
 :root[data-theme="markethive-light"] .q-prompt-box-mode-rail {
-  border: 1px solid #a1b1d1;
-  border-radius: 4px;
+  border: 1px solid var(--mh-line); /* S660: the house card */
+  border-radius: var(--mh-r);
   background-color: #ffffff;
-  box-shadow: 0 2px 6px rgba(18, 28, 49, 0.12);
+  box-shadow: var(--mh-shadow-card);
 }
 :root[data-theme="markethive-light"] .q-prompt-box-dock-surface {
-  border-radius: 4px;
+  border-radius: var(--mh-r-inner);
   background-color: #ffffff;
 }
 :root[data-theme="markethive-light"] .q-prompt-box-mode {
-  border-radius: 4px;
+  border-radius: var(--mh-r-btn);
   color: #1a1a2e;
   font-family: "Tahoma", "Poppins", Geneva, sans-serif;
   font-weight: 700;
@@ -339,7 +353,7 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
 :root[data-theme="markethive-light"] .q-prompt-box-mode-active,
 :root[data-theme="markethive-light"] .q-prompt-box-mode-active:hover {
   border: 1px solid #121c31;
-  border-radius: 4px;
+  border-radius: var(--mh-r-btn);
   background-color: #6d83b4;
   color: #ffffff;
 }
@@ -348,9 +362,10 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
   font-family: "Tahoma", "Poppins", Geneva, sans-serif;
 }
 :root[data-theme="markethive-light"] .q-prompt-box-pill {
-  border: 2px solid #000000;
-  border-radius: 4px;
-  background-color: #e9eaf3;
+  /* S660-DRL-02 #1: the model / ratio pickers are dropdowns - the Settings field */
+  border: 1px solid var(--mh-field-line);
+  border-radius: var(--mh-field-r);
+  background-color: #ffffff;
   background-image: none;
   color: #1a1a2e;
   font-family: "Tahoma", "Poppins", Geneva, sans-serif;
@@ -358,7 +373,7 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
 }
 :root[data-theme="markethive-light"] .q-prompt-box-pill:hover {
   background-image: none;
-  background-color: #dcdef0;
+  background-color: #f3f5f9;
 }
 :root[data-theme="markethive-light"] .q-prompt-box-pill-icon-only {
   border-width: 1px;
@@ -366,8 +381,8 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
   background-color: #ffffff;
 }
 :root[data-theme="markethive-light"] .q-prompt-box-upload {
-  border: 1px solid #a1b1d1;
-  border-radius: 4px;
+  border: 1px solid var(--mh-line);
+  border-radius: var(--mh-r-inner);
   background-color: #ffffff;
   background-image: none;
 }
@@ -386,7 +401,7 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
 }
 :root[data-theme="markethive-light"] .q-prompt-box-generate {
   border: 1px solid #121c31;
-  border-radius: 4px;
+  border-radius: var(--mh-r-btn);
   background-color: #6d83b4;
   background-image: none;
   color: #ffffff;
@@ -407,4 +422,74 @@ html[data-mh-chrome="page"][data-mh-fit="content"]
 }
 :root[data-theme="markethive-light"] .q-prompt-box-generate-old {
   color: rgba(255, 255, 255, 0.55);
+}
+
+/* â”€â”€ House corners and scroll bar (S660, Chris: "one design reference, in code") â”€â”€
+      MarketHive's css/mh_ui.css is the reference: cards, panels and windows 10px,
+      the boxes, buttons and fields inside them 8px (theme.css --mh-*). Tailwind's
+      larger corners (xl and up, the studio's cards and panels) take the card corner
+      and rounded-md the inner corner; --radius (8px) already drives rounded-lg and
+      .studio-tile. Small badges (rounded, rounded-sm) keep their own corner. â”€â”€â”€â”€â”€ */
+:root[data-theme="markethive-light"] :is(.rounded-xl, .rounded-2xl, .rounded-3xl):not(textarea, input, select) {
+  border-radius: var(--mh-r);
+}
+:root[data-theme="markethive-light"] .rounded-md:not(textarea, input, select) {
+  border-radius: var(--mh-r-inner);
+}
+/* Every button variant takes the ruled 8px corner; round icon buttons stay round. */
+:root[data-theme="markethive-light"] :is([data-slot="button"], button[data-variant]):not(.rounded-full) {
+  border-radius: var(--mh-r-btn);
+}
+/* The scroll bar MarketHive's News Feed panels draw: a thin rounded thumb, no
+   arrows, shown only when the content is longer than its box. */
+:root[data-theme="markethive-light"]::-webkit-scrollbar,
+:root[data-theme="markethive-light"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+:root[data-theme="markethive-light"]::-webkit-scrollbar-button,
+:root[data-theme="markethive-light"] ::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+:root[data-theme="markethive-light"]::-webkit-scrollbar-track,
+:root[data-theme="markethive-light"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+:root[data-theme="markethive-light"]::-webkit-scrollbar-thumb,
+:root[data-theme="markethive-light"] ::-webkit-scrollbar-thumb {
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  background: var(--mh-scroll-thumb);
+}
+:root[data-theme="markethive-light"]::-webkit-scrollbar-thumb:hover,
+:root[data-theme="markethive-light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--mh-scroll-thumb-hover);
+}
+@supports not selector(::-webkit-scrollbar) {
+  :root[data-theme="markethive-light"],
+  :root[data-theme="markethive-light"] * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--mh-scroll-thumb) transparent;
+  }
+}
+
+/* The close mark: MarketHive's 27px house mark (S660-DRL-01 #2) on every dialog
+   and panel close in MarketHive mode, in place of Quanta's round disc and the
+   lucide X. The icon inside steps aside; the button keeps its place and label. */
+:root[data-theme="markethive-light"] .q-close,
+:root[data-theme="markethive-light"] [data-mh="close"] {
+  width: 27px;
+  min-width: 27px;
+  height: 27px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent url(/brand/mh-close.png) center / 27px 27px no-repeat;
+  box-shadow: none;
+}
+:root[data-theme="markethive-light"] .q-close > svg,
+:root[data-theme="markethive-light"] [data-mh="close"] > svg {
+  display: none;
 }

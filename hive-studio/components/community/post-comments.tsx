@@ -168,7 +168,7 @@ export function PostComments({
               rows={3}
               placeholder="Write a comment..."
               aria-label="Write a comment"
-              className="block w-full resize-y border border-[#aab3c9] bg-white py-2 pr-[46px] pl-2 text-[15px] text-foreground outline-none placeholder:text-[#666] focus-visible:border-[#5f78ab]"
+              className="block w-full resize-y rounded-[8px] border border-[#c9cfe0] bg-white py-2 pr-[46px] pl-2 text-[15px] text-foreground outline-none placeholder:text-[#666] focus-visible:border-[#5f78ab]"
             />
             <DictateButton
               ref={mic}
@@ -181,7 +181,7 @@ export function PostComments({
           <button
             type="submit"
             disabled={!text.trim() || pending}
-            className="inline-flex h-[21px] items-center gap-1 border border-[#4e6aa3] bg-[#6d83b4] px-3 text-[12px] font-bold text-white hover:bg-[#5c72a3] disabled:opacity-60"
+            className="inline-flex h-[21px] items-center gap-1 rounded-[8px] border border-[#121c31] bg-[#6d83b4] px-3 text-[12px] font-bold text-white hover:bg-[#5c72a3] disabled:opacity-60"
           >
             {pending ? (
               <Loader2 className="size-3 animate-spin" aria-hidden />

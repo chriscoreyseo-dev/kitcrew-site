@@ -25,7 +25,7 @@ export default async function PlaylistsPage() {
       return []
     })
   const row =
-    "flex items-center gap-3 border border-[#dfdfdf] bg-card px-3 py-3 text-[15px] text-[#2f4370]"
+    "flex items-center gap-3 rounded-[10px] border border-[rgba(18,28,49,0.14)] bg-card px-3 py-3 text-[15px] text-[#2f4370]"
 
   return (
     <Page

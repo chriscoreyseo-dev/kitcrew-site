@@ -97,7 +97,25 @@
   --chart-3: #a1b1d1;
   --chart-4: #e9bc47;
   --chart-5: #d39725;
-  --radius: 4px;
+  /* S660 (Chris, "one design reference"): MarketHive's house pieces, the same
+     tokens as MarketHive's css/mh_ui.css. Cards, panels and windows take
+     --mh-r (10px); boxes inside them, buttons and fields take 8px
+     (S660-DRL-01: buttons 8px; fields the Settings field). --radius is the
+     8px inner corner, so every shadcn rounded-lg piece follows it. */
+  --radius: 8px;
+  --mh-r: 10px;
+  --mh-r-inner: 8px;
+  --mh-r-btn: 8px;
+  --mh-line: rgba(18, 28, 49, 0.14);
+  --mh-line-soft: rgba(18, 28, 49, 0.08);
+  --mh-shadow-card: 0 22px 50px -36px rgba(18, 28, 49, 0.4);
+  --mh-shadow-window: 0 26px 60px -26px rgba(18, 28, 49, 0.5);
+  --mh-field-line: #c9cfe0;
+  --mh-field-r: 8px;
+  --mh-field-focus-line: #d39725;
+  --mh-field-focus-ring: 0 0 0 3px rgba(233, 188, 71, 0.35);
+  --mh-scroll-thumb: #9aa3bd;
+  --mh-scroll-thumb-hover: #2f4370;
   --sidebar: #ffffff;
   --sidebar-foreground: #1a1a2e;
   --sidebar-primary: #6d83b4;

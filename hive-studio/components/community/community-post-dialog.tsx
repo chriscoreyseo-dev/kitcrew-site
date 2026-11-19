@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { useEffect, useRef, useState } from "react"
 import type { CSSProperties, ReactNode, RefObject } from "react"
-import { AudioLines, CircleX } from "lucide-react"
+import { AudioLines } from "lucide-react"
 
 import { ShareDialog } from "@/components/studio/share-dialog"
 import { publishGenerationAction } from "@/generation/community-actions"
@@ -415,7 +415,7 @@ function PostWindow({
             href={link || `/g/${item.id}`}
             target="_blank"
             rel="noopener"
-            className="block w-[72%] min-w-0 truncate border border-[#dfdfdf] bg-[#f1f3f4] px-[10px] pt-[2px] pb-[4px] text-[12px] font-bold text-[#7e6a81] no-underline"
+            className="block w-[72%] min-w-0 truncate rounded-[8px] border border-[rgba(18,28,49,0.14)] bg-[#f1f3f4] px-[10px] pt-[2px] pb-[4px] text-[12px] font-bold text-[#7e6a81] no-underline"
           >
             {link || `/g/${item.id}`}
           </a>
@@ -423,7 +423,8 @@ function PostWindow({
             aria-label="Close"
             className="ml-auto shrink-0 rounded-full text-[#333] hover:text-black focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
-            <CircleX className="size-[27px]" strokeWidth={1.4} aria-hidden />
+            {/* S660: MarketHive's own 27px close mark (images/floater-newclose-btn.png), not a drawn copy */}
+            <img src="/brand/mh-close.png" alt="" width={27} height={27} className="block size-[27px]" aria-hidden />
           </DialogPrimitive.Close>
         </div>
 
@@ -437,12 +438,12 @@ function PostWindow({
               <img
                 src={avatar.pic}
                 alt=""
-                className="size-[50px] shrink-0 border border-black object-cover"
+                className="size-[50px] shrink-0 rounded-[8px] border border-[rgba(18,28,49,0.14)] object-cover"
               />
             ) : (
               <span
                 aria-hidden
-                className="flex size-[50px] shrink-0 items-center justify-center border border-black bg-[#dfe3ee] text-lg font-semibold text-[#104980]"
+                className="flex size-[50px] shrink-0 items-center justify-center rounded-[8px] border border-[rgba(18,28,49,0.14)] bg-[#dfe3ee] text-lg font-semibold text-[#104980]"
               >
                 {item.author.slice(0, 1).toUpperCase()}
               </span>
@@ -487,7 +488,7 @@ function PostWindow({
                     aria-label={`Picture ${i + 1} of ${item.urls.length}`}
                     aria-pressed={i === index}
                     onClick={() => setIndex(i)}
-                    className="size-16 overflow-hidden border border-[#dfdfdf] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-pressed:border-2 aria-pressed:border-[#6d83b4]"
+                    className="size-16 overflow-hidden rounded-[8px] border border-[rgba(18,28,49,0.14)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-pressed:border-2 aria-pressed:border-[#6d83b4]"
                   >
                     {item.kind === "image" ? (
                       <img
@@ -593,7 +594,7 @@ function PostWindow({
                   <h3 className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
                     Prompt
                   </h3>
-                  <p className="border border-[#dfdfdf] bg-[#f5f5f5] p-3 text-[15px] leading-relaxed break-words whitespace-pre-wrap">
+                  <p className="rounded-[8px] border border-[rgba(18,28,49,0.08)] bg-[#f5f5f5] p-3 text-[15px] leading-relaxed break-words whitespace-pre-wrap">
                     {item.prompt}
                   </p>
                 </section>

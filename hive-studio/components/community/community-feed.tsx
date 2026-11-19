@@ -208,7 +208,7 @@ export function CommunityFeed({
       {notice ? (
         <p
           role="status"
-          className="border border-[#dfdfdf] bg-[#f5f5f5] px-3 py-2 text-sm text-[#2f4370]"
+          className="rounded-[8px] border border-[rgba(18,28,49,0.14)] bg-[#f5f5f5] px-3 py-2 text-sm text-[#2f4370]"
         >
           {notice}
         </p>

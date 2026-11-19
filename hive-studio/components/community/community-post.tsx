@@ -19,11 +19,15 @@ import { opensInPlace, PostBottomRow } from "./post-bottom-row"
     padding, a 50x50 photo with a 1px black border, the name at 16px #104980,
     the post box #f7f7f7 / 1px #e4e4e4 / 7px 10px with 18px text, the first
     picture 329x205 cropped to fill (18.25em x 11.375em at 18px) with the text
-    beside it (padding 7px 12px). Tahoma. */
+    beside it (padding 7px 12px). Tahoma.
+    S660 (Chris: "old sharp corner builds"): the News Feed itself now draws
+    these rounded (MarketHive css/inside_s642.css + css/mh_ui.css): the row
+    10px with the house hairline, the post box, picture and photo 8px with the
+    soft hairline. Same sizes, same padding. */
 const NEWSFEED = {
-  border: "#dfdfdf",
+  border: "rgba(18, 28, 49, 0.14)",
   boxBg: "#f7f7f7",
-  boxBorder: "#e4e4e4",
+  boxBorder: "rgba(18, 28, 49, 0.08)",
   imageW: 329,
   imageH: 205,
   font: "Tahoma, 'Poppins', Geneva, sans-serif",
@@ -108,7 +112,7 @@ export function CommunityPost({
       data-slot="media-feed-post"
       onClick={openFromRow}
       className={cn(
-        "flex w-full items-start gap-[10px] border bg-card p-[10px]",
+        "flex w-full items-start gap-[10px] rounded-[10px] border bg-card p-[10px]",
         onOpen && "cursor-pointer"
       )}
       style={{ borderColor: NEWSFEED.border, fontFamily: NEWSFEED.font }}
@@ -152,7 +156,7 @@ export function CommunityPost({
         </header>
 
         <div
-          className="mt-[7px] flex flex-col border p-[7px_10px] text-[18px] text-[#352d2d] sm:flex-row sm:items-start"
+          className="mt-[7px] flex flex-col rounded-[8px] border p-[7px_10px] text-[18px] text-[#352d2d] sm:flex-row sm:items-start"
           style={{
             backgroundColor: NEWSFEED.boxBg,
             borderColor: NEWSFEED.boxBorder,
@@ -164,7 +168,7 @@ export function CommunityPost({
             onClick={open}
             aria-haspopup={onOpen ? "dialog" : undefined}
             aria-label={`Open: ${label}`}
-            className="relative block shrink-0 overflow-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className="relative block shrink-0 overflow-hidden rounded-[8px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             style={{
               width: NEWSFEED.imageW,
               height: NEWSFEED.imageH,
@@ -226,12 +230,12 @@ function Photo({ pic, name }: { pic: string; name: string }) {
     <img
       src={pic}
       alt=""
-      className="size-[50px] shrink-0 border border-black object-cover"
+      className="size-[50px] shrink-0 rounded-[8px] border border-[rgba(18,28,49,0.14)] object-cover"
     />
   ) : (
     <span
       aria-hidden
-      className="flex size-[50px] shrink-0 items-center justify-center border border-black bg-[#dfe3ee] text-lg font-semibold text-[#104980]"
+      className="flex size-[50px] shrink-0 items-center justify-center rounded-[8px] border border-[rgba(18,28,49,0.14)] bg-[#dfe3ee] text-lg font-semibold text-[#104980]"
     >
       {name.slice(0, 1).toUpperCase()}
     </span>

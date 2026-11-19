@@ -144,7 +144,7 @@ export function GenerationDetailModal({
               <span className="text-sm font-semibold">Generation</span>
               <DialogPrimitive.Close
                 render={
-                  <Button variant="ghost" size="icon-sm" aria-label="Close" />
+                  <Button variant="ghost" size="icon-sm" aria-label="Close" data-mh="close" />
                 }
               >
                 <X />
