@@ -14,7 +14,7 @@ import type { PlacedPart } from "@/lib/client-events"
 import type { PostComments as Summary } from "@/lib/comments"
 import type { PublicGenerationDTO } from "@/lib/community"
 import type { FeedBar, PostBar } from "@/lib/community-feed"
-import { recreateHref, remixHref } from "@/lib/community-links"
+import { postRemixHref, remixHref } from "@/lib/community-links"
 import type { MediaSignal } from "@/lib/markethive/media"
 import { popupPlace } from "@/lib/media-feed-frame"
 import type { Visible } from "@/lib/media-feed-frame"
@@ -522,8 +522,12 @@ function PostWindow({
             data-slot="post-popup-actions"
             className="mt-[6px] flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-[#3b5998]"
           >
-            <Link href={recreateHref(item)} className="hover:underline">
-              Recreate
+            <Link
+              href={postRemixHref(item)}
+              prefetch={false}
+              className="hover:underline"
+            >
+              Remix
             </Link>
             {remix ? (
               <Link href={remix} className="hover:underline">

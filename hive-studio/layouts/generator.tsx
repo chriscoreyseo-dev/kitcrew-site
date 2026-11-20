@@ -8,6 +8,7 @@ import { useMemo, useState } from "react"
 import { AuthDialog } from "@/components/auth/auth-dialog"
 import { UpgradeDialog } from "@/components/billing/upgrade-dialog"
 import { AutoPublishSwitch } from "@/components/generator/auto-publish-switch"
+import { MediaFeedTemplates } from "@/components/generator/media-feed-templates"
 import { MediaSlots } from "@/components/generator/media-slots"
 import { ModelCard } from "@/components/generator/model-picker"
 import { RecipeHelper } from "@/components/generator/recipe-helper"
@@ -148,6 +149,7 @@ export function GeneratorLayout({
       {/* Control panel */}
       <aside className="flex w-full shrink-0 flex-col border-ink/[0.06] lg:w-[400px] lg:border-r">
         <div className="flex flex-1 flex-col gap-5 p-4 lg:overflow-y-auto [&>*]:shrink-0">
+          {surface === "image" ? <MediaFeedTemplates /> : null}
           {modes.length > 1 ? (
             <div
               role="tablist"

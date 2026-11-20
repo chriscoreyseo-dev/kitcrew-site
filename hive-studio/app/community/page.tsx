@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
 import { CommunityFeed } from "@/components/community/community-feed"
+import { MediaFeedTemplates } from "@/components/generator/media-feed-templates"
 import { Page } from "@/components/site/page"
 import { buttonVariants } from "@/components/ui/button"
 import { decodeCursor } from "@/lib/community"
@@ -11,8 +12,8 @@ import type { FeedView } from "@/lib/community-feed"
 import { currentUser } from "@/lib/session"
 
 export const metadata: Metadata = {
-  title: "Hive Community · Hive Studio",
-  description: "Images and videos published by Hive Studio creators.",
+  title: "Media Feed",
+  description: "Images and videos published by Media Feed creators.",
 }
 
 async function loadFeed(cursor: string | null): Promise<FeedView> {
@@ -43,8 +44,8 @@ export default async function CommunityPage({
 
   return (
     <Page
-      title="Hive Community"
-      subtitle="Fresh images and videos published by creators. Open one to see the prompt and recreate it."
+      title="Media Feed"
+      subtitle="Explore published creations or remix one in your own draft."
       width="wide"
       pageModeTitle={false}
       actions={
@@ -58,6 +59,9 @@ export default async function CommunityPage({
         ) : null
       }
     >
+      <div className="mb-4">
+        <MediaFeedTemplates />
+      </div>
       {feed.items.length ? (
         <CommunityFeed
           key={cursor ?? "newest"}

@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { BRAND } from "@/lib/brand"
+import { productName } from "@/lib/brand"
 
 export function AuthDialog({
   open,
@@ -29,7 +29,7 @@ export function AuthDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="xs">
         <DialogHeader>
-          <DialogTitle>{`Sign in to ${BRAND.name}`}</DialogTitle>
+          <DialogTitle>{`Sign in to ${productName(mode)}`}</DialogTitle>
           <DialogDescription>
             {reason ??
               (mode === "markethive"

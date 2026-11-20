@@ -1,6 +1,12 @@
 import { ObjectId } from "mongodb"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { MODELS, parseSettings } from "@/generation/catalog"
+import { postRemixHref } from "@/lib/community-links"
+import {
+  MEDIA_FEED_TEMPLATES,
+  TEMPLATE_MODEL,
+} from "@/lib/media-feed-templates"
 import type { GenerationDoc } from "@/lib/generations/model"
 
 import { fakeDb } from "./fakes/mongo"
@@ -23,6 +29,8 @@ vi.mock("@/lib/storage/r2", () => ({
   deleteFromR2: async () => undefined,
 }))
 
+vi.mock("@/layouts/generator", () => ({ GeneratorLayout: () => null }))
+const { GeneratorPage } = await import("@/app/generator-page")
 const actions = await import("@/generation/community-actions")
 const community = await import("@/lib/community")
 
@@ -82,6 +90,96 @@ beforeEach(() => {
   void h.db
     .collection("users")
     .insertOne({ _id: OTHER, email: "other@example.com" })
+})
+
+describe("Media Feed drafts", () => {
+  it.each(MEDIA_FEED_TEMPLATES)(
+    "opens $title as an editable image draft",
+    async (template) => {
+      const page = await GeneratorPage({
+        surface: "image",
+        searchParams: Promise.resolve({ template: template.slug }),
+      })
+      const init = page.props.init
+      expect(page.key).toBe(`image:${template.slug}`)
+      expect(init).toEqual({
+        modelId: TEMPLATE_MODEL,
+        prompt: template.prompt,
+        settings: { aspectRatio: template.aspectRatio },
+      })
+      const model = MODELS.find((m) => m.id === init.modelId)!
+      expect(model.surface).toBe("image")
+      expect(parseSettings(model, init.settings).aspectRatio).toBe(
+        template.aspectRatio
+      )
+    }
+  )
+
+  it.each([
+    ["image", "z-image-turbo"],
+    ["video", "seedance-2.5"],
+  ] as const)(
+    "remixes a public %s without copying private inputs or writing a generation",
+    async (surface, modelId) => {
+      const post = await seedGeneration({
+        surface,
+        modelId,
+        isPublic: true,
+        publishedAt: new Date(),
+      })
+      const url = new URL(
+        postRemixHref({ surface, id: post._id.toHexString() }),
+        "https://example.test"
+      )
+      const page = await GeneratorPage({
+        surface,
+        searchParams: Promise.resolve(Object.fromEntries(url.searchParams)),
+      })
+      expect(url.pathname).toBe("/" + surface)
+      expect(url.searchParams.size).toBe(1)
+      const model = MODELS.find((m) => m.id === modelId)!
+      expect(page.props.init).toEqual({
+        modelId,
+        prompt: post.prompt,
+        settings: parseSettings(model, { aspectRatio: "16:9" }),
+      })
+      expect(h.db.collection("generations").docs).toHaveLength(1)
+    }
+  )
+
+  it("rejects unpublished sources, cross-surface links and unknown templates", async () => {
+    const hidden = await seedGeneration()
+    const shared = await seedGeneration({
+      isPublic: true,
+      publishedAt: new Date(),
+    })
+    for (const params of [
+      { from: hidden._id.toHexString() },
+      { template: "missing" },
+      { from: shared._id.toHexString() },
+    ]) {
+      const surface =
+        params.from === shared._id.toHexString() ? "video" : "image"
+      await expect(
+        GeneratorPage({ surface, searchParams: Promise.resolve(params) })
+      ).rejects.toThrow(/404/)
+    }
+  })
+
+  it("keeps an older prompt usable after a model option changes", async () => {
+    const post = await seedGeneration({
+      isPublic: true,
+      publishedAt: new Date(),
+      settings: { aspectRatio: "retired" },
+    })
+    const page = await GeneratorPage({
+      surface: "image",
+      searchParams: Promise.resolve({ from: post._id.toHexString() }),
+    })
+    const model = MODELS.find((m) => m.id === post.modelId)!
+    expect(page.props.init.settings).toEqual(parseSettings(model, {}))
+    expect(page.props.init.prompt).toBe(post.prompt)
+  })
 })
 
 describe("publishGenerationAction", () => {

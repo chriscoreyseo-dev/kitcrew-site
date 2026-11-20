@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 import type { Page } from "@playwright/test"
+import { MongoClient, ObjectId } from "mongodb"
 
 /** markethive mode, end to end: the dashboard frames the studio, the handoff
     signs the member in, and every generation is paid and refunded through
@@ -28,6 +29,58 @@ async function generate(page: Page, prompt: string) {
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${MOCK}/_reset`)
+})
+
+test("Media Feed templates and Remix open editable drafts", async ({
+  page,
+}) => {
+  const mongo = await MongoClient.connect(
+    "mongodb://127.0.0.1:27117/?replicaSet=rs0e2e&directConnection=true"
+  )
+  const posts = mongo.db("e2e-markethive").collection("generations")
+  const id = new ObjectId()
+  const prompt = "A lighthouse reflected in a tidal pool."
+  try {
+    await posts.insertOne({
+      _id: id,
+      userId: new ObjectId(),
+      clientRequestId: id.toHexString(),
+      surface: "image",
+      modelId: "z-image-turbo",
+      modelLabel: "Z-Image Turbo",
+      prompt,
+      settings: { aspectRatio: "3:4" },
+      media: [],
+      status: "completed",
+      outputs: [{ kind: "image", url: "/favicon.ico" }],
+      isPublic: true,
+      createdAt: new Date(),
+      publishedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    await page.goto("/community")
+    await expect(page).toHaveTitle("Media Feed")
+    await expect(page.getByRole("link", { name: "Media Feed home" })).toHaveCount(1)
+    await page.getByRole("link", { name: "Capture page hero" }).click()
+    const editor = page.getByRole("textbox", { name: /Prompt/i }).first()
+    await expect(editor).toHaveValue(/signup page/)
+    await page.getByRole("link", { name: "Blog header" }).click()
+    await expect(editor).toHaveValue(/blog post/)
+    await editor.fill("My edited header")
+    await expect(editor).toHaveValue("My edited header")
+
+    await page.goto("/community")
+    const row = page.locator("article").filter({ hasText: prompt })
+    await row.getByRole("link", { name: "Remix", exact: true }).click()
+    await expect(page).toHaveURL(`/image?from=${id.toHexString()}`)
+    await expect(editor).toHaveValue(prompt)
+    await editor.fill("A different lighthouse")
+    expect((await posts.findOne({ _id: id }))?.prompt).toBe(prompt)
+    expect((await mockState(page)).charges).toEqual({})
+  } finally {
+    await posts.deleteOne({ _id: id })
+    await mongo.close()
+  }
 })
 
 test("the dashboard overlay frames the studio and the handoff signs the member in", async ({

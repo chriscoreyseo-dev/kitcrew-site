@@ -14,7 +14,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { getPublicGeneration, isPublicOwner } from "@/lib/community"
 import { env } from "@/lib/env"
 import type { PublicGenerationDTO } from "@/lib/community"
-import { recreateHref, remixHref } from "@/lib/community-links"
+import { postRemixHref, remixHref } from "@/lib/community-links"
 import { currentUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
@@ -40,7 +40,7 @@ function shortPrompt(prompt: string, max = 70) {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params
   const item = await load(id)
-  if (!item) return { title: "Not found · Hive Studio" }
+  if (!item) return { title: "Not found · Media Feed" }
   const base = env().APP_URL.replace(/\/$/, "")
   const pageUrl = `${base}/g/${item.id}`
   const title = `${item.title || shortPrompt(item.prompt) || item.modelLabel} · Markethive`
@@ -226,11 +226,11 @@ export default async function GenerationPage({ params }: Params) {
 
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href={recreateHref(item)}
+              href={postRemixHref(item)} prefetch={false}
               className={cn(buttonVariants({ size: "lg" }), "px-5")}
             >
               <Repeat2 aria-hidden />
-              Recreate
+              Remix
             </Link>
             {remixHref(item) ? (
               <Link

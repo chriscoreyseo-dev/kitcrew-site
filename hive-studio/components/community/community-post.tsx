@@ -5,6 +5,7 @@ import { useRef, type MouseEvent, type ReactNode } from "react"
 import { AudioLines } from "lucide-react"
 
 import type { PublicGenerationDTO } from "@/lib/community"
+import { postRemixHref } from "@/lib/community-links"
 import type { FeedBar, PostBar } from "@/lib/community-feed"
 import type { MediaSignal } from "@/lib/markethive/media"
 import { rowClickOpens } from "@/lib/media-feed-frame"
@@ -43,7 +44,7 @@ export type OpenFocus = "post" | "comment"
     news feed. It tells you how many comments there are."): a plain click on
     the picture, the text, Comment (n) or Permalink opens the post window,
     where they are. Every opener is a real /g/<id> link, so a middle or Ctrl
-    click still opens the share page. Recreate and the rest live in the
+    click still opens the share page. Remix opens the composer; photo recreation lives in the
     window. Chris, 2026-11-09: a plain click anywhere else on the row - the
     header's empty space, the post box around the text, the bottom row -
     opens the window too; the row's links and buttons keep their own click
@@ -148,6 +149,13 @@ export function CommunityPost({
               {bar}
             </div>
           ) : null}
+          <Link
+            href={postRemixHref(item)}
+            prefetch={false}
+            className="text-sm text-[#3b5998] hover:underline"
+          >
+            Remix
+          </Link>
           {menu}
         </header>
 

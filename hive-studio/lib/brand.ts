@@ -11,3 +11,7 @@ export const BRAND = {
   primaryText: "#141414",
   background: "#0b0b0c",
 } as const
+
+export function productName(mode: "markethive" | "standalone"): string {
+  return mode === "markethive" ? "Media Feed" : BRAND.name
+}

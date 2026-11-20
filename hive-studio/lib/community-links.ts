@@ -1,14 +1,10 @@
 import type { PublicGenerationDTO } from "@/lib/community"
 
-/** Opens the generator with this creation's model and prompt (Recreate). */
-export function recreateHref(
-  item: Pick<PublicGenerationDTO, "modelId" | "prompt" | "surface">
+/** Load the published settings at click time. The prompt stays out of the URL. */
+export function postRemixHref(
+  item: Pick<PublicGenerationDTO, "surface" | "id">
 ) {
-  const qs = new URLSearchParams({
-    model: item.modelId,
-    prompt: item.prompt.slice(0, 2000),
-  })
-  return `/${item.surface}?${qs.toString()}`
+  return `/${item.surface}?from=${encodeURIComponent(item.id)}`
 }
 
 /** Recreate with my photos (S611, Chris): this video becomes the motion source

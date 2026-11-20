@@ -1,10 +1,14 @@
 import { notFound } from "next/navigation"
 
-import { MODELS } from "@/generation/catalog"
+import { MODELS, parseSettings } from "@/generation/catalog"
 import type { MediaItem, Surface } from "@/generation/catalog"
 import { GeneratorLayout } from "@/layouts/generator"
 import { getPublicGeneration } from "@/lib/community"
 import { getActivePreset } from "@/lib/presets"
+import {
+  MEDIA_FEED_TEMPLATES,
+  TEMPLATE_MODEL,
+} from "@/lib/media-feed-templates"
 import { currentUser } from "@/lib/session"
 
 type Search = Record<string, string | string[] | undefined>
@@ -30,6 +34,56 @@ export async function GeneratorPage({
   const models = MODELS.filter((m) => m.surface === surface)
   if (!models.length) notFound()
   const params = await searchParams
+  // Template and public-post links are self-contained drafts. Resolve them
+  // before the legacy query options so mixed URLs cannot attach other media.
+  if (params.template !== undefined || params.from !== undefined) {
+    const template = MEDIA_FEED_TEMPLATES.find(
+      (t) => t.slug === one(params.template)
+    )
+    const from = one(params.from)
+    const [user, source] = await Promise.all([
+      currentUser(),
+      params.template === undefined && from ? getPublicGeneration(from) : null,
+    ])
+    let init
+    let draftKey
+    if (template && surface === "image") {
+      init = {
+        modelId: TEMPLATE_MODEL,
+        prompt: template.prompt,
+        settings: { aspectRatio: template.aspectRatio },
+      }
+      draftKey = template.slug
+    } else if (source && source.surface === surface) {
+      const original = models.find((m) => m.id === source.modelId)
+      const model = original ?? models[0]!
+      let settings = parseSettings(model, {})
+      if (original) {
+        // An older post can name an option the current catalog no longer offers.
+        try {
+          settings = parseSettings(model, source.settings)
+        } catch {
+          // Keep the current defaults and let the member edit them.
+        }
+      }
+      init = {
+        modelId: model.id,
+        prompt: source.prompt.slice(0, 5000),
+        settings,
+      }
+      draftKey = source.id
+    } else {
+      notFound()
+    }
+    return (
+      <GeneratorLayout
+        key={`${surface}:${draftKey}`}
+        surface={surface}
+        user={user ? { email: user.email } : null}
+        init={init}
+      />
+    )
+  }
   // The model that redraws a video's motion with the member's photos (Genjutsu).
   const motionModel =
     surface === "video"

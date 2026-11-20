@@ -2,7 +2,7 @@
 import Link from "next/link"
 
 import { MODELS } from "@/generation/catalog"
-import { BRAND } from "@/lib/brand"
+import { productName } from "@/lib/brand"
 import { balanceFor } from "@/lib/billing/wallet"
 import { NAV } from "@/lib/site-config"
 import { studioModeInfo } from "@/lib/mode-info"
@@ -19,6 +19,7 @@ import { UserMenu } from "./user-menu"
 export async function SiteHeader() {
   const user = await currentUser()
   const info = studioModeInfo()
+  const name = productName(info.mode)
   // markethive mode: credits are bought on MarketHive, in the top window.
   const upgrade =
     info.mode === "markethive"
@@ -60,7 +61,7 @@ export async function SiteHeader() {
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2"
-          aria-label={`${BRAND.name} home`}
+          aria-label={`${name} home`}
         >
           <img
             src="/brand/mark.svg"
@@ -71,7 +72,7 @@ export async function SiteHeader() {
             className="size-7"
           />
           <span className="font-heading text-base font-bold tracking-tight uppercase">
-            {BRAND.name}
+            {name}
           </span>
         </Link>
         <NavLinks items={items} />

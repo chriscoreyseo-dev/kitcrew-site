@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 
 import { GeneratorPage } from "@/app/generator-page"
 
-export const metadata: Metadata = { title: "Video · Hive Studio" }
+export const metadata: Metadata = { title: "Video · Media Feed" }
 
 export default function VideoPage({
   searchParams,
