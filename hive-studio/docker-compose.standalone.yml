@@ -1,0 +1,49 @@
+# studio.kitcrew.ai on a Docker host (the alternative to Vercel; D-059).
+# NOT deployed: the host is Chris's pick (new spend is his). Uses MongoDB Atlas
+# and Cloudflare R2, so this host keeps no state; scale by adding replicas.
+# Every SECRET is set by the operator in the host's env screen or a .env file
+# next to this one (never committed).
+services:
+  studio:
+    build: .
+    restart: unless-stopped
+    environment:
+      STUDIO_MODE: standalone
+      APP_URL: ${APP_URL:-https://studio.kitcrew.ai}
+      AUTH_URL: ${APP_URL:-https://studio.kitcrew.ai}
+      AUTH_SECRET: ${AUTH_SECRET}                   # SECRET
+      AUTH_RESEND_KEY: ${AUTH_RESEND_KEY}           # SECRET
+      EMAIL_FROM: ${EMAIL_FROM:-Hive Studio <login@kitcrew.ai>}
+      SIGNUP_BONUS_CREDITS: ${SIGNUP_BONUS_CREDITS:-0}
+      MONGODB_URI: ${MONGODB_URI}                   # SECRET (Atlas, replica set)
+      MONGODB_DB: ${MONGODB_DB:-hive-studio}
+      DB_INIT_AT_BOOT: "1"
+      HF_API_BASE_URL: ${HF_API_BASE_URL:-https://api.higgsfield.ai}
+      HF_CREDENTIALS: ${HF_CREDENTIALS}             # SECRET
+      HF_WEBHOOK_SECRET: ${HF_WEBHOOK_SECRET}       # SECRET
+      HF_WEBHOOK_BASE_URL: ${APP_URL:-https://studio.kitcrew.ai}
+      CREDIT_USD_VALUE: ${CREDIT_USD_VALUE:-0.01}
+      CREDIT_MARKUP: ${CREDIT_MARKUP:-1.5}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}       # SECRET
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET} # SECRET
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      STRIPE_PRICE_STARTER_MONTHLY: ${STRIPE_PRICE_STARTER_MONTHLY:-}
+      STRIPE_PRICE_STARTER_ANNUAL: ${STRIPE_PRICE_STARTER_ANNUAL:-}
+      STRIPE_PRICE_PLUS_MONTHLY: ${STRIPE_PRICE_PLUS_MONTHLY:-}
+      STRIPE_PRICE_PLUS_ANNUAL: ${STRIPE_PRICE_PLUS_ANNUAL:-}
+      STRIPE_PRICE_ULTRA_MONTHLY: ${STRIPE_PRICE_ULTRA_MONTHLY:-}
+      STRIPE_PRICE_ULTRA_ANNUAL: ${STRIPE_PRICE_ULTRA_ANNUAL:-}
+      STRIPE_PRICE_TOPUP_SMALL: ${STRIPE_PRICE_TOPUP_SMALL:-}
+      STRIPE_PRICE_TOPUP_MEDIUM: ${STRIPE_PRICE_TOPUP_MEDIUM:-}
+      STRIPE_PRICE_TOPUP_LARGE: ${STRIPE_PRICE_TOPUP_LARGE:-}
+      STORAGE_DRIVER: r2
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}               # SECRET
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}         # SECRET
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY} # SECRET
+      R2_BUCKET: ${R2_BUCKET}
+      R2_PUBLIC_BASE_URL: ${R2_PUBLIC_BASE_URL}
+      # One replica runs the reconciler; with several, keep it on one only.
+      INTERNAL_CRON_SECONDS: "60"
+      GENERATION_ACCESS: ${GENERATION_ACCESS:-admins}
+    ports:
+      - "3000:3000"
